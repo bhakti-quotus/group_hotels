@@ -20,140 +20,169 @@ class BottomNavbar extends StatefulWidget {
   State<BottomNavbar> createState() => _BottomNavbarState();
 }
 
-class _BottomNavbarState extends State<BottomNavbar> {
+class _BottomNavbarState extends State<BottomNavbar>
+    with TickerProviderStateMixin {
+  // One scale controller per item for press feedback
+  late List<AnimationController> _scaleControllers;
+
+  @override
+  void initState() {
+    super.initState();
+    _buildControllers();
+  }
+
+  void _buildControllers() {
+    _scaleControllers = List.generate(
+      widget.items.length,
+      (_) => AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 150),
+        lowerBound: 0.88,
+        upperBound: 1.0,
+        value: 1.0,
+      ),
+    );
+  }
+
+  @override
+  void didUpdateWidget(BottomNavbar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.items.length != widget.items.length) {
+      for (final c in _scaleControllers) c.dispose();
+      _buildControllers();
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final c in _scaleControllers) c.dispose();
+    super.dispose();
+  }
+
+  void _handleTap(int index) {
+    _scaleControllers[index].reverse().then((_) {
+      if (mounted) _scaleControllers[index].forward();
+    });
+    widget.onTap(index);
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.bottomCenter,
-      children: [
-        // Main bottom navigation bar
-        Container(
-          margin: const EdgeInsets.all(5),
-          height: 50 + bottomPadding,
-          decoration: BoxDecoration(
-            color: AppColor.bottomBarBackground,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 20,
-                offset: const Offset(0, -6),
-              ),
-            ],
+    return Container(
+      margin: EdgeInsets.fromLTRB(16, 0, 16, bottomPadding + 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: widget.primaryColor.withOpacity(0.12),
+            blurRadius: 24,
+            offset: const Offset(0, 6),
           ),
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(8, 8, 8, bottomPadding),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(
-                widget.items.length,
-                (index) => _buildNavItem(index),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.07),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: List.generate(widget.items.length, (index) {
+          final item = widget.items[index];
+          final isActive = widget.currentIndex == index;
+
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => _handleTap(index),
+              behavior: HitTestBehavior.opaque,
+              child: AnimatedBuilder(
+                animation: _scaleControllers[index],
+                builder: (_, child) => Transform.scale(
+                  scale: _scaleControllers[index].value,
+                  child: child,
+                ),
+                child: _NavItem(
+                  item: item,
+                  isActive: isActive,
+                  primaryColor: widget.primaryColor,
+                ),
               ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+// ─── Single nav item ──────────────────────────────────────────────────────────
+
+class _NavItem extends StatelessWidget {
+  final BottomNavItem item;
+  final bool isActive;
+  final Color primaryColor;
+
+  const _NavItem({
+    required this.item,
+    required this.isActive,
+    required this.primaryColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Icon container
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          width: isActive ? 52 : 40,
+          height: isActive ? 36 : 32,
+          decoration: BoxDecoration(
+            color: isActive ? primaryColor : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(
+            child: Icon(
+              item.icon,
+              size: isActive ? 20 : 18,
+              color: isActive ? Colors.white : AppColor.bottomBarIconUnselected,
             ),
           ),
         ),
-        // Elevated active item
-        Positioned(
-          top: -15,
-          left: _calculateActivePosition(widget.currentIndex),
-          child: _buildElevatedItem(),
+
+        const SizedBox(height: 3),
+
+        // Label
+        AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 200),
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+            color: isActive ? primaryColor : AppColor.bottomBarIconUnselected,
+            letterSpacing: isActive ? 0.2 : 0,
+          ),
+          child: Text(item.label, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+
+        // Active dot indicator
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          margin: const EdgeInsets.only(top: 3),
+          width: isActive ? 18 : 0,
+          height: isActive ? 3 : 0,
+          decoration: BoxDecoration(
+            color: AppColor.secondary,
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
       ],
-    );
-  }
-
-  double _calculateActivePosition(int index) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = screenWidth / widget.items.length;
-    return itemWidth * index + (itemWidth / 2) - 30;
-  }
-
-  Widget _buildNavItem(int index) {
-    final item = widget.items[index];
-    final isActive = widget.currentIndex == index;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => widget.onTap(index),
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: isActive ? 0.0 : 1.0,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                item.icon,
-                color: AppColor.bottomBarIconUnselected,
-                size: 20,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                item.label,
-                style: const TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w500,
-                  color: AppColor.bottomBarIconUnselected,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildElevatedItem() {
-    final item = widget.items[widget.currentIndex];
-
-    return GestureDetector(
-      onTap: () => widget.onTap(widget.currentIndex),
-      child: TweenAnimationBuilder<double>(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        tween: Tween(begin: 0.8, end: 1.0),
-        builder: (context, value, child) =>
-            Transform.scale(scale: value, child: child),
-        child: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            color: widget.primaryColor,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white, width: 3),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(item.icon, color: Colors.white, size: 20),
-              const SizedBox(height: 2),
-              Text(
-                item.label,
-                style: const TextStyle(
-                  fontSize: 8,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

@@ -1,197 +1,187 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:group/group/common/theme/theme.dart';
 
-// Error Dialog (renamed to Snackbar style)
+// Error Dialog
 void showErrorDialog(
   BuildContext context,
   String message, {
   VoidCallback? onPressed,
+  bool barrierDismissible = false,
+  Color? iconColor,
+  String? title,
+  Color? buttonColor,
 }) {
-  final overlay = Overlay.of(context);
-  late OverlayEntry overlayEntry;
+  showDialog(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Error Icon
+              Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: (iconColor ?? Colors.red).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.error_outline,
+                  size: 50,
+                  color: iconColor ?? Colors.red.shade400,
+                ),
+              ),
+              const SizedBox(height: 20),
 
-  overlayEntry = OverlayEntry(
-    builder: (context) => Positioned(
-      top: MediaQuery.of(context).padding.top + 16,
-      left: 16,
-      right: 16,
-      child: _DismissibleSnackbar(
-        message: message,
-        isError: true,
-        onDismiss: () {
-          overlayEntry.remove();
-        },
-      ),
-    ),
+              // Title
+              Text(
+                title ?? 'Error',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Message
+              Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppColor.textLight,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+
+              // OK Button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed:
+                      onPressed ??
+                      () {
+                        Navigator.of(context).pop();
+                      },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: buttonColor ?? Colors.red.shade400,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
   );
-
-  overlay.insert(overlayEntry);
-
-  // 🚀 Redirect immediately
-  onPressed?.call();
-
-  // Auto dismiss snackbar
-  Future.delayed(const Duration(seconds: 3), () {
-    if (overlayEntry.mounted) {
-      overlayEntry.remove();
-    }
-  });
 }
 
-// Success Dialog (renamed to Snackbar style)
+// Success Dialog - Supports both named and positional parameters
 void showSuccessDialog(
   BuildContext context,
   String message, {
   VoidCallback? onPressed,
+  bool barrierDismissible = false,
+  Color? iconColor,
+  String? title,
+  Color? buttonColor,
+  IconData? icon,
 }) {
-  final overlay = Overlay.of(context);
-  late OverlayEntry overlayEntry;
-
-  overlayEntry = OverlayEntry(
-    builder: (context) => Positioned(
-      top: MediaQuery.of(context).padding.top + 15,
-      left: 10,
-      right: 10,
-      child: _DismissibleSnackbar(
-        message: message,
-        isError: false,
-        onDismiss: () {
-          overlayEntry.remove();
-        },
-      ),
-    ),
-  );
-
-  overlay.insert(overlayEntry);
-
-  // 🚀 Redirect immediately
-  onPressed?.call();
-
-  // Auto dismiss snackbar
-  Future.delayed(const Duration(seconds: 5), () {
-    if (overlayEntry.mounted) {
-      overlayEntry.remove();
-    }
-  });
-}
-
-class _DismissibleSnackbar extends StatefulWidget {
-  final String message;
-  final bool isError;
-  final VoidCallback onDismiss;
-
-  const _DismissibleSnackbar({
-    required this.message,
-    required this.isError,
-    required this.onDismiss,
-  });
-
-  @override
-  State<_DismissibleSnackbar> createState() => _DismissibleSnackbarState();
-}
-
-class _DismissibleSnackbarState extends State<_DismissibleSnackbar>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Offset> _slideAnimation;
-  late Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleDismiss() async {
-    await _controller.reverse();
-    widget.onDismiss();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final iconColor = widget.isError
-        ? Colors.red.shade400
-        : Colors.green.shade400;
-
-    final textColor = widget.isError
-        ? Colors.red.shade400
-        : Colors.green.shade400;
-
-    final iconData = widget.isError
-        ? Icons.error_outline
-        : Icons.check_circle_outline;
-
-    return SlideTransition(
-      position: _slideAnimation,
-      child: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Dismissible(
-          key: UniqueKey(),
-          direction: DismissDirection.horizontal,
-          onDismissed: (_) => widget.onDismiss(),
-          child: Material(
-            color: Colors.transparent,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 10,
-                ),
+  showDialog(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Success Icon
+              Container(
+                height: 80,
+                width: 80,
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  color: (iconColor ?? Colors.green).withOpacity(0.1),
+                  shape: BoxShape.circle,
                 ),
-                child: Row(
-                  children: [
-                    Icon(iconData, color: iconColor, size: 25),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        widget.message,
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
+                child: Icon(
+                  icon ?? Icons.check_circle_outline,
+                  size: 50,
+                  color: iconColor ?? Colors.green.shade400,
                 ),
               ),
-            ),
+              const SizedBox(height: 20),
+
+              // Title
+              Text(
+                title ?? 'Success',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Message
+              Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppColor.textLight,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+
+              // OK Button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed:
+                      onPressed ??
+                      () {
+                        Navigator.of(context).pop();
+                      },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: buttonColor ?? Colors.green.shade400,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
 }

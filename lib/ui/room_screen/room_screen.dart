@@ -420,7 +420,6 @@ class _RoomScreenState extends State<RoomScreen> {
                         totalGuests: totalGuests,
                         propertyCode: propertyCode,
                         hotelName: hotelName,
-                        roomKeys: {},
                         errorMessage: _errorMessage,
                         isLoading: _isLoading,
                         onRefresh: _fetchRoomsFromAPI,

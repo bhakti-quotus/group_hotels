@@ -1126,63 +1126,19 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   void _showBookingSuccessDialog() {
-    showDialog(
-      context: context,
+    showSuccessDialog(
+      context,
+      'Your booking has been completed successfully.',
       barrierDismissible: false,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 64),
-              const SizedBox(height: 16),
-              Text(
-                'Booking Successful!',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.text,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Your booking has been completed successfully.',
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  if (mounted) {
-                    setState(() {
-                      _isProcessingBooking = false;
-                    });
-                  }
-                  Navigator.pop(context);
-                  Get.offAllNamed('/rooms', arguments: {'tab': 1});
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primary,
-                  minimumSize: const Size(double.infinity, 48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'My Reservations',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      onPressed: () {
+        if (mounted) {
+          setState(() {
+            _isProcessingBooking = false;
+          });
+        }
+        Navigator.pop(context);
+        Get.offAllNamed('/rooms', arguments: {'tab': 1});
+      },
     );
   }
 }

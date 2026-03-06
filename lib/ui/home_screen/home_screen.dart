@@ -20,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic> homeData = {};
+  Map<String, dynamic> aboutData = {};
   String logoUrl = '';
   int currentImageIndex = 0;
   final ScrollController _scrollController = ScrollController();
@@ -28,6 +29,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Print the ENTIRE config to see what we're working with
+    print('========== COMPLETE CONFIG ==========');
+    print(jsonEncode(widget.config));
+    print('=====================================');
+
     loadData();
     _scrollController.addListener(_onScroll);
   }
@@ -35,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadData(); // Reload data if config changed
+    loadData();
   }
 
   @override
@@ -46,14 +53,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onScroll() {
-    // Change status bar color when scrolled past 200 pixels (adjust as needed)
     final shouldShowGreen = _scrollController.offset > 20;
     if (shouldShowGreen != _showGreenStatusBar) {
       setState(() {
         _showGreenStatusBar = shouldShowGreen;
       });
 
-      // Update system UI overlay style
       SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(
           statusBarColor: _showGreenStatusBar
@@ -68,14 +73,66 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void loadData() {
+    print('========== LOADING DATA ==========');
+
+    // Print all top-level keys in widget.config
+    print('Top-level keys in widget.config: ${widget.config.keys.toList()}');
+
+    // Try to find about data in various possible locations
+    Map<String, dynamic>? foundAboutData;
+
+    // Location 1: Direct about key
+    if (widget.config.containsKey('about')) {
+      foundAboutData = widget.config['about'] as Map<String, dynamic>?;
+      print('Found about at top level: ${foundAboutData != null}');
+    }
+
+    // Location 2: Inside config key
+    if (foundAboutData == null && widget.config.containsKey('config')) {
+      final innerConfig = widget.config['config'] as Map<String, dynamic>?;
+      print('Inner config keys: ${innerConfig?.keys.toList()}');
+
+      if (innerConfig != null && innerConfig.containsKey('about')) {
+        foundAboutData = innerConfig['about'] as Map<String, dynamic>?;
+        print('Found about inside config key: ${foundAboutData != null}');
+      }
+    }
+
+    // Location 3: Inside data key (sometimes used)
+    if (foundAboutData == null && widget.config.containsKey('data')) {
+      final data = widget.config['data'] as Map<String, dynamic>?;
+      if (data != null && data.containsKey('about')) {
+        foundAboutData = data['about'] as Map<String, dynamic>?;
+        print('Found about inside data key: ${foundAboutData != null}');
+      }
+    }
+
     setState(() {
-      homeData =
-          widget.config['config']?['home'] ?? widget.config['home'] ?? {};
-      logoUrl =
-          widget.config['config']?['branding']?['logo'] ??
-          widget.config['branding']?['logo'] ??
-          '';
+      if (foundAboutData != null) {
+        aboutData = foundAboutData;
+        print('✅ ABOUT DATA LOADED SUCCESSFULLY');
+        print('   Title: ${aboutData['title']}');
+        print(
+          '   Description preview: ${aboutData['description']?.toString().substring(0, 50)}...',
+        );
+      } else {
+        print('❌ COULD NOT FIND ABOUT DATA ANYWHERE');
+        aboutData = {};
+      }
+
+      // Get home data
+      if (widget.config.containsKey('config') &&
+          widget.config['config'] != null) {
+        final innerConfig = widget.config['config'] as Map<String, dynamic>;
+        homeData = innerConfig['home'] ?? {};
+        logoUrl = innerConfig['branding']?['logo'] ?? '';
+      } else {
+        homeData = widget.config['home'] ?? {};
+        logoUrl = widget.config['branding']?['logo'] ?? '';
+      }
     });
+
+    print('==================================');
   }
 
   Map<String, dynamic>? getSectionByType(String type) {
@@ -91,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('Building HomeScreen - currentImageIndex: $currentImageIndex');
+    print('Building HomeScreen - aboutData isEmpty: ${aboutData.isEmpty}');
 
     final heroBanner = getSectionByType('heroBanner');
     final highlights = getSectionByType('highlights');
@@ -106,6 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final bannerData = heroBanner['data'];
     final images = gallery?['data']?['images'] as List? ?? [];
     final imagesList = images.cast<String>();
+    final subtitle = bannerData['subtitle'] ?? 'Experience Luxury';
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -131,7 +189,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hero Image Section
             HeroBanner(
               bannerData: bannerData,
               images: imagesList,
@@ -139,7 +196,6 @@ class _HomeScreenState extends State<HomeScreen> {
               logoUrl: logoUrl,
             ),
 
-            // Content Section
             Container(
               decoration: const BoxDecoration(
                 color: AppColor.cardBackground,
@@ -152,25 +208,54 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Popular Amenities
-                  if (highlights != null)
-                    HighlightsSection(highlights: highlights),
+                  // Description Section
+                  if (aboutData.isNotEmpty)
+                    DescriptionSection(
+                      title: aboutData['title'] ?? 'About Us',
+                      //subtitle: subtitle,
+                      description:
+                          aboutData['description'] ??
+                          'Experience comfort, convenience, and thoughtful hospitality...',
+                    )
+                  else
+                    // Show a message when about data is not found
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'About section temporarily unavailable',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'We are updating our information. Please check back later.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
-                  // Description
-                  DescriptionSection(
-                    subtitle:
-                        bannerData['subtitle'] ??
-                        'Experience luxury and comfort',
-                  ),
                   const SizedBox(height: 24),
 
-                  // Featured Hotels or Rooms
                   if (childHotels != null && childHotels.isNotEmpty)
                     FeaturedHotelsSection(hotels: childHotels)
                   else if (featuredRooms != null)
                     FeaturedRoomsSection(featuredRooms: featuredRooms),
 
-                  // Gallery Preview
                   if (imagesList.isNotEmpty)
                     GalleryPreviewSection(
                       images: imagesList,
