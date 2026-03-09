@@ -1,273 +1,391 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/controllers/auth_controller.dart';
-import 'package:group/group/utils/app_routes.dart';
-import 'package:group/ui/dialog/dialog.dart';
 import 'package:get/get.dart';
-import 'dart:async';
+import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:cached_network_image/cached_network_image.dart';
 
-class RoomsListWidget extends StatelessWidget {
+// ─────────────────────────────────────────────
+//  Main Widget
+// ─────────────────────────────────────────────
+class RoomsListWidget extends StatefulWidget {
   final List<Map<String, dynamic>> rooms;
-  final Map<String, GlobalKey> roomKeys;
-  final String? targetRoomId;
+  final int totalGuests;
+  final String propertyCode;
+  final String hotelName;
+  final Map<String, dynamic> roomKeys;
+  final String? errorMessage;
+  final bool isLoading;
   final VoidCallback? onRefresh;
-  final Color? primaryColor;
+  final Color primaryColor;
+  final String propertyId;
 
   const RoomsListWidget({
+    Key? key,
     required this.rooms,
+    this.totalGuests = 1,
+    this.propertyCode = '',
+    this.hotelName = '',
     required this.roomKeys,
-    this.targetRoomId,
+    this.errorMessage,
+    this.isLoading = false,
     this.onRefresh,
-    this.primaryColor,
-  });
+    required this.primaryColor,
+    this.propertyId = '',
+  }) : super(key: key);
+
+  @override
+  State<RoomsListWidget> createState() => _RoomsListWidgetState();
+}
+
+class _RoomsListWidgetState extends State<RoomsListWidget>
+    with SingleTickerProviderStateMixin {
+  bool _showSkeleton = false;
+  Timer? _timer;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    );
+
+    if (widget.isLoading) {
+      _showSkeleton = true;
+    } else {
+      _fadeController.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant RoomsListWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Loading just started → show skeleton
+    if (widget.isLoading && !oldWidget.isLoading) {
+      setState(() => _showSkeleton = true);
+      _fadeController.reset();
+      _timer?.cancel();
+      return;
+    }
+
+    // Loading just finished → hide skeleton immediately, fade in content
+    if (!widget.isLoading && oldWidget.isLoading) {
+      _timer?.cancel();
+      setState(() => _showSkeleton = false);
+      _fadeController.forward();
+      return;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _fadeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (rooms.isEmpty) {
-      return Container(
-        color: AppColor.cardBackground,
-        padding: const EdgeInsets.all(20),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.hotel_outlined, size: 80, color: Colors.grey[300]),
-              const SizedBox(height: 20),
-              Text(
-                'No Rooms Available',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
-                ),
+    if (widget.isLoading || _showSkeleton) return _buildSkeletonUI();
+
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Container(
+        color: AppColor.background,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader(),
+            const SizedBox(height: 18),
+            if (widget.errorMessage != null)
+              _buildErrorState()
+            else if (widget.rooms.isEmpty)
+              _buildEmptyState()
+            else
+              Builder(
+                builder: (context) {
+                  final validRooms = widget.rooms.where((room) {
+                    final hasValidRate = room['has_valid_rate'] == true;
+                    final roomPrice = room['room_price'] as List? ?? [];
+                    return hasValidRate && roomPrice.isNotEmpty;
+                  }).toList();
+
+                  if (validRooms.isEmpty) return _buildEmptyState();
+
+                  return Column(
+                    children: validRooms
+                        .asMap()
+                        .entries
+                        .map(
+                          (entry) => _RoyalRoomCard(
+                            room: entry.value,
+                            index: entry.key,
+                            totalGuests: widget.totalGuests,
+                            propertyCode: widget.propertyCode,
+                            hotelName: widget.hotelName,
+                            propertyId: widget.propertyId,
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
               ),
-              const SizedBox(height: 10),
-              Text(
-                'Check back later for updates',
-                style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Section Header ────────────────────────────────────────
+  Widget _buildSectionHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(width: 24, height: 1.5, color: AppColor.primary),
+            const SizedBox(width: 10),
+            Text(
+              'CURATED SELECTION',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: AppColor.primary,
+                letterSpacing: 3,
               ),
-              const SizedBox(height: 20),
-              if (onRefresh != null)
-                ElevatedButton(
-                  onPressed: onRefresh,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor ?? AppColor.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Refresh',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-            ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Choose Your\nSanctuary',
+          style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.w300,
+            color: AppColor.text,
+            height: 1.2,
+            letterSpacing: -0.5,
           ),
         ),
-      );
-    }
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Container(width: 40, height: 2.5, color: AppColor.primary),
+            const SizedBox(width: 6),
+            Container(width: 12, height: 2.5, color: AppColor.secondary),
+            const SizedBox(width: 6),
+            Container(
+              width: 5,
+              height: 2.5,
+              color: AppColor.secondary.withOpacity(0.35),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 
+  // ── Error State ───────────────────────────────────────────
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48),
+        child: Column(
+          children: [
+            Icon(
+              Icons.wifi_off_rounded,
+              size: 48,
+              color: AppColor.primary.withOpacity(0.4),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              widget.errorMessage!,
+              style: const TextStyle(
+                color: AppColor.textLight,
+                fontSize: 15,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (widget.onRefresh != null) ...[
+              const SizedBox(height: 24),
+              _OutlinedPrimaryButton(
+                label: 'Try Again',
+                icon: Icons.refresh_rounded,
+                onTap: widget.onRefresh!,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Empty State ───────────────────────────────────────────
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 64),
+        child: Column(
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColor.primary.withOpacity(0.3),
+                  width: 1.5,
+                ),
+              ),
+              child: Icon(
+                Icons.hotel_rounded,
+                size: 36,
+                color: AppColor.primary.withOpacity(0.5),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'No Rooms Available',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
+                color: AppColor.text,
+                letterSpacing: 0.3,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Please refine your search or check back later',
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColor.textLight,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Skeleton UI ───────────────────────────────────────────
+  Widget _buildSkeletonUI() {
     return Container(
-      color: AppColor.cardBackground,
-      padding: const EdgeInsets.all(20),
+      color: AppColor.background,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Select Your Room',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: AppColor.text,
+          _Shimmer(
+            child: Container(
+              width: 180,
+              height: 26,
+              decoration: _skeletonBox(),
             ),
           ),
-          const SizedBox(height: 16),
-          ...rooms.map((room) => _buildRoomCard(room, context)),
+          const SizedBox(height: 10),
+          _Shimmer(
+            child: Container(
+              width: 120,
+              height: 14,
+              decoration: _skeletonBox(),
+            ),
+          ),
+          const SizedBox(height: 28),
+          ...List.generate(2, (_) => _buildSkeletonCard()),
         ],
       ),
     );
   }
 
-  Widget _buildRoomCard(Map<String, dynamic> room, BuildContext context) {
-    final images = room['images'] as List? ?? [];
-    final amenities = room['amenities'] as List? ?? [];
-    final roomId = room['id'] as String;
-    final isTargetRoom = roomId == targetRoomId;
+  BoxDecoration _skeletonBox({double radius = 6}) => BoxDecoration(
+    color: AppColor.cardBorder.withOpacity(0.4),
+    borderRadius: BorderRadius.circular(radius),
+  );
 
+  Widget _buildSkeletonCard() {
     return Container(
-      key: roomKeys[roomId],
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        color: AppColor.cardBackground,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isTargetRoom
-              ? AppColor.primary.withOpacity(0.6)
-              : AppColor.cardBorder,
-          width: isTargetRoom ? 2 : 1,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColor.cardBorder, width: 1),
         boxShadow: [
           BoxShadow(
-            color: isTargetRoom
-                ? AppColor.primary.withOpacity(0.15)
-                : Colors.black.withOpacity(0.08),
-            blurRadius: isTargetRoom ? 15 : 10,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Room Image Carousel
-          _ImageCarousel(images: images),
+          _Shimmer(
+            child: Container(
+              height: 220,
+              decoration: BoxDecoration(
+                color: AppColor.cardBorder.withOpacity(0.25),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+              ),
+            ),
+          ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Room Name
-                Text(
-                  room['name'] ?? '',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColor.text,
+                _Shimmer(
+                  child: Container(
+                    width: 180,
+                    height: 22,
+                    decoration: _skeletonBox(),
                   ),
                 ),
-                const SizedBox(height: 8),
-                // Description
-                Text(
-                  room['description'] ?? '',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppColor.textLight,
-                    height: 1.4,
+                const SizedBox(height: 10),
+                _Shimmer(
+                  child: Container(
+                    width: 100,
+                    height: 14,
+                    decoration: _skeletonBox(),
                   ),
                 ),
-                const SizedBox(height: 12),
-                // Max Occupancy
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.people,
-                      size: 18,
-                      color: AppColor.textLight,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Max ${room['maxOccupancy']} Guests',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColor.textLight,
-                      ),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 16),
-                // Amenities
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: amenities.map((amenity) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColor.chipBackground,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: AppColor.primary.withOpacity(0.3),
-                        ),
-                      ),
-                      child: Text(
-                        amenity,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColor.primary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                _Shimmer(
+                  child: Container(
+                    width: double.infinity,
+                    height: 12,
+                    decoration: _skeletonBox(),
+                  ),
                 ),
-                const SizedBox(height: 16),
-                // Price and Book Button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'AED ${room['basePrice']}',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: AppColor.primary,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: 3),
-                              child: Text(
-                                '/Night',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: AppColor.textLight,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (AuthController.to.isLoggedIn.value) {
-                          Get.toNamed(
-                            AppRoutes.booking,
-                            arguments: {'room': room},
-                          );
-                        } else {
-                          showErrorDialog(
-                            context,
-                            'Please login to book a room',
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Get.toNamed(
-                                AppRoutes.login,
-                                arguments: {'nextRoute': AppRoutes.rooms},
-                              );
-                            },
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor ?? AppColor.primary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Book Now',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 6),
+                _Shimmer(
+                  child: Container(
+                    width: 220,
+                    height: 12,
+                    decoration: _skeletonBox(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _Shimmer(
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: _skeletonBox(radius: 12),
+                  ),
                 ),
               ],
             ),
@@ -278,29 +396,265 @@ class RoomsListWidget extends StatelessWidget {
   }
 }
 
-class _ImageCarousel extends StatefulWidget {
-  final List images;
+// ─────────────────────────────────────────────
+//  Room Card
+// ─────────────────────────────────────────────
+class _RoyalRoomCard extends StatefulWidget {
+  final Map<String, dynamic> room;
+  final int index;
+  final int totalGuests;
+  final String propertyCode;
+  final String hotelName;
+  final String propertyId;
 
-  const _ImageCarousel({required this.images});
+  const _RoyalRoomCard({
+    required this.room,
+    required this.index,
+    required this.totalGuests,
+    required this.propertyCode,
+    required this.hotelName,
+    required this.propertyId,
+  });
 
   @override
-  State<_ImageCarousel> createState() => _ImageCarouselState();
+  State<_RoyalRoomCard> createState() => _RoyalRoomCardState();
 }
 
-class _ImageCarouselState extends State<_ImageCarousel> {
+class _RoyalRoomCardState extends State<_RoyalRoomCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pressController;
+  late Animation<double> _scaleAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 120),
+    );
+    _scaleAnim = Tween<double>(
+      begin: 1.0,
+      end: 0.982,
+    ).animate(CurvedAnimation(parent: _pressController, curve: Curves.easeOut));
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final room = widget.room;
+    final images = room['images'] as List? ?? [];
+    final roomName = room['room_name'] ?? room['name'] ?? 'Luxury Suite';
+    final roomType = room['room_type'] ?? room['type'] ?? '';
+    final roomSize = room['room_size'] ?? 0;
+    final roomUnit = room['room_unit'] ?? 'sq ft';
+    final roomView = room['room_view'] ?? '';
+    final maxOccupancy = room['max_occupancy'] ?? room['maxOccupancy'] ?? 0;
+    final description = room['description'] ?? '';
+    final amenities = room['amenities'] as List? ?? [];
+
+    return AnimatedBuilder(
+      animation: _scaleAnim,
+      builder: (context, child) =>
+          Transform.scale(scale: _scaleAnim.value, child: child),
+      child: GestureDetector(
+        onTapDown: (_) => _pressController.forward(),
+        onTapUp: (_) => _pressController.reverse(),
+        onTapCancel: () => _pressController.reverse(),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 28),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColor.cardBorder, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: AppColor.primary.withOpacity(0.07),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // ── Image carousel ──
+                _RoyalImageCarousel(images: images, roomType: roomType),
+
+                // ── Body ──
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Room name
+                      Text(
+                        roomName,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppColor.text,
+                          height: 1.2,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      // Feature chips
+                      Wrap(
+                        spacing: 18,
+                        runSpacing: 10,
+                        children: [
+                          if (roomSize > 0)
+                            _MetaChip(
+                              icon: Icons.straighten_rounded,
+                              label: '$roomSize $roomUnit',
+                            ),
+                          if (roomView.isNotEmpty)
+                            _MetaChip(
+                              icon: Icons.landscape_rounded,
+                              label: roomView,
+                            ),
+                          if (maxOccupancy > 0)
+                            _MetaChip(
+                              icon: Icons.people_outline_rounded,
+                              label: 'Up to $maxOccupancy guests',
+                            ),
+                        ],
+                      ),
+                      if (description.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        Text(
+                          description,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColor.textLight,
+                            height: 1.65,
+                            letterSpacing: 0.1,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                      // if (amenities.isNotEmpty) ...[
+                      //   const SizedBox(height: 16),
+                      //   _AmenitiesStrip(amenities: amenities),
+                      // ],
+                      // const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 10),
+                // ── Gradient divider ──
+                Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        AppColor.primary.withOpacity(0.3),
+                        AppColor.secondary.withOpacity(0.3),
+                        Colors.transparent,
+                      ],
+                      stops: const [0, 0.25, 0.75, 1],
+                    ),
+                  ),
+                ),
+
+                // ── View Details CTA ──
+                _ViewDetailsButton(
+                  room: room,
+                  totalGuests: widget.totalGuests,
+                  propertyCode: widget.propertyCode,
+                  hotelName: widget.hotelName,
+                  propertyId: widget.propertyId,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Image Carousel (Optimized)
+// ─────────────────────────────────────────────
+class _RoyalImageCarousel extends StatefulWidget {
+  final List images;
+  final String roomType;
+
+  const _RoyalImageCarousel({required this.images, required this.roomType});
+
+  @override
+  State<_RoyalImageCarousel> createState() => _RoyalImageCarouselState();
+}
+
+class _RoyalImageCarouselState extends State<_RoyalImageCarousel> {
   late PageController _pageController;
   int _currentPage = 0;
   Timer? _autoScrollTimer;
+  final Map<int, bool> _imageLoaded = {};
+
+  List<String> get _resolvedUrls {
+    final urls = <String>[];
+    for (var item in widget.images) {
+      if (item is String) {
+        urls.add(item);
+      } else if (item is Map && item['url'] != null) {
+        urls.add(item['url'].toString());
+      }
+    }
+    return urls.isNotEmpty
+        ? urls
+        : ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200'];
+  }
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+    if (_resolvedUrls.length > 1) _startAutoScroll();
 
-    // Start auto-scroll if there are multiple images
-    if (widget.images.length > 1) {
-      _startAutoScroll();
+    // Preload images
+    _preloadImages();
+  }
+
+  void _preloadImages() async {
+    for (int i = 0; i < _resolvedUrls.length; i++) {
+      // Prefetch images to cache
+      await precacheImage(
+        CachedNetworkImageProvider(_resolvedUrls[i]),
+        context,
+      );
+      setState(() {
+        _imageLoaded[i] = true;
+      });
     }
+  }
+
+  void _startAutoScroll() {
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (_pageController.hasClients && mounted) {
+        _pageController.animateToPage(
+          (_currentPage + 1) % _resolvedUrls.length,
+          duration: const Duration(milliseconds: 700),
+          curve: Curves.easeInOutCubic,
+        );
+      }
+    });
   }
 
   @override
@@ -310,93 +664,451 @@ class _ImageCarouselState extends State<_ImageCarousel> {
     super.dispose();
   }
 
-  void _startAutoScroll() {
-    _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (_pageController.hasClients) {
-        int nextPage = (_currentPage + 1) % widget.images.length;
-        _pageController.animateToPage(
-          nextPage,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        );
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final images = widget.images.isNotEmpty
-        ? widget.images
-        : ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800'];
+    final urls = _resolvedUrls;
 
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        // Image PageView
-        ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(12),
-            topRight: Radius.circular(12),
-          ),
-          child: SizedBox(
-            height: 200,
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemCount: images.length,
-              itemBuilder: (context, index) {
-                return Image.network(
-                  images[index],
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(Icons.image_not_supported, size: 50),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ),
-        // Dot Indicators (only show if more than one image)
-        if (images.length > 1)
-          Positioned(
-            bottom: 12,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(
-                  images.length,
-                  (index) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    width: _currentPage == index ? 24 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: _currentPage == index
-                          ? Colors.white
-                          : Colors.white.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+    return SizedBox(
+      height: 230,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // PageView with Cached Images
+          PageView.builder(
+            controller: _pageController,
+            itemCount: urls.length,
+            onPageChanged: (i) {
+              if (mounted) setState(() => _currentPage = i);
+            },
+            itemBuilder: (_, index) => CachedNetworkImage(
+              imageUrl: urls[index],
+              fit: BoxFit.cover,
+              memCacheWidth: 600, // Optimize memory usage
+              memCacheHeight: 400,
+              placeholder: (context, url) => Container(
+                color: AppColor.cardBorder.withOpacity(0.2),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColor.primary,
                   ),
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
+                color: AppColor.cardBorder.withOpacity(0.15),
+                child: Icon(
+                  Icons.image_rounded,
+                  color: AppColor.cardBorder,
+                  size: 48,
                 ),
               ),
             ),
           ),
+
+          // Rest of your UI (badge, counter, dots) remains the same
+          // Bottom vignette
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 70,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.35)],
+                ),
+              ),
+            ),
+          ),
+
+          // Room type badge
+          if (widget.roomType.isNotEmpty)
+            Positioned(
+              top: 14,
+              left: 14,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColor.primary,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  widget.roomType.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ),
+            ),
+
+          // Image counter
+          Positioned(
+            top: 14,
+            right: 14,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${_currentPage + 1} / ${urls.length}',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+
+          // Dot indicators
+          if (urls.length > 1)
+            Positioned(
+              bottom: 12,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(urls.length, (i) {
+                  final active = i == _currentPage;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: active ? 20 : 5,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: active
+                          ? AppColor.primary
+                          : Colors.white.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  );
+                }),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Meta Chip
+// ─────────────────────────────────────────────
+class _MetaChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _MetaChip({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 15, color: AppColor.primary),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12.5,
+            color: AppColor.textLight,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0.1,
+          ),
+        ),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Amenities Strip
+// ─────────────────────────────────────────────
+class _AmenitiesStrip extends StatelessWidget {
+  final List amenities;
+
+  const _AmenitiesStrip({required this.amenities});
+
+  IconData _icon(String name) {
+    final s = name.toLowerCase();
+    if (s.contains('wifi')) return Icons.wifi_rounded;
+    if (s.contains('ac') || s.contains('air')) return Icons.ac_unit_rounded;
+    if (s.contains('tv')) return Icons.tv_rounded;
+    if (s.contains('breakfast')) return Icons.free_breakfast_rounded;
+    if (s.contains('parking')) return Icons.local_parking_rounded;
+    if (s.contains('pool')) return Icons.pool_rounded;
+    if (s.contains('gym')) return Icons.fitness_center_rounded;
+    if (s.contains('spa')) return Icons.spa_rounded;
+    if (s.contains('bar')) return Icons.local_bar_rounded;
+    if (s.contains('bath') || s.contains('tub')) return Icons.bathtub_rounded;
+    return Icons.check_circle_outline_rounded;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: amenities.take(5).map((a) {
+        final name = a is Map ? (a['name'] ?? a.toString()) : a.toString();
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColor.primary.withOpacity(0.06),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: AppColor.primary.withOpacity(0.15),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(_icon(name), size: 13, color: AppColor.secondary),
+              const SizedBox(width: 5),
+              Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  color: AppColor.textLight,
+                  letterSpacing: 0.1,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  View Details Button
+// ─────────────────────────────────────────────
+class _ViewDetailsButton extends StatefulWidget {
+  final Map<String, dynamic> room;
+  final int totalGuests;
+  final String propertyCode;
+  final String hotelName;
+  final String propertyId;
+
+  const _ViewDetailsButton({
+    required this.room,
+    required this.totalGuests,
+    required this.propertyCode,
+    required this.hotelName,
+    required this.propertyId,
+  });
+
+  @override
+  State<_ViewDetailsButton> createState() => _ViewDetailsButtonState();
+}
+
+class _ViewDetailsButtonState extends State<_ViewDetailsButton> {
+  bool _pressed = false;
+
+  void _navigate() {
+    try {
+      final searchController = Get.find<search_ctrl.AppSearchController>();
+      final searchPayload = Map<String, dynamic>.from(
+        searchController.searchPayload.value,
+      );
+      final shortPropertyCode =
+          searchPayload['PropertyCode'] as String? ??
+          searchPayload['propertyCode'] as String? ??
+          widget.propertyCode;
+
+      Get.toNamed(
+        '/room-details',
+        arguments: {
+          'room': widget.room,
+          'totalGuests': widget.totalGuests,
+          'propertyCode': shortPropertyCode,
+          'hotelName': widget.hotelName,
+          'propertyId': widget.propertyId,
+        },
+      );
+    } catch (_) {
+      Get.toNamed(
+        '/room-details',
+        arguments: {
+          'room': widget.room,
+          'totalGuests': widget.totalGuests,
+          'propertyCode': widget.propertyCode,
+          'hotelName': widget.hotelName,
+          'propertyId': widget.propertyId,
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        _navigate();
+      },
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        margin: const EdgeInsets.all(10),
+        height: 45,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: _pressed
+                ? [
+                    AppColor.primary.withOpacity(0.8),
+                    AppColor.primary.withOpacity(0.8),
+                  ]
+                : [AppColor.primary, AppColor.primary],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: _pressed
+              ? []
+              : [
+                  BoxShadow(
+                    color: AppColor.primary.withOpacity(0.28),
+                    blurRadius: 3,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text(
+              'View Details',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                letterSpacing: 0.8,
+              ),
+            ),
+            SizedBox(width: 10),
+            Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.white),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Outlined Primary Button (error / retry)
+// ─────────────────────────────────────────────
+class _OutlinedPrimaryButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _OutlinedPrimaryButton({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColor.primary, width: 1.5),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: AppColor.primary),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColor.primary,
+                letterSpacing: 0.5,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Shimmer
+// ─────────────────────────────────────────────
+class _Shimmer extends StatefulWidget {
+  final Widget child;
+  const _Shimmer({required this.child});
+
+  @override
+  State<_Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<_Shimmer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat();
+    _anim = Tween<double>(
+      begin: -1.5,
+      end: 1.5,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, child) => ShaderMask(
+        shaderCallback: (bounds) => LinearGradient(
+          colors: [
+            AppColor.cardBorder.withOpacity(0.3),
+            AppColor.cardBorder.withOpacity(0.7),
+            AppColor.cardBorder.withOpacity(0.3),
+          ],
+          stops: [
+            (_anim.value - 0.5).clamp(0.0, 1.0),
+            _anim.value.clamp(0.0, 1.0),
+            (_anim.value + 0.5).clamp(0.0, 1.0),
+          ],
+        ).createShader(bounds),
+        child: child,
+      ),
+      child: widget.child,
     );
   }
 }

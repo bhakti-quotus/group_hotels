@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:group/group/common/theme/theme.dart';
@@ -13,29 +12,29 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _slideAnimation;
   String? splashImage;
-
-  // Sample image URLs - replace with your actual images
-  final List<String> images = [
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop',
-    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=200&h=200&fit=crop',
-    'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=200&h=200&fit=crop',
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&h=200&fit=crop',
-    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=200&h=200&fit=crop',
-    'https://images.unsplash.com/photo-1551632811-561732d1e306?w=200&h=200&fit=crop',
-    'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=200&h=200&fit=crop',
-    'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=200&h=200&fit=crop',
-    'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=200&h=200&fit=crop',
-  ];
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+
+    _fadeController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 20),
-    )..repeat();
+      duration: const Duration(milliseconds: 1200),
+    )..forward();
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    );
+
+    _slideAnimation = Tween<double>(begin: 30.0, end: 0.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeOutCubic),
+    );
+
     _loadMockData();
   }
 
@@ -55,139 +54,184 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandingColors.background,
+      backgroundColor: const Color(0xFF0D0D0D),
       body: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(),
-            // Rotating Images Circle
-            SizedBox(
-              height: 400,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Rotating images
-                  AnimatedBuilder(
-                    animation: _controller,
-                    builder: (context, child) {
-                      return Stack(
-                        alignment: Alignment.center,
-                        children: List.generate(images.length, (index) {
-                          final angle =
-                              (2 * math.pi / images.length) * index +
-                              (_controller.value * 2 * math.pi);
-                          final radius = 120.0;
-                          final x = radius * math.cos(angle);
-                          final y = radius * math.sin(angle);
-
-                          return Transform.translate(
-                            offset: Offset(x, y),
-                            child: Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.network(
-                                  images[index],
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.image),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      );
-                    },
-                  ),
-                  // Splash image in the center
-                  if (splashImage != null)
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            children: [
+              // Top brand line
+              Padding(
+                padding: const EdgeInsets.only(top: 36, left: 32, right: 32),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
+                      width: 30,
+                      height: 1,
+                      color: const Color(0xFFC9A96E).withOpacity(0.6),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'EST. 2017',
+                      style: TextStyle(
+                        fontSize: 10,
+                        letterSpacing: 4,
+                        color: const Color(0xFFC9A96E).withOpacity(0.7),
+                        fontWeight: FontWeight.w400,
+                        fontFamily: BrandingColors.fontFamily,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      width: 30,
+                      height: 1,
+                      color: const Color(0xFFC9A96E).withOpacity(0.6),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              // Center logo only — no border, just a soft glow
+              Container(
+                width: 220,
+                height: 220,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFC9A96E).withOpacity(0.12),
+                      blurRadius: 60,
+                      spreadRadius: 20,
+                    ),
+                  ],
+                ),
+                child: splashImage != null
+                    ? Image.network(
+                        splashImage!,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            _buildDefaultLogo(),
+                      )
+                    : _buildDefaultLogo(),
+              ),
+              const Spacer(),
+
+              // Text section
+              AnimatedBuilder(
+                animation: _fadeController,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _slideAnimation.value),
+                    child: child,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 36),
+                  child: Column(
+                    children: [
+                      // Gold divider
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 1,
+                            color: const Color(0xFFC9A96E).withOpacity(0.5),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            width: 4,
+                            height: 4,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFFC9A96E),
+                            ),
+                          ),
+                          Container(
+                            width: 20,
+                            height: 1,
+                            color: const Color(0xFFC9A96E).withOpacity(0.5),
                           ),
                         ],
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: Image.network(
-                          splashImage!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[300],
-                              child: const Icon(Icons.image),
-                            );
-                          },
+                      const SizedBox(height: 20),
+
+                      // Hotel name
+                      Text(
+                        'ROYAL CONTINENTAL',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 22,
+                          letterSpacing: 6,
+                          color: const Color(0xFFC9A96E),
+                          fontWeight: FontWeight.w600,
+                          fontFamily: BrandingColors.fontFamily,
                         ),
                       ),
-                    ),
-                ],
-              ),
-            ),
-            const Spacer(),
+                      const SizedBox(height: 4),
+                      Text(
+                        'HOTELS & SUITES',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13,
+                          letterSpacing: 5,
+                          color: Colors.white.withOpacity(0.5),
+                          fontWeight: FontWeight.w300,
+                          fontFamily: BrandingColors.fontFamily,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
 
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'No stress, just travel',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w400,
-                      fontFamily: BrandingColors.fontFamily,
-                    ),
+                      // Tagline
+                      Text(
+                        'Where every stay becomes\na cherished memory.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          height: 1.6,
+                          color: Colors.white.withOpacity(0.65),
+                          fontWeight: FontWeight.w300,
+                          fontFamily: BrandingColors.fontFamily,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Find the perfect place to relax for a couple of taps',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.grey[800],
-                      height: 1.2,
-                      fontFamily: BrandingColors.fontFamily,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
 
-            SizedBox(height: 60), // Bottom spacing
-          ],
+              const SizedBox(height: 56),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDefaultLogo() {
+    return Container(
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF1A1A1A),
+      ),
+      child: Center(
+        child: Text(
+          'RC',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w300,
+            letterSpacing: 3,
+            color: const Color(0xFFC9A96E),
+            fontFamily: BrandingColors.fontFamily,
+          ),
         ),
       ),
     );

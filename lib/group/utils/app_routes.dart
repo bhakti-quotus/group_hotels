@@ -4,10 +4,11 @@ import 'package:group/group/views/auth/verify_email.dart';
 import 'package:group/group/views/contact/contact.dart';
 import 'package:group/group/views/offers/offers.dart';
 import 'package:group/group/views/room/room.dart';
-import 'package:group/ui/booking_page/booking_page.dart';
+import 'package:group/ui/booking_details_page.dart';
 import 'package:group/ui/booking_page/confirm_booking_page.dart';
 import 'package:group/ui/profile_screen/profile_screen.dart';
 import 'package:get/get.dart';
+import 'package:group/ui/room_screen/room_details_screen.dart';
 import '../views/splash/splash_page.dart';
 import '../views/auth/login.dart';
 import '../views/language/language_page.dart';
@@ -30,12 +31,14 @@ class AppRoutes {
   static const rooms = '/rooms';
   static const contact = '/contact';
   static const offers = '/offers';
-  static const booking = '/booking';
+  static const BookingDetails = '/bookingdetails';
   static const confirmBooking = '/confirmBooking';
   static const login = '/login';
   static const register = '/register';
   static const verifyEmail = '/verifyEmail';
   static const profile = '/profile';
+
+  static const roomDetails = '/room-details';
 
   static final routes = [
     GetPage(name: groupHome, page: () => const GroupHomePage()),
@@ -55,8 +58,25 @@ class AppRoutes {
     GetPage(name: rooms, page: () => const Room()),
     GetPage(name: contact, page: () => const Contact()),
     GetPage(name: offers, page: () => const Offers()),
-    GetPage(name: booking, page: () => const BookingPage()),
-    GetPage(name: confirmBooking, page: () => const ConfirmBookingPage()),
     GetPage(name: profile, page: () => const ProfileScreen()),
+    GetPage(name: roomDetails, page: () => const RoomDetailsScreen()),
+    GetPage(name: confirmBooking, page: () => const ConfirmBookingPage()),
+    // ✅ FIX: Read bookingCode and propertyCode from Get.arguments
+    GetPage(
+      name: BookingDetails,
+      page: () {
+        final args = Get.arguments;
+        String bookingCode = '';
+        String propertyCode = '';
+        if (args is Map<String, dynamic>) {
+          bookingCode = args['bookingCode'] as String? ?? '';
+          propertyCode = args['propertyCode'] as String? ?? '';
+        }
+        return BookingDetailsPage(
+          bookingCode: bookingCode,
+          propertyCode: propertyCode,
+        );
+      },
+    ),
   ];
 }

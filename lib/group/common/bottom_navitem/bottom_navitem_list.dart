@@ -57,6 +57,15 @@ class BottomNavItemManager {
             case '/contact':
               route = '/groupcontact';
               break;
+            case '/mybookings':
+              route = '/groupmybookings';
+              break;
+            case '/bookingdetails':
+              route = '/groupbookingdetails';
+              break;
+            case '/hotels':
+              route = '/grouphotels';
+              break;
           }
         } else {
           switch (route) {
@@ -69,6 +78,15 @@ class BottomNavItemManager {
             case '/groupcontact':
               route = '/contact';
               break;
+            case '/groupmybookings':
+              route = '/mybookings';
+              break;
+            case '/groupbookingdetails':
+              route = '/bookingdetails';
+              break;
+            case '/grouphotels':
+              route = '/hotels';
+              break;
           }
         }
         return BottomNavItem(
@@ -79,7 +97,6 @@ class BottomNavItemManager {
       }).toList();
     } catch (e) {
       print('Error loading navigation items: $e');
-      // Return empty list if loading fails
       return [];
     }
   }
@@ -96,6 +113,17 @@ class BottomNavItemManager {
         return Icons.call;
       case 'local_offer':
         return Icons.local_offer;
+
+      // ✅ Matches "booking" from config JSON (My Bookings nav item)
+      case 'booking':
+      case 'my_bookings':
+        return Icons.book_online;
+
+      // ✅ Matches "building" from config JSON (Hotels nav item)
+      case 'building':
+      case 'hotels':
+        return Icons.business;
+
       default:
         return Icons.help;
     }

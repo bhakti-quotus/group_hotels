@@ -36,7 +36,7 @@ void showErrorDialog(
 
               // Title
               const Text(
-                'Error',
+                'Oops!',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

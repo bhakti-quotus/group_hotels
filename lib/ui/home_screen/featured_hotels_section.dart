@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:get/get.dart';
+import 'package:group/group/controllers/hotel_controller.dart';
 import 'package:group/group/utils/app_routes.dart';
 
 class FeaturedHotelsSection extends StatefulWidget {
@@ -133,6 +134,46 @@ class _HotelCardState extends State<HotelCard>
     _scaleAnim = _pressController;
   }
 
+  String? _resolveHeroImage(
+    Map<String, dynamic> hotelConfig,
+    Map<String, dynamic> hotelBranding,
+    List<dynamic> rooms,
+  ) {
+    // 1️⃣ heroBanner section — proper hotel photo
+    final sections = hotelConfig['home']?['sections'] as List<dynamic>?;
+    final heroBannerImg =
+        sections?.firstWhere(
+              (s) => s['type'] == 'heroBanner',
+              orElse: () => null,
+            )?['data']?['image']
+            as String?;
+    if (heroBannerImg != null && heroBannerImg.trim().isNotEmpty) {
+      return heroBannerImg.trim();
+    }
+
+    // 2️⃣ First room image
+    if (rooms.isNotEmpty) {
+      final imgs = rooms.first['images'] as List?;
+      final roomImg = imgs?.isNotEmpty == true
+          ? (imgs!.first as String?)?.trim()
+          : null;
+      if (roomImg != null && roomImg.isNotEmpty) return roomImg;
+    }
+
+    // 3️⃣ Gallery
+    final galleryItems = hotelConfig['gallery']?['items'] as List<dynamic>?;
+    final galleryImg = galleryItems?.isNotEmpty == true
+        ? (galleryItems!.first['url'] as String?)?.trim()
+        : null;
+    if (galleryImg != null && galleryImg.isNotEmpty) return galleryImg;
+
+    // 4️⃣ splashImage as last resort only
+    final splash = (hotelBranding['splashImage'] as String?)?.trim();
+    if (splash != null && splash.isNotEmpty) return splash;
+
+    return null;
+  }
+
   @override
   void dispose() {
     _pressController.dispose();
@@ -159,26 +200,22 @@ class _HotelCardState extends State<HotelCard>
               0
         : 0;
 
-    // Pick hero image: first room image or home banner image
-    String? heroImage;
-    if (rooms.isNotEmpty) {
-      final firstRoomImages = rooms.first['images'] as List?;
-      if (firstRoomImages != null && firstRoomImages.isNotEmpty) {
-        heroImage = firstRoomImages.first as String?;
-      }
-    }
-    heroImage ??=
-        (config['home']?['sections'] as List?)?.firstWhere(
-              (s) => s['type'] == 'heroBanner',
-              orElse: () => null,
-            )?['data']?['image']
-            as String?;
+    // Pick hero image using the multi-fallback resolver
+    final heroImage = _resolveHeroImage(config, branding, rooms);
 
     final roomCount = rooms.length;
     final amenityCount = amenities.length;
 
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.home, arguments: config),
+      onTap: () {
+        final hotelController = Get.find<HotelController>();
+        hotelController.setSelectedHotel(widget.hotel);
+        hotelController.setConfig(widget.hotel['config']);
+        BrandingColors.loadFromConfig(
+          config,
+        ); // ✅ ADD THIS (config = widget.hotel['config'])
+        Get.toNamed(AppRoutes.home, arguments: widget.hotel);
+      },
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
@@ -261,31 +298,6 @@ class _HotelCardState extends State<HotelCard>
                           fit: BoxFit.contain,
                           errorBuilder: (_, __, ___) =>
                               const Icon(Icons.hotel, size: 20),
-                        ),
-                      ),
-                    ),
-                  // Bottom-left: price badge
-                  if (lowestPrice > 0)
-                    Positioned(
-                      bottom: 10,
-                      left: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColor.secondary,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          'From AED $lowestPrice',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.3,
-                          ),
                         ),
                       ),
                     ),

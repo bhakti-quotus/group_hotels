@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:group/group/controllers/hotel_controller.dart';
 import 'package:group/group/utils/app_routes.dart';
 import 'package:group/group/common/theme/theme.dart';
-import '../../ui/room_screen/amenities_widget.dart';
-import '../../ui/room_screen/gallery_widget.dart';
 
 class HotelScreen extends StatefulWidget {
   const HotelScreen({super.key});
@@ -28,26 +26,39 @@ class _HotelScreenState extends State<HotelScreen> {
 
   Future<void> loadGroupData() async {
     setState(() => _isLoading = true);
-    final config = Get.find<HotelController>().getConfig();
-    if (config != null && config['childHotels'] != null) {
-      setState(() {
-        groupData = config;
-      });
-    } else {
-      try {
-        final String response = await rootBundle.loadString(
-          'assets/config.json',
-        );
-        final decoded = json.decode(response);
-        final groupConfig = decoded['config'] as Map<String, dynamic>? ?? {};
-        BrandingColors.loadFromConfig(groupConfig);
+
+    // 1️⃣ Arguments passed via Get.toNamed
+    final args = Get.arguments;
+    if (args != null && args is Map<String, dynamic>) {
+      final hasChildren = (args['childHotels'] as List?)?.isNotEmpty == true;
+      if (hasChildren) {
+        BrandingColors.loadFromConfig(args['config'] ?? args);
+        if (mounted)
+          setState(() {
+            groupData = args;
+            _isLoading = false;
+          });
+        return;
+      }
+    }
+
+    // 2️⃣ Final fallback — assets/config.json
+    try {
+      final String response = await rootBundle.loadString('assets/config.json');
+      final decoded = json.decode(response) as Map<String, dynamic>;
+
+      BrandingColors.loadFromConfig(
+        decoded['config'] as Map<String, dynamic>? ?? {},
+      );
+
+      if (mounted)
         setState(() {
           groupData = decoded;
         });
-      } catch (e) {
-        print('Error loading data: $e');
-      }
+    } catch (e) {
+      debugPrint('❌ Error loading config.json: $e');
     }
+
     if (mounted) setState(() => _isLoading = false);
   }
 
@@ -60,23 +71,16 @@ class _HotelScreenState extends State<HotelScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<HotelController>();
-    final config = controller.getConfig();
-    final branding =
-        config?['config']?['branding'] as Map<String, dynamic>? ?? {};
+    // ✅ Group branding lives in groupData['config']['branding']
+    final groupConfig = groupData['config'] as Map<String, dynamic>? ?? {};
+    final branding = groupConfig['branding'] as Map<String, dynamic>? ?? {};
 
     final primaryColor = branding['primaryColor'] != null
         ? Color(int.parse(branding['primaryColor'].replaceFirst('#', '0xff')))
         : AppColor.primary;
 
+    // ✅ childHotels is at ROOT level in your JSON
     final childHotels = groupData['childHotels'] as List<dynamic>? ?? [];
-    final groupConfig = groupData['config'] as Map<String, dynamic>? ?? {};
-    final amenities = (groupConfig['amenities'] as List<dynamic>? ?? [])
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList();
-    final gallery = (groupConfig['gallery']?['items'] as List<dynamic>? ?? [])
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList();
     final groupName = groupData['name'] as String? ?? 'Our Hotels';
 
     if (_isLoading) {
@@ -205,7 +209,7 @@ class _HotelScreenState extends State<HotelScreen> {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // ── Collapsible header ───────────────────────────────────────
+            // ── Collapsible header ────────────────────────────────────
             SliverAppBar(
               expandedHeight: 160,
               collapsedHeight: 60,
@@ -215,18 +219,11 @@ class _HotelScreenState extends State<HotelScreen> {
               systemOverlayStyle: const SystemUiOverlayStyle(
                 statusBarIconBrightness: Brightness.light,
               ),
-              // Back button + collapsed title shown via `leading` + `title`
-              // but we build them inside FlexibleSpaceBar.background only,
-              // and use a LayoutBuilder to fade the title in when collapsed.
               title: LayoutBuilder(
                 builder: (context, constraints) {
-                  // When fully collapsed, maxHeight == collapsedHeight (60).
-                  // FlexibleSpaceBar reports its own constraints here.
-                  // We use this to detect collapse state.
                   final isCollapsed = constraints.maxHeight <= 62;
                   return Row(
                     children: [
-                      // Back button always visible
                       GestureDetector(
                         onTap: () => Get.back(),
                         child: Container(
@@ -246,7 +243,6 @@ class _HotelScreenState extends State<HotelScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // Title only visible when collapsed
                       if (isCollapsed)
                         Expanded(
                           child: Text(
@@ -267,7 +263,6 @@ class _HotelScreenState extends State<HotelScreen> {
               titleSpacing: 16,
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.parallax,
-                // No title here — prevents the double-render overlap
                 background: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -278,7 +273,6 @@ class _HotelScreenState extends State<HotelScreen> {
                   ),
                   child: Stack(
                     children: [
-                      // Decorative circles
                       Positioned(
                         top: -30,
                         right: -30,
@@ -303,7 +297,6 @@ class _HotelScreenState extends State<HotelScreen> {
                           ),
                         ),
                       ),
-                      // Text content — only in expanded background
                       Positioned(
                         bottom: 24,
                         left: 20,
@@ -349,7 +342,7 @@ class _HotelScreenState extends State<HotelScreen> {
               ),
             ),
 
-            // ── Count pill ───────────────────────────────────────────────
+            // ── Count pill ──────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
@@ -390,7 +383,7 @@ class _HotelScreenState extends State<HotelScreen> {
               ),
             ),
 
-            // ── Hotel cards ──────────────────────────────────────────────
+            // ── Hotel cards ─────────────────────────────────────────
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               sliver: SliverList(
@@ -407,26 +400,6 @@ class _HotelScreenState extends State<HotelScreen> {
               ),
             ),
 
-            // ── Amenities ────────────────────────────────────────────────
-            // if (amenities.isNotEmpty)
-            //   SliverToBoxAdapter(
-            //     child: Padding(
-            //       padding: const EdgeInsets.only(top: 8),
-            //       child: AmenitiesWidget(
-            //         amenities: amenities,
-            //         primaryColor: primaryColor,
-            //       ),
-            //     ),
-            //   ),
-
-            // ── Gallery ──────────────────────────────────────────────────
-            // if (gallery.isNotEmpty)
-            //   SliverToBoxAdapter(
-            //     child: Padding(
-            //       padding: const EdgeInsets.only(top: 8),
-            //       child: GalleryWidget(gallery: gallery),
-            //     ),
-            //   ),
             const SliverToBoxAdapter(child: SizedBox(height: 32)),
           ],
         ),
@@ -474,6 +447,51 @@ class _HotelCardState extends State<_HotelCard>
     super.dispose();
   }
 
+  /// Resolves hero image with 4 fallback sources.
+  /// Your JSON structure: hotel.config.branding.splashImage
+  ///                      hotel.config.home.sections[heroBanner].data.image
+  ///                      hotel.config.rooms[0].images[0]
+  ///                      hotel.config.gallery.items[0].url
+  String? _resolveHeroImage(
+    Map<String, dynamic> hotelConfig,
+    Map<String, dynamic> hotelBranding,
+    List<dynamic> rooms,
+  ) {
+    // 1️⃣ heroBanner section — proper hotel photo
+    final sections = hotelConfig['home']?['sections'] as List<dynamic>?;
+    final heroBannerImg =
+        sections?.firstWhere(
+              (s) => s['type'] == 'heroBanner',
+              orElse: () => null,
+            )?['data']?['image']
+            as String?;
+    if (heroBannerImg != null && heroBannerImg.trim().isNotEmpty) {
+      return heroBannerImg.trim();
+    }
+
+    // 2️⃣ First room image
+    if (rooms.isNotEmpty) {
+      final imgs = rooms.first['images'] as List?;
+      final roomImg = imgs?.isNotEmpty == true
+          ? (imgs!.first as String?)?.trim()
+          : null;
+      if (roomImg != null && roomImg.isNotEmpty) return roomImg;
+    }
+
+    // 3️⃣ Gallery
+    final galleryItems = hotelConfig['gallery']?['items'] as List<dynamic>?;
+    final galleryImg = galleryItems?.isNotEmpty == true
+        ? (galleryItems!.first['url'] as String?)?.trim()
+        : null;
+    if (galleryImg != null && galleryImg.isNotEmpty) return galleryImg;
+
+    // 4️⃣ splashImage as last resort only
+    final splash = (hotelBranding['splashImage'] as String?)?.trim();
+    if (splash != null && splash.isNotEmpty) return splash;
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final hotelConfig = widget.hotel['config'] as Map<String, dynamic>? ?? {};
@@ -486,36 +504,24 @@ class _HotelCardState extends State<_HotelCard>
 
     final hotelName = widget.hotel['name'] as String? ?? 'Hotel';
     final address = contact['address'] as String? ?? 'Dubai, UAE';
-    final splashImage = hotelBranding['splashImage'] as String?;
     final logo = hotelBranding['logo'] as String?;
     final checkIn = policies['checkIn'] as String?;
     final checkOut = policies['checkOut'] as String?;
 
-    // Pick best hero image
-    String? heroImage = splashImage;
-    if (heroImage == null || heroImage.isEmpty) {
-      final sections = hotelConfig['home']?['sections'] as List<dynamic>?;
-      heroImage =
-          sections?.firstWhere(
-                (s) => s['type'] == 'heroBanner',
-                orElse: () => null,
-              )?['data']?['image']
-              as String?;
-    }
-    if (heroImage == null || heroImage.isEmpty) {
-      if (rooms.isNotEmpty) {
-        final imgs = rooms.first['images'] as List?;
-        if (imgs != null && imgs.isNotEmpty) {
-          heroImage = imgs.first as String?;
-        }
-      }
-    }
+    // ✅ Use the proper multi-fallback resolver
+    final heroImage = _resolveHeroImage(hotelConfig, hotelBranding, rooms);
+
+    debugPrint('🏨 Card[$hotelName] heroImage=$heroImage');
 
     return GestureDetector(
       onTapDown: (_) => _pressCtrl.reverse(),
       onTapUp: (_) {
         _pressCtrl.forward();
-        Get.toNamed(AppRoutes.home, arguments: hotelConfig);
+        final hotelController = Get.find<HotelController>();
+        hotelController.setSelectedHotel(widget.hotel);
+        hotelController.setConfig(widget.hotel['config']);
+        BrandingColors.loadFromConfig(widget.hotel['config']);
+        Get.toNamed(AppRoutes.home, arguments: widget.hotel);
       },
       onTapCancel: () => _pressCtrl.forward(),
       child: ScaleTransition(
@@ -536,7 +542,7 @@ class _HotelCardState extends State<_HotelCard>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Image ─────────────────────────────────────────────────
+              // ── Hero Image ──────────────────────────────────────────
               Stack(
                 children: [
                   ClipRRect(
@@ -544,16 +550,11 @@ class _HotelCardState extends State<_HotelCard>
                       topLeft: Radius.circular(20),
                       topRight: Radius.circular(20),
                     ),
-                    child: heroImage != null && heroImage.isNotEmpty
-                        ? Image.network(
-                            heroImage,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                _placeholder(widget.primaryColor),
-                          )
-                        : _placeholder(widget.primaryColor),
+                    child: _HeroImage(
+                      imageUrl: heroImage,
+                      primaryColor: widget.primaryColor,
+                      hotelName: hotelName,
+                    ),
                   ),
                   // Gradient overlay
                   ClipRRect(
@@ -577,75 +578,7 @@ class _HotelCardState extends State<_HotelCard>
                       ),
                     ),
                   ),
-                  // Top-right: price badge
-                  if (widget.lowestPrice > 0)
-                    Positioned(
-                      top: 14,
-                      right: 14,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.12),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'From',
-                              style: TextStyle(
-                                fontSize: 9,
-                                color: Colors.grey[500],
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'AED ',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: widget.primaryColor,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: '${widget.lowestPrice}',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w800,
-                                      color: widget.primaryColor,
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              '/night',
-                              style: TextStyle(
-                                fontSize: 9,
-                                color: Colors.grey[500],
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  // Bottom-left: room count badge
+                  // Room count badge
                   if (rooms.isNotEmpty)
                     Positioned(
                       bottom: 12,
@@ -673,35 +606,18 @@ class _HotelCardState extends State<_HotelCard>
                 ],
               ),
 
-              // ── Info section ──────────────────────────────────────────
+              // ── Info section ────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Logo + name row
+                    // Logo + name
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         if (logo != null && logo.isNotEmpty) ...[
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Colors.grey.shade200,
-                                width: 1,
-                              ),
-                            ),
-                            child: Image.network(
-                              logo,
-                              height: 28,
-                              width: 56,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const SizedBox(),
-                            ),
-                          ),
+                          _LogoWidget(logoUrl: logo),
                           const SizedBox(width: 10),
                         ],
                         Expanded(
@@ -720,7 +636,6 @@ class _HotelCardState extends State<_HotelCard>
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 8),
 
                     // Address
@@ -782,7 +697,6 @@ class _HotelCardState extends State<_HotelCard>
                               color: widget.primaryColor,
                             ),
                           const Spacer(),
-                          // Amenity count chip
                           if (amenities.isNotEmpty)
                             _PolicyChip(
                               icon: Icons.spa_outlined,
@@ -850,18 +764,120 @@ class _HotelCardState extends State<_HotelCard>
       ),
     );
   }
+}
 
-  Widget _placeholder(Color color) {
-    return Container(
+// ─── Hero Image Widget ────────────────────────────────────────────────────────
+
+class _HeroImage extends StatelessWidget {
+  final String? imageUrl;
+  final Color primaryColor;
+  final String hotelName;
+
+  const _HeroImage({
+    required this.imageUrl,
+    required this.primaryColor,
+    required this.hotelName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl == null || imageUrl!.isEmpty) return _placeholder();
+
+    return Image.network(
+      imageUrl!,
       height: 200,
       width: double.infinity,
-      color: color.withOpacity(0.08),
-      child: Icon(Icons.hotel, size: 56, color: color.withOpacity(0.2)),
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          height: 200,
+          width: double.infinity,
+          color: primaryColor.withOpacity(0.06),
+          child: Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                  : null,
+              color: primaryColor,
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        debugPrint('❌ Image failed [$hotelName]: $imageUrl\n$error');
+        return _placeholder();
+      },
+    );
+  }
+
+  Widget _placeholder() => Container(
+    height: 200,
+    width: double.infinity,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          primaryColor.withOpacity(0.12),
+          primaryColor.withOpacity(0.06),
+        ],
+      ),
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.hotel_rounded,
+          size: 56,
+          color: primaryColor.withOpacity(0.25),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'No Image Available',
+          style: TextStyle(
+            fontSize: 12,
+            color: primaryColor.withOpacity(0.4),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// ─── Logo Widget ──────────────────────────────────────────────────────────────
+
+class _LogoWidget extends StatelessWidget {
+  final String logoUrl;
+  const _LogoWidget({required this.logoUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade200, width: 1),
+      ),
+      child: Image.network(
+        logoUrl,
+        height: 28,
+        width: 56,
+        fit: BoxFit.contain,
+        errorBuilder: (_, error, __) {
+          debugPrint('❌ Logo failed: $logoUrl\n$error');
+          return const SizedBox(width: 56, height: 28);
+        },
+      ),
     );
   }
 }
 
-// ─── Policy chip ──────────────────────────────────────────────────────────────
+// ─── Policy Chip ──────────────────────────────────────────────────────────────
 
 class _PolicyChip extends StatelessWidget {
   final IconData icon;

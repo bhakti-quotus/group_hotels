@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:group/group/controllers/hotel_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
 import 'image_grid_widget.dart';
 import 'description_widget.dart';
+import 'restaurants_widget.dart';
 import 'policies_widget.dart';
 import 'image_gallery_popup.dart';
+//import 'contact_widget.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({Key? key}) : super(key: key);
