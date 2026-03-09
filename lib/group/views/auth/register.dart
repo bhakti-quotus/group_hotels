@@ -22,7 +22,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _phoneController = TextEditingController();
   bool _isLoading = false;
   late String nextRoute;
-  late String splashImage;
+  String splashImage =
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800';
 
   @override
   void initState() {

@@ -74,8 +74,9 @@ class _RoomScreenState extends State<RoomScreen> {
       
       // First, try to get the selected hotel's complete data
       Map<String, dynamic>? selectedHotel = hotelController.getSelectedHotel();
-      
+      print('Selected hotel from controller: $selectedHotel');
       if (selectedHotel != null && selectedHotel.isNotEmpty) {
+        
         // Use the selected hotel's complete data (includes id, code, name, type, apkName, parentGroupId, config, etc.)
         print('Using selected hotel data: $selectedHotel');
         setState(() {

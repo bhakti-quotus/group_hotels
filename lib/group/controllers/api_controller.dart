@@ -56,6 +56,7 @@ class ApiController extends GetxController {
           )
           .timeout(const Duration(seconds: 10));
 
+print('payload for fetch room: $payload');
       final decoded = json.decode(response.body);
       print('fetch room response: $decoded');
 

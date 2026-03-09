@@ -20,7 +20,8 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   bool _isLoading = false;
   late String nextRoute;
-  late String splashImage;
+  String splashImage =
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800';
 
   @override
   void initState() {

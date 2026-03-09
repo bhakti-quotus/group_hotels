@@ -1036,6 +1036,10 @@ class _HotelCardState extends State<_HotelCard>
       onTapDown: (_) => _pressCtrl.reverse(),
       onTapUp: (_) {
         _pressCtrl.forward();
+        // Store the complete hotel data in HotelController
+        final hotelController = Get.find<HotelController>();
+        hotelController.setSelectedHotel(widget.hotel);
+        
         Get.toNamed(AppRoutes.home, arguments: hotelConfig);
       },
       onTapCancel: () => _pressCtrl.forward(),

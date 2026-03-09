@@ -23,7 +23,7 @@
       "config": {
         "id": "b0b56169-a1fd-47f5-bcf0-a71e1411996b",
         "hotelId": "51d0be91-9b9a-487f-b95b-587a7cc9a458",
-        "version": "1.0.0     ",
+        "version": "1.0.0",
         "status": "DRAFT",
         "createdAt": "2025-12-24T10:28:22.672Z",
         "updatedAt": "2026-01-08T06:00:26.700Z",
@@ -629,17 +629,10 @@
       "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
     },
     "contact": {
-<<<<<<< HEAD
-      "email": "binayakumar824@gmail.com",
-      "phone": "+918249611167",
-      "mapUrl": "",
-      "address": "bbsr",
-=======
       "email": "info@royalcontinentalhotels.com",
       "phone": "+971 4 203 5000",
       "mapUrl": "",
       "address": "P.O. Box 182166, Deira, Dubai, UAE",
->>>>>>> dd0bf3e48c55d3b9b67ab6a5d7ce2ffbad6d0fe9
       "latitude": 0,
       "longitude": 0
     },
@@ -657,16 +650,10 @@
       "social": {
         "facebook": "https://facebook.com",
         "linkedin": "https://linkedin.com",
-<<<<<<< HEAD
-        "instagram": "https://instagram.com"
-      },
-      "copyright": "© 2025 Your Subham Groups Pvt. Ltd. All rights reserved"
-=======
         "instagram": "https://instagram.com",
         "twitter": "https://twitter.com"
       },
       "copyright": "© Copyright Royal Continental Hotel Dubai"
->>>>>>> dd0bf3e48c55d3b9b67ab6a5d7ce2ffbad6d0fe9
     }
   }
 }
