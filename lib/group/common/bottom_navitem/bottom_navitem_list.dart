@@ -78,9 +78,7 @@ class BottomNavItemManager {
             case '/groupcontact':
               route = '/contact';
               break;
-            case '/groupmybookings':
-              route = '/mybookings';
-              break;
+
             case '/groupbookingdetails':
               route = '/bookingdetails';
               break;

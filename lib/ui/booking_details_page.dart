@@ -351,15 +351,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 14,
-                    color: Colors.grey[500],
-                  ),
-                  const SizedBox(width: 6),
                   Text(
-                    'Not sure where to find your code? Check your confirmation email.',
+                    'Not sure where to find your code?\nCheck your confirmation email.',
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),

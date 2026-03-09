@@ -22,6 +22,8 @@ class AppRoutes {
   static const groupHome = '/grouphome';
   static const groupAbout = '/groupabout';
   static const groupContact = '/groupcontact';
+  static const groupBookingDetails = '/groupbookingdetails';
+  static const groupHotels = '/grouphotels';
   static const hotels = '/hotels';
   static const splash = '/';
   static const language = '/language';
@@ -61,6 +63,8 @@ class AppRoutes {
     GetPage(name: profile, page: () => const ProfileScreen()),
     GetPage(name: roomDetails, page: () => const RoomDetailsScreen()),
     GetPage(name: confirmBooking, page: () => const ConfirmBookingPage()),
+    GetPage(name: groupBookingDetails, page: () => const BookingDetailsPage()),
+    GetPage(name: groupHotels, page: () => const Hotels()),
     // ✅ FIX: Read bookingCode and propertyCode from Get.arguments
     GetPage(
       name: BookingDetails,
