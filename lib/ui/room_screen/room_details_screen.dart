@@ -1,15 +1,107 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/auth_controller.dart';
 import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
 import 'package:group/ui/dialog/dialog.dart';
+import 'package:group/ui/room_screen/addons_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
 import '../booking_page/booking_page_new.dart';
+import 'package:group/group/controllers/api_controller.dart';
+import 'dart:async';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA MODEL — groups raw room_price list into plan + combos
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ComboEntry {
+  final String label;
+  final List<dynamic> addons;
+  final double totalAmount;
+  final Map<String, dynamic> rawRatePlan; // original map, passed to booking
+
+  const _ComboEntry({
+    required this.label,
+    required this.addons,
+    required this.totalAmount,
+    required this.rawRatePlan,
+  });
+}
+
+class _GroupedPlan {
+  final String ratePlanCode;
+  final String ratePlanName;
+  final String currencyCode;
+  final Map<String, dynamic>? policy;
+  final Map<String, dynamic>? touristTax;
+  final List<dynamic> appliedDiscounts;
+  final List<_ComboEntry> combos;
+
+  const _GroupedPlan({
+    required this.ratePlanCode,
+    required this.ratePlanName,
+    required this.currencyCode,
+    this.policy,
+    this.touristTax,
+    required this.appliedDiscounts,
+    required this.combos,
+  });
+}
+
+List<_GroupedPlan> _groupRatePlans(List roomPrice) {
+  final Map<String, _GroupedPlan> map = {};
+
+  for (final rp in roomPrice) {
+    if (rp is! Map<String, dynamic>) continue;
+
+    final code = rp['ratePlanCode'] as String? ?? '';
+    final name = rp['ratePlanName'] as String? ?? 'Standard Rate';
+    final currency = rp['currencyCode'] as String? ?? 'USD';
+    final policy = rp['policy'] as Map<String, dynamic>?;
+    final touristTax = rp['touristTax'] as Map<String, dynamic>?;
+    final appliedDiscounts = rp['appliedDiscounts'] as List? ?? [];
+    final total = (rp['totalAmount'] as num?)?.toDouble() ?? 0;
+    final addons = rp['addons'] as List? ?? [];
+
+    // Build combo label: if no addons → "Room Only", else addon name
+    final String label = addons.isEmpty
+        ? 'Room Only'
+        : (addons.first is Map
+              ? (addons.first['name'] ?? 'Add-on').toString()
+              : 'Add-on');
+
+    final combo = _ComboEntry(
+      label: label,
+      addons: addons,
+      totalAmount: total,
+      rawRatePlan: rp,
+    );
+
+    if (map.containsKey(code)) {
+      map[code]!.combos.add(combo);
+    } else {
+      map[code] = _GroupedPlan(
+        ratePlanCode: code,
+        ratePlanName: name,
+        currencyCode: currency,
+        policy: policy,
+        touristTax: touristTax,
+        appliedDiscounts: appliedDiscounts,
+        combos: [combo],
+      );
+    }
+  }
+
+  return map.values.toList();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCREEN
+// ─────────────────────────────────────────────────────────────────────────────
 
 class RoomDetailsScreen extends StatefulWidget {
   const RoomDetailsScreen({Key? key}) : super(key: key);
@@ -18,15 +110,21 @@ class RoomDetailsScreen extends StatefulWidget {
   State<RoomDetailsScreen> createState() => _RoomDetailsScreenState();
 }
 
-class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
+class _RoomDetailsScreenState extends State<RoomDetailsScreen>
+    with TickerProviderStateMixin {
   int _currentImageIndex = 0;
   late List<String> images;
   int? _expandedPolicyIndex;
   final Map<int, GlobalKey> _policyKeys = {};
   OverlayEntry? _overlayEntry;
   final PageController _pageController = PageController();
+  final ScrollController _scrollController = ScrollController();
 
-  // Global discount state - applies to ALL rate plans
+  // Animations
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
+  // Discount state
   String? _globalGuestEmail;
   bool _globalDiscountApplied = false;
   double _globalDiscountedPrice = 0;
@@ -36,15 +134,56 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
   double _globalOriginalPrice = 0;
   String? _discountSourceRatePlan;
 
+  // Add-ons
+  bool _isLoadingAddons = false;
+  List<dynamic> _availableAddons = [];
+  String? _selectedRatePlanCode;
+
+  // AppBar collapse
+  bool _isAppBarCollapsed = false;
+
   @override
   void initState() {
     super.initState();
-    _loadSavedDiscountState();
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    );
+    _fadeController.forward();
+
+    _scrollController.addListener(() {
+      final collapsed = _scrollController.offset > 240;
+      if (collapsed != _isAppBarCollapsed) {
+        setState(() => _isAppBarCollapsed = collapsed);
+      }
+    });
   }
 
-  Future<void> _loadSavedDiscountState() async {
-    // You can implement shared_preferences here if you want discount to persist even after app restart
-    // For now, it will only persist during the session
+  @override
+  void dispose() {
+    _removeOverlay();
+    _pageController.dispose();
+    _scrollController.dispose();
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  // ── Utility ──────────────────────────────────────────────
+
+  Future<void> _safeCloseDialog() async {
+    if (Get.isDialogOpen ?? false) Get.back();
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (context.mounted && Navigator.canPop(context)) Navigator.pop(context);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    if (mounted) setState(() => _expandedPolicyIndex = null);
   }
 
   void _clearAllDiscounts() {
@@ -56,9 +195,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
       _globalCurrency = null;
       _globalOriginalPrice = 0;
       _discountSourceRatePlan = null;
-      _isLoadingDiscount = false;
     });
-    
     Get.snackbar(
       'Discounts Cleared',
       'All applied discounts have been removed',
@@ -73,50 +210,35 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
 
   Future<void> _shareImage() async {
     if (images.isEmpty) return;
-
     try {
       showSuccessDialog(context, 'Preparing image...');
-
       final imageUrl = images[_currentImageIndex];
       final response = await http.get(Uri.parse(imageUrl));
-
       if (response.statusCode == 200) {
         final tempDir = await getTemporaryDirectory();
-        final fileName =
-            'shared_room_image_${DateTime.now().millisecondsSinceEpoch}.jpg';
-        final file = File('${tempDir.path}/$fileName');
-
-        await file.writeAsBytes(response.bodyBytes);
-
-        await Share.shareXFiles(
-          [XFile(file.path)],
-          text: 'Check out this beautiful room!',
-          subject: 'Room Image',
+        final file = File(
+          '${tempDir.path}/shared_room_${DateTime.now().millisecondsSinceEpoch}.jpg',
         );
-
+        await file.writeAsBytes(response.bodyBytes);
+        await Share.shareXFiles([
+          XFile(file.path),
+        ], text: 'Check out this beautiful room!');
         Future.delayed(const Duration(seconds: 30), () {
-          if (file.existsSync()) {
-            file.deleteSync();
-          }
+          if (file.existsSync()) file.deleteSync();
         });
-      } else {
-        showErrorDialog(context, 'Failed to download image');
       }
-    } catch (e) {
+    } catch (_) {
       showErrorDialog(context, 'Failed to share image');
     }
   }
 
   void _showPolicyOverlay(BuildContext context, String description, int index) {
     _removeOverlay();
-
     final policyKey = _policyKeys[index];
     if (policyKey == null) return;
-
     final RenderBox? renderBox =
         policyKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
-
     final position = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
 
@@ -124,7 +246,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
       builder: (context) => Stack(
         children: [
           GestureDetector(
-            onTap: () => _removeOverlay(),
+            onTap: _removeOverlay,
             child: Container(
               color: Colors.transparent,
               width: double.infinity,
@@ -135,16 +257,16 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
             top: position.dy + size.height + 8,
             right: 20,
             child: Material(
-              elevation: 8,
-              borderRadius: BorderRadius.circular(16),
-              shadowColor: Colors.black.withOpacity(0.2),
+              elevation: 12,
+              borderRadius: BorderRadius.circular(20),
+              shadowColor: AppColor.primary.withOpacity(0.15),
               child: Container(
                 width: MediaQuery.of(context).size.width - 120,
-                constraints: const BoxConstraints(maxWidth: 300),
-                padding: const EdgeInsets.all(16),
+                constraints: const BoxConstraints(maxWidth: 320),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColor.primary.withOpacity(0.1)),
                 ),
                 child: Column(
@@ -154,10 +276,10 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: AppColor.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
                             Icons.policy_rounded,
@@ -177,7 +299,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => _removeOverlay(),
+                          onTap: _removeOverlay,
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
@@ -193,9 +315,9 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
                         borderRadius: BorderRadius.circular(12),
@@ -206,7 +328,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey[700],
-                          height: 1.5,
+                          height: 1.6,
                         ),
                       ),
                     ),
@@ -218,720 +340,185 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
         ],
       ),
     );
-
     Overlay.of(context).insert(_overlayEntry!);
     setState(() => _expandedPolicyIndex = index);
   }
 
-  void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-    setState(() => _expandedPolicyIndex = null);
-  }
+  // ── Navigation ────────────────────────────────────────────
 
-  @override
-  void dispose() {
-    _removeOverlay();
-    _pageController.dispose();
-    super.dispose();
-  }
+  Future<void> _fetchAndShowAddons({
+    required String propertyCode,
+    required String startDate,
+    required String endDate,
+    required String ratePlanCode,
+    required Map<String, dynamic> room,
+    required Map<String, dynamic> ratePlan,
+    required int adults,
+    required int children,
+    required int totalGuests,
+    required String propertyId,
+    required String hotelName,
+    required double discountedPrice,
+  }) async {
+    setState(() {
+      _isLoadingAddons = true;
+      _selectedRatePlanCode = ratePlanCode;
+    });
 
-  void _showAddonsBottomSheet({
-    required BuildContext context,
-    required List<dynamic> addons,
-    required Function(List<Map<String, dynamic>>) onAdd,
-    required VoidCallback onSkip,
-  }) {
-    final Map<String, Map<String, dynamic>> groupedAddons = {};
-    
-    if (addons.isEmpty) {
-      onSkip();
-      return;
-    }
-    
-    // Group addons by ID
-    for (var addon in addons) {
-      if (addon == null) continue;
-      
-      final addonMap = addon is Map<String, dynamic> ? addon : null;
-      if (addonMap == null) continue;
-      
-      final addonData = addonMap['addon'] as Map<String, dynamic>?;
-      if (addonData == null) continue;
-      
-      final addonId = addonData['id'];
-      if (addonId == null) continue;
-      
-      if (!groupedAddons.containsKey(addonId)) {
-        final images = addonData['images'] as List? ?? [];
-        final imageUrl = images.isNotEmpty ? images[0] : '';
-        
-        groupedAddons[addonId] = {
-          'id': addonId,
-          'name': addonData['name'] ?? 'Add-on',
-          'description': addonData['description'] ?? '',
-          'price': addonMap['price'] ?? 0,
-          'currencyCode': addonMap['currencyCode'] ?? 'USD',
-          'postingRhythm': addonData['postingRhythm'] ?? 'per_night',
-          'image': imageUrl,
-          'category': addonData['category']?['name'] ?? '',
-          'variant': addonData['addonVariant']?['name'] ?? '',
-          'dates': [addonMap['date']],
-          'totalNights': 1,
-        };
-      } else {
-        final existing = groupedAddons[addonId]!;
-        final dates = List<String>.from(existing['dates']);
-        dates.add(addonMap['date']?.toString() ?? '');
-        
-        existing['dates'] = dates;
-        existing['totalNights'] = dates.length;
-      }
-    }
+    try {
+      final apiController = Get.find<ApiController>();
+      final result = await apiController.getAvailableAddons(
+        propertyCode: propertyCode,
+        startDate: startDate,
+        endDate: endDate,
+        ratePlanCode: ratePlanCode,
+      );
 
-    int getNightsCount() {
-      if (groupedAddons.isEmpty) return 1;
-      return (groupedAddons.values.first['dates'] as List).length;
-    }
+      if (Get.isDialogOpen ?? false) Get.back();
+      await Future.delayed(const Duration(milliseconds: 300));
 
-    final Map<String, int> addonQuantities = {};
-    final nightsCount = getNightsCount();
-
-    String getRhythmText(String rhythm) {
-      switch (rhythm) {
-        case 'per_night':
-          return 'per night';
-        case 'per_person_per_night':
-          return 'per person/night';
-        case 'per_stay':
-          return 'one-time';
-        default:
-          return 'per stay';
-      }
-    }
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          List<Map<String, dynamic>> getSelectedAddons() {
-            final List<Map<String, dynamic>> selected = [];
-            addonQuantities.forEach((addonId, quantity) {
-              if (quantity > 0) {
-                final addon = groupedAddons[addonId];
-                if (addon != null) {
-                  final addonWithQty = Map<String, dynamic>.from(addon);
-                  addonWithQty['quantity'] = quantity;
-                  selected.add(addonWithQty);
-                }
-              }
-            });
-            return selected;
-          }
-
-          final selectedAddons = getSelectedAddons();
-          final totalItems = selectedAddons.fold<int>(
-            0, 
-            (sum, addon) => sum + (addon['quantity'] as int)
+      if (result['success'] == true && result['data'] != null) {
+        final addonsData = result['data'] as List;
+        if (addonsData.isEmpty) {
+          _proceedToBooking(
+            room: room,
+            ratePlan: ratePlan,
+            adults: adults,
+            children: children,
+            totalGuests: totalGuests,
+            startDate: startDate,
+            endDate: endDate,
+            propertyId: propertyId,
+            propertyCode: propertyCode,
+            hotelName: hotelName,
+            discountedPrice: discountedPrice,
+            selectedAddons: [],
           );
-          final totalPrice = selectedAddons.fold<double>(
-            0,
-            (sum, addon) => sum + (addon['price'] as num) * (addon['quantity'] as int).toDouble()
-          );
-          final currency = groupedAddons.isNotEmpty 
-              ? groupedAddons.values.first['currencyCode'] as String
-              : 'USD';
-
-          return Container(
-            height: MediaQuery.of(context).size.height * 0.85,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Column(
-              children: [
-                // Handle
-                Container(
-                  margin: const EdgeInsets.only(top: 12),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                
-                // Header
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Enhance Your Stay',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Add extras to make your stay special',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.close,
-                            size: 20,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Stay duration banner
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[200]!),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.night_shelter,
-                        size: 20,
-                        color: Colors.grey[700],
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '$nightsCount Night${nightsCount > 1 ? 's' : ''}',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'Priced for entire stay',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Add-ons list
-                Expanded(
-                  child: groupedAddons.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.card_giftcard,
-                                size: 64,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No add-ons available',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Check back later for exciting offers',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          itemCount: groupedAddons.length,
-                          itemBuilder: (context, index) {
-                            final addon = groupedAddons.values.elementAt(index);
-                            final addonId = addon['id'];
-                            final quantity = addonQuantities[addonId] ?? 0;
-                            
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: quantity > 0 
-                                      ? AppColor.primary 
-                                      : Colors.grey[200]!,
-                                  width: quantity > 0 ? 2 : 1,
-                                ),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Image on left
-                                  ClipRRect(
-                                    borderRadius: const BorderRadius.horizontal(
-                                      left: Radius.circular(15),
-                                    ),
-                                    child: Container(
-                                      width: 100,
-                                      height: 120,
-                                      color: Colors.grey[100],
-                                      child: addon['image'].toString().isNotEmpty
-                                          ? Image.network(
-                                              addon['image'],
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) {
-                                                return Center(
-                                                  child: Icon(
-                                                    Icons.image,
-                                                    size: 32,
-                                                    color: Colors.grey[400],
-                                                  ),
-                                                );
-                                              },
-                                            )
-                                          : Image.network(
-                                              "https://duve.com/wp-content/uploads/2022/12/Hotel-Amenities-1.jpg",
-                                              fit: BoxFit.cover,
-                                            )
-                                    ),
-                                  ),
-                                  
-                                  // Content
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  addon['name'],
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                  maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                              Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                  vertical: 4,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: AppColor.primary.withOpacity(0.1),
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                child: Text(
-                                                  '$currency ${addon['price']}',
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: AppColor.primary,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          
-                                          if (addon['variant'].isNotEmpty) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              addon['variant'],
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.grey[600],
-                                              ),
-                                            ),
-                                          ],
-                                          
-                                          if (addon['description'].isNotEmpty) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              addon['description'],
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.grey[600],
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
-                                          
-                                          const SizedBox(height: 8),
-                                          
-                                          // Rhythm and quantity row
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                  vertical: 4,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey[100],
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                child: Text(
-                                                  getRhythmText(addon['postingRhythm']),
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: Colors.grey[700],
-                                                  ),
-                                                ),
-                                              ),
-                                              
-                                              // Quantity selector
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey[100],
-                                                  borderRadius: BorderRadius.circular(20),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    _buildCompactQuantityButton(
-                                                      icon: Icons.remove,
-                                                      onTap: quantity > 0 
-                                                          ? () => setState(() {
-                                                              addonQuantities[addonId] = quantity - 1;
-                                                            })
-                                                          : null,
-                                                    ),
-                                                    Container(
-                                                      width: 30,
-                                                      alignment: Alignment.center,
-                                                      child: Text(
-                                                        '$quantity',
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    _buildCompactQuantityButton(
-                                                      icon: Icons.add,
-                                                      onTap: () => setState(() {
-                                                        addonQuantities[addonId] = quantity + 1;
-                                                      }),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          
-                                          if (quantity > 0) ...[
-                                            const SizedBox(height: 8),
-                                            Container(
-                                              padding: const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                color: AppColor.primary.withOpacity(0.05),
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    'Subtotal:',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[700],
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    '$currency ${addon['price'] * quantity}',
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight: FontWeight.w700,
-                                                      color: AppColor.primary,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                ),
-                
-                // Bottom bar with total and actions
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, -5),
-                      ),
-                    ],
-                  ),
-                  child: SafeArea(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (totalItems > 0) ...[
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColor.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Total ($totalItems item${totalItems > 1 ? 's' : ''})',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  '$currency ${totalPrice.toInt()}',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColor.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                        
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  onSkip();
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  side: BorderSide(color: Colors.grey[300]!),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Skip',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              flex: 2,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  onAdd(selectedAddons);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColor.primary,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: Text(
-                                  totalItems == 0
-                                      ? 'Continue'
-                                      : 'Continue with $totalItems item${totalItems > 1 ? 's' : ''}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+        } else {
+          if (context.mounted) {
+            Get.to(
+              () => const AddonsScreen(),
+              arguments: {
+                'addons': addonsData,
+                'onAdd': (List<Map<String, dynamic>> selectedAddons) =>
+                    _proceedToBooking(
+                      room: room,
+                      ratePlan: ratePlan,
+                      adults: adults,
+                      children: children,
+                      totalGuests: totalGuests,
+                      startDate: startDate,
+                      endDate: endDate,
+                      propertyId: propertyId,
+                      propertyCode: propertyCode,
+                      hotelName: hotelName,
+                      discountedPrice: discountedPrice,
+                      selectedAddons: selectedAddons,
                     ),
-                  ),
+                'onSkip': () => _proceedToBooking(
+                  room: room,
+                  ratePlan: ratePlan,
+                  adults: adults,
+                  children: children,
+                  totalGuests: totalGuests,
+                  startDate: startDate,
+                  endDate: endDate,
+                  propertyId: propertyId,
+                  propertyCode: propertyCode,
+                  hotelName: hotelName,
+                  discountedPrice: discountedPrice,
+                  selectedAddons: [],
                 ),
-              ],
-            ),
-          );
-        },
+              },
+            );
+          }
+        }
+      } else {
+        _proceedToBooking(
+          room: room,
+          ratePlan: ratePlan,
+          adults: adults,
+          children: children,
+          totalGuests: totalGuests,
+          startDate: startDate,
+          endDate: endDate,
+          propertyId: propertyId,
+          propertyCode: propertyCode,
+          hotelName: hotelName,
+          discountedPrice: discountedPrice,
+          selectedAddons: [],
+        );
+      }
+    } catch (e) {
+      if (Get.isDialogOpen ?? false) Get.back();
+      _proceedToBooking(
+        room: room,
+        ratePlan: ratePlan,
+        adults: adults,
+        children: children,
+        totalGuests: totalGuests,
+        startDate: startDate,
+        endDate: endDate,
+        propertyId: propertyId,
+        propertyCode: propertyCode,
+        hotelName: hotelName,
+        discountedPrice: discountedPrice,
+        selectedAddons: [],
+      );
+    } finally {
+      if (mounted) setState(() => _isLoadingAddons = false);
+    }
+  }
+
+  void _proceedToBooking({
+    required Map<String, dynamic> room,
+    required Map<String, dynamic> ratePlan,
+    required int adults,
+    required int children,
+    required int totalGuests,
+    required String startDate,
+    required String endDate,
+    required String propertyId,
+    required String propertyCode,
+    required String hotelName,
+    required double discountedPrice,
+    required List<Map<String, dynamic>> selectedAddons,
+  }) {
+    _removeOverlay();
+    Get.to(
+      () => BookingPage(
+        room: room,
+        ratePlan: ratePlan,
+        totalGuests: totalGuests,
+        adults: adults,
+        children: children,
+        startDate: startDate,
+        endDate: endDate,
+        propertyId: propertyId,
+        propertyCode: propertyCode,
+        hotelName: hotelName,
+        discountApplied: _globalDiscountApplied,
+        discountedPrice: discountedPrice.toInt(),
+        guestEmail: _globalGuestEmail,
+        addons: selectedAddons,
       ),
     );
   }
 
-  Widget _buildCompactQuantityButton({
-    required IconData icon,
-    required VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: onTap != null ? Colors.white : Colors.grey[200],
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icon,
-          size: 16,
-          color: onTap != null ? AppColor.primary : Colors.grey[400],
-        ),
-      ),
-    );
-  }
+  // ── Build ─────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     final args = Get.arguments;
-
     if (args == null || args is! Map<String, dynamic>) {
-      return Scaffold(
-        backgroundColor: AppColor.background,
-        appBar: AppBar(
-          backgroundColor: AppColor.primary,
-          title: const Text('Room Details'),
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-            onPressed: () => Get.back(),
-          ),
-          actions: [
-            if (_globalDiscountApplied)
-              IconButton(
-                icon: const Icon(Icons.discount_rounded),
-                onPressed: _clearAllDiscounts,
-                tooltip: 'Clear Discounts',
-              ),
-          ],
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.hotel_rounded,
-                size: 64,
-                color: Colors.grey[400],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'No room data available',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return _buildErrorScaffold('Loading.....');
     }
 
     final room = args['room'] as Map<String, dynamic>?;
-    if (room == null) {
-      return Scaffold(
-        backgroundColor: AppColor.background,
-        appBar: AppBar(
-          backgroundColor: AppColor.primary,
-          title: const Text('Room Details'),
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-            onPressed: () => Get.back(),
-          ),
-          actions: [
-            if (_globalDiscountApplied)
-              IconButton(
-                icon: const Icon(Icons.discount_rounded),
-                onPressed: _clearAllDiscounts,
-                tooltip: 'Clear Discounts',
-              ),
-          ],
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.info_outline_rounded,
-                size: 64,
-                color: Colors.grey[400],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Room information not available',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    if (room == null)
+      return _buildErrorScaffold('Room information not available');
 
-    final totalGuests = args['totalGuests'] as int;
+    final totalGuests = args['totalGuests'] as int? ?? 1;
     final propertyCode = args['propertyCode'] as String? ?? '';
     final hotelName = args['hotelName'] as String? ?? '';
     final propertyId = args['propertyId'] as String? ?? '';
@@ -951,409 +538,664 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
         searchPayload['endDate'] as String? ??
         now.add(const Duration(days: 2)).toIso8601String().split('T')[0];
 
+    // Parse room data
     final roomName = room['room_name'] ?? room['name'] ?? '';
     final roomType = room['room_type'] ?? '';
     final roomSize = room['room_size'] ?? 0;
-    final roomUnit = room['room_unit'] ?? '';
+    final roomUnit = room['room_unit'] ?? 'sq ft';
     final roomView = room['room_view'] ?? '';
     final maxOccupancy = room['max_occupancy'] ?? room['maxOccupancy'] ?? 0;
     final description = room['description'] ?? '';
-    images = (room['images'] as List?)?.cast<String>() ?? [];
+    images = [];
+    final rawImages = room['images'];
+    if (rawImages is List) {
+      for (var img in rawImages) {
+        if (img is String)
+          images.add(img);
+        else if (img is Map && img['url'] != null)
+          images.add(img['url'].toString());
+      }
+    }
     final amenities = room['amenities'] as List? ?? [];
     final roomPrice = room['room_price'] as List? ?? [];
 
+    // ── GROUP rate plans ──
+    final groupedPlans = _groupRatePlans(roomPrice);
+
+    // Parse dates
+    DateTime? checkIn, checkOut;
+    try {
+      checkIn = DateTime.parse(startDate);
+      checkOut = DateTime.parse(endDate);
+    } catch (_) {}
+    final nights = (checkIn != null && checkOut != null)
+        ? checkOut.difference(checkIn).inDays
+        : 1;
+
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final checkInStr = checkIn != null
+        ? '${checkIn.day} ${months[checkIn.month - 1]}'
+        : startDate;
+    final checkOutStr = checkOut != null
+        ? '${checkOut.day} ${months[checkOut.month - 1]}'
+        : endDate;
+
     return Scaffold(
       backgroundColor: AppColor.background,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 320,
-            pinned: true,
-            backgroundColor: AppColor.primary,
-            leading: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onPressed: () {
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // ── Hero SliverAppBar ──────────────────────────
+            SliverAppBar(
+              expandedHeight: 380,
+              pinned: true,
+              stretch: true,
+              backgroundColor: AppColor.primary,
+              elevation: 0,
+              systemOverlayStyle: SystemUiOverlayStyle.light,
+              leading: _buildNavButton(
+                icon: Icons.arrow_back_ios_new_rounded,
+                onTap: () {
                   _removeOverlay();
                   Get.back();
                 },
               ),
-            ),
-            actions: [
-              Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.share_rounded,
-                    color: Colors.white,
-                    size: 22,
+              actions: [
+                _buildNavButton(icon: Icons.share_rounded, onTap: _shareImage),
+                if (_globalDiscountApplied)
+                  _buildNavButton(
+                    icon: Icons.discount_rounded,
+                    onTap: _clearAllDiscounts,
+                    color: Colors.orange,
                   ),
-                  onPressed: _shareImage,
-                ),
+                const SizedBox(width: 4),
+              ],
+              flexibleSpace: FlexibleSpaceBar(
+                stretchModes: const [StretchMode.zoomBackground],
+                background: _buildHeroImageArea(),
               ),
-              if (_globalDiscountApplied)
-                Container(
-                  margin: const EdgeInsets.all(8),
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(0),
+                child: Container(
+                  height: 0,
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.discount_rounded,
-                      color: Colors.white,
-                      size: 22,
+                    color: AppColor.background,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(28),
                     ),
-                    onPressed: _clearAllDiscounts,
-                    tooltip: 'Clear Discounts',
                   ),
                 ),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (images.isNotEmpty)
-                    Positioned.fill(
-                      child: PageView.builder(
-                        controller: _pageController,
-                        itemCount: images.length,
-                        onPageChanged: (index) {
-                          setState(() {
-                            _currentImageIndex = index;
-                          });
-                        },
-                        itemBuilder: (context, index) {
-                          return Image.network(
-                            images[index],
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.grey[300],
-                                child: Center(
-                                  child: Icon(
-                                    Icons.image_not_supported_rounded,
-                                    size: 80,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.3),
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.6),
-                        ],
-                        stops: const [0.0, 0.5, 1.0],
-                      ),
-                    ),
-                  ),
-                  if (images.length > 1)
-                    Positioned(
-                      bottom: 20,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 70,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          itemCount: images.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(width: 8),
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () {
-                                _pageController.animateToPage(
-                                  index,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              },
-                              child: Container(
-                                width: 70,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: _currentImageIndex == index
-                                        ? Colors.white
-                                        : Colors.transparent,
-                                    width: 3,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(9),
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      Image.network(
-                                        images[index],
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                              return Container(
-                                                color: Colors.grey[200],
-                                                child: Center(
-                                                  child: Icon(
-                                                    Icons
-                                                        .image_not_supported_rounded,
-                                                    size: 24,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                      ),
-                                      if (_currentImageIndex == index)
-                                        Container(
-                                          color: Colors.black.withOpacity(
-                                            0.2,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                ],
               ),
             ),
-          ),
-      
-          SliverToBoxAdapter(
-            child: Container(
-              decoration: BoxDecoration(
+
+            // ── Content ───────────────────────────────────
+            SliverToBoxAdapter(
+              child: Container(
                 color: AppColor.background,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                roomName,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColor.text,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              if (hotelName.isNotEmpty)
-                                Text(
-                                  hotelName,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        if (roomType.isNotEmpty)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColor.primary,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              roomType,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                      ],
+                    _buildTitleBlock(
+                      roomName,
+                      hotelName,
+                      roomType,
+                      checkInStr,
+                      checkOutStr,
+                      nights,
+                      adults + children,
                     ),
-                    
-                    const SizedBox(height: 20),
-      
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        if (roomSize > 0)
-                          _buildInfoChip(
-                            Icons.square_foot_rounded,
-                            '$roomSize ${roomUnit.isNotEmpty ? roomUnit : "sq ft"}',
-                          ),
-                        if (roomView.isNotEmpty)
-                          _buildInfoChip(
-                            Icons.landscape_rounded,
-                            roomView,
-                          ),
-                        _buildInfoChip(
-                          Icons.people_rounded,
-                          'Up to $maxOccupancy guests',
-                        ),
-                      ],
+                    _buildQuickStats(
+                      roomSize,
+                      roomUnit,
+                      roomView,
+                      maxOccupancy,
                     ),
-      
-                    const SizedBox(height: 24),
-      
-                    _buildSectionHeader('About This Room'),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey[200]!),
+                    _buildStayDetailsCard(
+                      checkInStr,
+                      checkOutStr,
+                      nights,
+                      adults,
+                      children,
+                    ),
+                    if (description.isNotEmpty)
+                      _buildSection(
+                        'About This Room',
+                        _buildDescriptionBlock(description),
                       ),
-                      child: Text(
-                        description,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[700],
-                          height: 1.6,
+                    if (amenities.isNotEmpty)
+                      _buildSection(
+                        'Amenities',
+                        _buildAmenitiesGrid(amenities),
+                      ),
+                    _buildAppliedDiscountsBanner(roomPrice),
+
+                    // ── Grouped Rate Plans ──
+                    if (groupedPlans.isNotEmpty)
+                      _buildSection(
+                        'Rate Plans',
+                        Column(
+                          children: groupedPlans.asMap().entries.map((entry) {
+                            _policyKeys.putIfAbsent(
+                              entry.key,
+                              () => GlobalKey(),
+                            );
+                            return _buildGroupedPlanCard(
+                              plan: entry.value,
+                              planIndex: entry.key,
+                              room: room,
+                              adults: adults,
+                              children: children,
+                              totalGuests: totalGuests,
+                              startDate: startDate,
+                              endDate: endDate,
+                              propertyCode: propertyCode,
+                              hotelName: hotelName,
+                              propertyId: propertyId,
+                              nights: nights,
+                            );
+                          }).toList(),
                         ),
                       ),
-                    ),
-      
-                    const SizedBox(height: 24),
-      
-                    _buildSectionHeader('Amenities'),
-                    const SizedBox(height: 16),
-                    _buildAmenitiesGrid(amenities),
-      
-                    const SizedBox(height: 24),
-      
-                    if (roomPrice.isNotEmpty) ...[
-                      _buildSectionHeader('Rate Plans'),
-                      const SizedBox(height: 16),
-                      ...roomPrice.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final ratePlan = entry.value;
-                        _policyKeys.putIfAbsent(index, () => GlobalKey());
-                        return _buildRatePlanCard(
-                          ratePlan,
-                          room,
-                          index,
-                          adults,
-                          children,
-                          totalGuests,
-                          startDate,
-                          endDate,
-                          propertyCode,
-                          hotelName,
-                          propertyId,
-                        );
-                      }).toList(),
-                    ],
-      
-                    const SizedBox(height: 100),
+
+                    const SizedBox(height: 120),
                   ],
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+
       floatingActionButton: roomPrice.isEmpty
-          ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _buildBookButton(
-                onPressed: () {
-                  _removeOverlay();
-                  Get.to(
-                    () => BookingPage(
-                      room: room,
-                      ratePlan: {},
-                      totalGuests: totalGuests,
-                      adults: adults,
-                      children: children,
-                      startDate: startDate,
-                      endDate: endDate,
-                      propertyId: propertyId,
-                      propertyCode: propertyCode,
-                      hotelName: hotelName,
-                    ),
-                  );
-                },
-              ),
+          ? _buildFloatingBookButton(
+              onPressed: () {
+                _removeOverlay();
+                Get.to(
+                  () => BookingPage(
+                    room: room,
+                    ratePlan: {},
+                    totalGuests: totalGuests,
+                    adults: adults,
+                    children: children,
+                    startDate: startDate,
+                    endDate: endDate,
+                    propertyId: propertyId,
+                    propertyCode: propertyCode,
+                    hotelName: hotelName,
+                    discountApplied: false,
+                    discountedPrice: 0,
+                    guestEmail: null,
+                    addons: [],
+                  ),
+                );
+              },
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
-  Widget _buildInfoChip(IconData icon, String text) {
+  // ── Hero Image Area ───────────────────────────────────────
+
+  Widget _buildHeroImageArea() {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (images.isNotEmpty)
+          PageView.builder(
+            controller: _pageController,
+            itemCount: images.length,
+            onPageChanged: (i) => setState(() => _currentImageIndex = i),
+            itemBuilder: (_, index) => Image.network(
+              images[index],
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                color: AppColor.primary.withOpacity(0.3),
+                child: Icon(
+                  Icons.hotel_rounded,
+                  size: 80,
+                  color: Colors.white.withOpacity(0.3),
+                ),
+              ),
+            ),
+          )
+        else
+          Container(
+            color: AppColor.primary,
+            child: Icon(
+              Icons.hotel_rounded,
+              size: 80,
+              color: Colors.white.withOpacity(0.2),
+            ),
+          ),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withOpacity(0.25),
+                Colors.transparent,
+                Colors.transparent,
+                Colors.black.withOpacity(0.7),
+              ],
+              stops: const [0, 0.25, 0.55, 1],
+            ),
+          ),
+        ),
+        if (images.length > 1)
+          Positioned(
+            bottom: 24,
+            left: 0,
+            right: 0,
+            child: SizedBox(
+              height: 60,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: images.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (_, index) {
+                  final active = index == _currentImageIndex;
+                  return GestureDetector(
+                    onTap: () => _pageController.animateToPage(
+                      index,
+                      duration: const Duration(milliseconds: 350),
+                      curve: Curves.easeInOut,
+                    ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: active ? 68 : 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: active
+                              ? Colors.white
+                              : Colors.white.withOpacity(0.3),
+                          width: active ? 2.5 : 1.5,
+                        ),
+                        boxShadow: active
+                            ? [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 8,
+                                ),
+                              ]
+                            : [],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          images[index],
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              Container(color: Colors.grey[300]),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        if (images.length > 1)
+          Positioned(
+            top: 80,
+            right: 10,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${_currentImageIndex + 1} / ${images.length}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ── Nav button ────────────────────────────────────────────
+
+  Widget _buildNavButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(8),
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color ?? Colors.black.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(icon, color: Colors.white, size: 20),
+      ),
+    );
+  }
+
+  // ── Title Block ───────────────────────────────────────────
+
+  Widget _buildTitleBlock(
+    String roomName,
+    String hotelName,
+    String roomType,
+    String checkIn,
+    String checkOut,
+    int nights,
+    int totalGuests,
+  ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (hotelName.isNotEmpty) ...[
+                      Row(
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 1.5,
+                            color: AppColor.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            hotelName.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: AppColor.primary,
+                              letterSpacing: 2.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    Text(
+                      roomName,
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: AppColor.text,
+                        height: 1.15,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Container(width: 36, height: 2.5, color: AppColor.primary),
+              const SizedBox(width: 5),
+              Container(width: 10, height: 2.5, color: AppColor.secondary),
+              const SizedBox(width: 5),
+              Container(
+                width: 5,
+                height: 2.5,
+                color: AppColor.secondary.withOpacity(0.4),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Quick Stats Strip ─────────────────────────────────────
+
+  Widget _buildQuickStats(
+    int roomSize,
+    String roomUnit,
+    String roomView,
+    int maxOccupancy,
+  ) {
+    final stats = <Map<String, dynamic>>[];
+    if (roomSize > 0)
+      stats.add({
+        'icon': Icons.straighten_rounded,
+        'label': '$roomSize $roomUnit',
+        'sub': 'Room Size',
+      });
+    if (roomView.isNotEmpty)
+      stats.add({
+        'icon': Icons.landscape_rounded,
+        'label': _capitalize(roomView),
+        'sub': 'View',
+      });
+    if (maxOccupancy > 0)
+      stats.add({
+        'icon': Icons.people_outline_rounded,
+        'label': '$maxOccupancy Guests',
+        'sub': 'Max Capacity',
+      });
+    if (stats.isEmpty) return const SizedBox();
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.grey[200]!),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColor.primary.withOpacity(0.08)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: AppColor.primary.withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        children: stats.asMap().entries.map((entry) {
+          final stat = entry.value;
+          final isLast = entry.key == stats.length - 1;
+          return Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColor.primary.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          stat['icon'] as IconData,
+                          size: 18,
+                          color: AppColor.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        stat['label'] as String,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColor.text,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        stat['sub'] as String,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: AppColor.textLight,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isLast)
+                  Container(width: 1, height: 48, color: Colors.grey[200]),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  // ── Stay Details Card ─────────────────────────────────────
+
+  Widget _buildStayDetailsCard(
+    String checkIn,
+    String checkOut,
+    int nights,
+    int adults,
+    int children,
+  ) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColor.primary, AppColor.primary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.primary.withOpacity(0.25),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
         children: [
-          Icon(icon, size: 16, color: AppColor.primary),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 13,
-              color: AppColor.text,
-              fontWeight: FontWeight.w500,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'CHECK-IN',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withOpacity(0.7),
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  checkIn,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  'From 14:00',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.white.withOpacity(0.65),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  '$nights',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  nights == 1 ? 'Night' : 'Nights',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.white.withOpacity(0.8),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'CHECK-OUT',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withOpacity(0.7),
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  checkOut,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+                Text(
+                  'Until 12:00',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.white.withOpacity(0.65),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -1361,7 +1203,23 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  // ── Section Wrapper ───────────────────────────────────────
+
+  Widget _buildSection(String title, Widget child) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle(title),
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1369,83 +1227,151 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
           title,
           style: TextStyle(
             fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
             color: AppColor.text,
+            letterSpacing: -0.3,
           ),
         ),
-        const SizedBox(height: 2),
-        Container(
-          width: 60,
-          height: 2,
-          color: AppColor.primary,
-        ),
-        Container(
-          width: 40,
-          height: 2,
-          color: AppColor.secondary,
-          margin: const EdgeInsets.only(top: 2),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Container(width: 36, height: 2, color: AppColor.primary),
+            const SizedBox(width: 4),
+            Container(width: 10, height: 2, color: AppColor.secondary),
+          ],
         ),
       ],
     );
   }
 
-  Widget _buildAmenitiesGrid(List amenities) {
-    if (amenities.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: Center(
-          child: Text(
-            'No amenities listed',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
-          ),
-        ),
-      );
-    }
+  // ── Description ───────────────────────────────────────────
 
+  Widget _buildDescriptionBlock(String description) {
     return Container(
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: amenities.map((amenity) {
-          final amenityName = amenity is String
-              ? amenity
-              : (amenity['amenityName'] ?? '');
-          return _buildAmenityItem(amenityName);
-        }).toList(),
+      child: Text(
+        description,
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.grey[700],
+          height: 1.7,
+          letterSpacing: 0.1,
+        ),
       ),
     );
   }
 
-  Widget _buildAmenityItem(String amenityName) {
+  // ── Amenities ─────────────────────────────────────────────
+
+  Widget _buildAmenitiesGrid(List amenities) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: amenities.map((a) {
+        final name = a is Map
+            ? (a['amenityName'] ?? a['name'] ?? '')
+            : a.toString();
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          decoration: BoxDecoration(
+            color: AppColor.primary.withOpacity(0.06),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: AppColor.primary.withOpacity(0.14),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(_getAmenityIcon(name), size: 14, color: AppColor.primary),
+              const SizedBox(width: 7),
+              Text(
+                name,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: AppColor.text,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ── Applied Discounts Banner ──────────────────────────────
+
+  Widget _buildAppliedDiscountsBanner(List roomPrice) {
+    final geoDiscounts = <String>[];
+    for (final rp in roomPrice) {
+      final appliedDiscounts = rp['appliedDiscounts'] as List? ?? [];
+      for (final d in appliedDiscounts) {
+        final name = d['promotionName'] ?? '';
+        final val = d['discountValue'] ?? 0;
+        if (!geoDiscounts.contains('$name ($val% off)')) {
+          geoDiscounts.add('$name ($val% off)');
+        }
+      }
+    }
+    if (geoDiscounts.isEmpty) return const SizedBox();
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColor.primary.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColor.primary.withOpacity(0.1)),
+        color: AppColor.secondary.withOpacity(0.07),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColor.secondary.withOpacity(0.25)),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(_getAmenityIcon(amenityName), size: 14, color: AppColor.primary),
-          const SizedBox(width: 6),
-          Text(
-            amenityName,
-            style: TextStyle(
-              fontSize: 13,
-              color: AppColor.text,
-              fontWeight: FontWeight.w500,
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColor.secondary,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.local_offer_rounded,
+              size: 16,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Discounts Applied',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColor.text,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                ...geoDiscounts.map(
+                  (d) => Text(
+                    '• $d',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -1453,53 +1379,49 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
     );
   }
 
-  Widget _buildRatePlanCard(
-    Map<String, dynamic> ratePlan,
-    Map<String, dynamic> room,
-    int index,
-    int adults,
-    int children,
-    int totalGuests,
-    String startDate,
-    String endDate,
-    String propertyCode,
-    String hotelName,
-    String propertyId,
-  ) {
-    final ratePlanName = ratePlan['ratePlanName'] ?? 'Standard Rate';
-    final totalAmount = ratePlan['totalAmount'] ?? 0;
-    final currency = ratePlan['currencyCode'] ?? 'USD';
-    final ratePlanCode = ratePlan['ratePlanCode'] ?? '';
+  // ── GROUPED PLAN CARD ─────────────────────────────────────
+  // One card per unique ratePlanCode; combos (Room Only / addons) listed inside.
 
-    final policy = ratePlan['policy'] as Map<String, dynamic>?;
-    final cancellationPolicy = policy?['cancellationPolicy'] as Map<String, dynamic>?;
-    final description = cancellationPolicy?['description'] ?? '';
+  Widget _buildGroupedPlanCard({
+    required _GroupedPlan plan,
+    required int planIndex,
+    required Map<String, dynamic> room,
+    required int adults,
+    required int children,
+    required int totalGuests,
+    required String startDate,
+    required String endDate,
+    required String propertyCode,
+    required String hotelName,
+    required String propertyId,
+    required int nights,
+  }) {
+    final cancellationPolicy =
+        plan.policy?['cancellationPolicy'] as Map<String, dynamic>?;
+    final policyDescription =
+        cancellationPolicy?['description'] as String? ?? '';
+    final touristTaxAmount =
+        (plan.touristTax?['calculatedTaxAmount'] as num?)?.toDouble() ?? 0;
 
-    // Discount logic
-    bool discountApplied = _globalDiscountApplied;
-    double discountedPrice = _globalDiscountedPrice;
-    bool isLoadingDiscount = _isLoadingDiscount;
-    int discountPercentage = _globalDiscountPercentage;
-    String? guestEmail = _globalGuestEmail;
-
-    double getDiscountedPriceForRatePlan() {
-      if (!_globalDiscountApplied) return totalAmount.toDouble();
-      final originalPrice = totalAmount.toDouble();
-      final discountAmount = originalPrice * (_globalDiscountPercentage / 100);
-      return originalPrice - discountAmount;
+    // Discount helper
+    double _discounted(double base) {
+      if (!_globalDiscountApplied) return base;
+      return base * (1 - _globalDiscountPercentage / 100);
     }
 
-    void _showDiscountForm() {
-      final nameController = TextEditingController();
-      final emailController = TextEditingController();
-      final mobileController = TextEditingController();
+    void _showDiscountForm(double basePrice) {
+      final nameCtrl = TextEditingController();
+      final emailCtrl = TextEditingController();
+      final mobileCtrl = TextEditingController();
       final formKey = GlobalKey<FormState>();
 
       showDialog(
         context: context,
-        builder: (dialogContext) => Dialog(
+        builder: (dialogCtx) => Dialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           child: Container(
             width: MediaQuery.of(context).size.width * 0.9,
             padding: const EdgeInsets.all(24),
@@ -1509,99 +1431,65 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Get Exclusive Discount',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColor.text,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Container(
-                        width: 60,
-                        height: 2,
-                        color: AppColor.primary,
-                      ),
-                      Container(
-                        width: 40,
-                        height: 2,
-                        color: AppColor.secondary,
-                        margin: const EdgeInsets.only(top: 2),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  
+                  _buildSectionTitle('Get Exclusive Discount'),
+                  const SizedBox(height: 14),
                   Text(
-                    'Sign up now to get an exclusive discount on ALL rate plans!',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    'Sign up to unlock exclusive rates on all plans!',
+                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Form Fields
+                  const SizedBox(height: 22),
                   _buildFormField(
-                    controller: nameController,
+                    controller: nameCtrl,
                     label: 'Full Name',
-                    hint: 'Enter your full name',
+                    hint: 'Enter your name',
                     icon: Icons.person_outline_rounded,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter your name';
-                      return null;
-                    },
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Required' : null,
                   ),
-                  const SizedBox(height: 16),
-                  
+                  const SizedBox(height: 14),
                   _buildFormField(
-                    controller: emailController,
+                    controller: emailCtrl,
                     label: 'Email Address',
                     hint: 'Enter your email',
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter your email';
-                      if (!GetUtils.isEmail(value)) return 'Please enter a valid email';
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Required';
+                      if (!GetUtils.isEmail(v)) return 'Invalid email';
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
-                  
+                  const SizedBox(height: 14),
                   _buildFormField(
-                    controller: mobileController,
+                    controller: mobileCtrl,
                     label: 'Mobile Number',
-                    hint: 'Enter your mobile number',
+                    hint: 'Enter mobile',
                     icon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter your mobile number';
-                      if (value.length < 10) return 'Please enter a valid mobile number';
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Required';
+                      if (v.length < 10) return 'Enter valid number';
                       return null;
                     },
                   ),
                   const SizedBox(height: 24),
-
-                  // Buttons
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () => Navigator.pop(dialogContext),
+                          onPressed: () => Navigator.pop(dialogCtx),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             side: BorderSide(color: Colors.grey[300]!),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(14),
                             ),
                           ),
                           child: Text(
                             'Cancel',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
                               color: Colors.grey[600],
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -1610,84 +1498,86 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
-                            if (formKey.currentState!.validate()) {
-                              setState(() => _isLoadingDiscount = true);
-                              
-                              try {
-                                final response = await http.post(
-                                  Uri.parse('https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount'),
-                                  headers: {'Content-Type': 'application/json'},
-                                  body: json.encode({
-                                    'email': emailController.text.trim(),
-                                    'propertyId': propertyId,
-                                  }),
-                                ).timeout(const Duration(seconds: 10));
+                            if (!formKey.currentState!.validate()) return;
+                            setState(() => _isLoadingDiscount = true);
+                            try {
+                              final response = await http
+                                  .post(
+                                    Uri.parse(
+                                      'https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount',
+                                    ),
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: json.encode({
+                                      'email': emailCtrl.text.trim(),
+                                      'propertyId': propertyId,
+                                    }),
+                                  )
+                                  .timeout(const Duration(seconds: 10));
 
-                                Navigator.pop(dialogContext);
+                              Navigator.pop(dialogCtx);
 
-                                if (response.statusCode == 200) {
-                                  final responseData = json.decode(response.body);
-                                  
-                                  if (responseData['success'] == true && responseData['data'] != null) {
-                                    final data = responseData['data'];
-                                    final isLoyaltyMember = data['isLoyaltyMember'] ?? false;
-                                    
-                                    if (isLoyaltyMember) {
-                                      final discount = data['discount']?['value'] ?? 0;
-                                      
-                                      setState(() {
-                                        _globalGuestEmail = emailController.text.trim();
-                                        _globalDiscountApplied = true;
-                                        _globalDiscountPercentage = discount;
-                                        _globalCurrency = currency;
-                                        _globalOriginalPrice = totalAmount.toDouble();
-                                        
-                                        final originalPrice = totalAmount.toDouble();
-                                        final discountAmount = originalPrice * (discount / 100);
-                                        _globalDiscountedPrice = originalPrice - discountAmount;
-                                        
-                                        _discountSourceRatePlan = ratePlanCode;
-                                        _isLoadingDiscount = false;
-                                      });
-                                      
-                                      if (context.mounted) {
-                                        showSuccessDialog(
-                                          context,
-                                          '🎉 $discount% discount applied to all rate plans!',
-                                        );
-                                      }
-                                    } else {
-                                      setState(() => _isLoadingDiscount = false);
-                                      if (context.mounted) {
-                                        showErrorDialog(
-                                          context,
-                                          'Sorry, you are not eligible for the discount.',
-                                        );
-                                      }
+                              if (response.statusCode == 200) {
+                                final data = json.decode(response.body);
+                                if (data['success'] == true &&
+                                    data['data'] != null) {
+                                  final d = data['data'];
+                                  if (d['isLoyaltyMember'] == true) {
+                                    final discount =
+                                        d['discount']?['value'] ?? 0;
+                                    setState(() {
+                                      _globalGuestEmail = emailCtrl.text.trim();
+                                      _globalDiscountApplied = true;
+                                      _globalDiscountPercentage = discount;
+                                      _globalCurrency = plan.currencyCode;
+                                      _globalOriginalPrice = basePrice;
+                                      _globalDiscountedPrice =
+                                          basePrice * (1 - discount / 100);
+                                      _discountSourceRatePlan =
+                                          plan.ratePlanCode;
+                                      _isLoadingDiscount = false;
+                                    });
+                                    if (context.mounted) {
+                                      showSuccessDialog(
+                                        context,
+                                        '🎉 $discount% discount applied!',
+                                      );
+                                    }
+                                  } else {
+                                    setState(() => _isLoadingDiscount = false);
+                                    if (context.mounted) {
+                                      showErrorDialog(
+                                        context,
+                                        'Not eligible for discount.',
+                                      );
                                     }
                                   }
                                 }
-                              } catch (e) {
-                                Navigator.pop(dialogContext);
-                                setState(() => _isLoadingDiscount = false);
-                                if (context.mounted) {
-                                  showErrorDialog(context, 'Network error. Please try again.');
-                                }
+                              }
+                            } catch (_) {
+                              Navigator.pop(dialogCtx);
+                              setState(() => _isLoadingDiscount = false);
+                              if (context.mounted) {
+                                showErrorDialog(
+                                  context,
+                                  'Network error. Try again.',
+                                );
                               }
                             }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColor.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(14),
                             ),
                             elevation: 0,
                           ),
                           child: _isLoadingDiscount
                               ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
+                                  height: 18,
+                                  width: 18,
                                   child: CircularProgressIndicator(
                                     color: Colors.white,
                                     strokeWidth: 2,
@@ -1696,7 +1586,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
                               : const Text(
                                   'Sign Up',
                                   style: TextStyle(
-                                    fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.white,
                                   ),
@@ -1713,302 +1602,396 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
       );
     }
 
-    final ratePlanDiscountedPrice = getDiscountedPriceForRatePlan();
-    final savings = totalAmount.toDouble() - ratePlanDiscountedPrice;
-
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: discountApplied && _discountSourceRatePlan == ratePlanCode
-              ? AppColor.secondary.withOpacity(0.5)
+          color: _globalDiscountApplied
+              ? AppColor.secondary.withOpacity(0.4)
               : Colors.grey[200]!,
-          width: discountApplied && _discountSourceRatePlan == ratePlanCode ? 2 : 1,
+          width: _globalDiscountApplied ? 1.5 : 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.primary.withOpacity(0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Main Card Content
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+          // ── Plan header row ──────────────────────────────
+          Container(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+            decoration: BoxDecoration(
+              color: AppColor.primary.withOpacity(0.04),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+            ),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left Section - Rate Plan Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              ratePlanName,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColor.text,
-                              ),
-                            ),
-                          ),
-                          if (discountApplied && _discountSourceRatePlan == ratePlanCode)
-                            Container(
-                              margin: const EdgeInsets.only(left: 8),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColor.secondary,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                'Applied',
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Includes taxes & fees',
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        plan.ratePlanName.toUpperCase(),
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[500],
+                          fontWeight: FontWeight.w800,
+                          color: AppColor.primary,
+                          letterSpacing: 0.4,
                         ),
                       ),
-                      if (description.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        // Policy text preserved exactly as original
-                        Container(
-                          key: _policyKeys[index],
-                          child: GestureDetector(
-                            onTap: () {
-                              if (_expandedPolicyIndex == index) {
-                                _removeOverlay();
-                              } else {
-                                _showPolicyOverlay(context, description, index);
-                              }
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'View Policy',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: AppColor.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  _expandedPolicyIndex == index
-                                      ? Icons.keyboard_arrow_up_rounded
-                                      : Icons.keyboard_arrow_down_rounded,
-                                  color: AppColor.primary,
-                                  size: 18,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-
-                const SizedBox(width: 16),
-
-                // Right Section - Price & Book
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (discountApplied) ...[
-                      Row(
-                        children: [
-                          Text(
-                            '$currency ${totalAmount.toInt()}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[400],
-                              decoration: TextDecoration.lineThrough,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColor.secondary,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '-$discountPercentage%',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                    ],
-                    
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          '$currency ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColor.primary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          discountApplied
-                              ? '${ratePlanDiscountedPrice.toInt()}'
-                              : '${totalAmount.toInt()}',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: AppColor.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '/night',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[500],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
                     ),
-                    
-                    if (discountApplied && savings > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                    if (_globalDiscountApplied)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColor.secondary,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         child: Text(
-                          'Save $currency ${savings.toInt()}',
-                          style: TextStyle(
+                          '-$_globalDiscountPercentage%',
+                          style: const TextStyle(
                             fontSize: 11,
-                            color: AppColor.secondary,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
                           ),
                         ),
                       ),
-                    
-                    const SizedBox(height: 12),
-                    
-                    SizedBox(
-                      height: 40,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          _removeOverlay();
-                          
-                          final currentGuestEmail = _globalGuestEmail;
-
-                          if (AuthController.to.isLoggedIn.value) {
-                            // Navigate to booking
-                            Get.to(
-                              () => BookingPage(
-                                room: room,
-                                ratePlan: ratePlan,
-                                totalGuests: totalGuests,
-                                adults: adults,
-                                children: children,
-                                startDate: startDate,
-                                endDate: endDate,
-                                propertyId: propertyId,
-                                propertyCode: propertyCode,
-                                hotelName: hotelName,
-                                discountApplied: _globalDiscountApplied,
-                                discountedPrice: ratePlanDiscountedPrice.toInt(),
-                                guestEmail: currentGuestEmail,
-                              ),
-                            );
-                          } else {
-                            showErrorDialog(
-                              context,
-                              'Please login to book a room',
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Get.toNamed(
-                                  '/login',
-                                  arguments: {
-                                    'nextRoute': '/room-details',
-                                    'bookingArguments': {
-                                      'room': room,
-                                      'ratePlan': ratePlan,
-                                      'totalGuests': totalGuests,
-                                      'adults': adults,
-                                      'children': children,
-                                      'startDate': startDate,
-                                      'endDate': endDate,
-                                      'propertyId': propertyId,
-                                      'propertyCode': propertyCode,
-                                      'hotelName': hotelName,
-                                    },
-                                    'fromBooking': true,
-                                  },
-                                );
-                              },
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColor.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'Book',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
+                const SizedBox(height: 4),
+                // Tax line
+                Text(
+                  'TAX NOT INCLUDED · TOURISM FEE: ${plan.currencyCode} ${touristTaxAmount.toInt()} · PAY AT THE HOTEL',
+                  style: TextStyle(fontSize: 9, color: Colors.grey[500]),
+                ),
+                // Policy link
+                if (policyDescription.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  GestureDetector(
+                    key: _policyKeys[planIndex],
+                    onTap: () {
+                      if (_expandedPolicyIndex == planIndex) {
+                        _removeOverlay();
+                      } else {
+                        _showPolicyOverlay(
+                          context,
+                          policyDescription,
+                          planIndex,
+                        );
+                      }
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.policy_outlined,
+                          size: 13,
+                          color: AppColor.primary,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Booking conditions →',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColor.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        Icon(
+                          _expandedPolicyIndex == planIndex
+                              ? Icons.keyboard_arrow_up_rounded
+                              : Icons.keyboard_arrow_down_rounded,
+                          size: 14,
+                          color: AppColor.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
 
-          // Discount Banner
-          if (!discountApplied)
-            InkWell(
-              onTap: _showDiscountForm,
+          // ── Combo rows ───────────────────────────────────
+          ...plan.combos.asMap().entries.map((comboEntry) {
+            final ci = comboEntry.key;
+            final combo = comboEntry.value;
+            final isLast = ci == plan.combos.length - 1;
+
+            final double basePrice = combo.totalAmount;
+            final double discountedPrice = _discounted(basePrice);
+            final double savings = basePrice - discountedPrice;
+
+            // Original base (before this combo's addon) for strikethrough
+            final double? addonPrice =
+                combo.addons.isNotEmpty && combo.addons.first is Map
+                ? (combo.addons.first['price'] as num?)?.toDouble()
+                : null;
+            final double roomOnlyPrice = addonPrice != null
+                ? basePrice - addonPrice
+                : basePrice;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Divider between combos
+                if (ci > 0)
+                  Divider(height: 1, color: Colors.grey[100], thickness: 1),
+
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Label column
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  combo.addons.isEmpty ? '↳ ' : '+ ',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[400],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    combo.label,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: combo.addons.isEmpty
+                                          ? FontWeight.w500
+                                          : FontWeight.w600,
+                                      color: combo.addons.isEmpty
+                                          ? Colors.grey[700]
+                                          : AppColor.text,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Show base price as sub-label when addon present
+                            if (combo.addons.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                'Base price: ${plan.currencyCode} ${roomOnlyPrice.toInt()}',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // Price + ADD button
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          // Strikethrough original if discounted
+                          if (_globalDiscountApplied && savings > 0)
+                            Text(
+                              '${plan.currencyCode} ${basePrice.toInt()}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey[400],
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          Row(
+                            children: [
+                              Text(
+                                '${plan.currencyCode} ',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                              Text(
+                                '${discountedPrice.toInt()}',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColor.primary,
+                                  height: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (_globalDiscountApplied && savings > 0)
+                            Container(
+                              margin: const EdgeInsets.only(top: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.secondary.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'Save ${plan.currencyCode} ${savings.toInt()}',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColor.secondary,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      // ADD button
+                      GestureDetector(
+                        onTap: () async {
+                          _removeOverlay();
+                          Get.dialog(
+                            const Center(child: CircularProgressIndicator()),
+                            barrierDismissible: false,
+                          );
+                          await _fetchAndShowAddons(
+                            propertyCode: propertyCode,
+                            startDate: startDate,
+                            endDate: endDate,
+                            ratePlanCode: plan.ratePlanCode,
+                            room: room,
+                            ratePlan: combo.rawRatePlan,
+                            adults: adults,
+                            children: children,
+                            totalGuests: totalGuests,
+                            propertyId: propertyId,
+                            hotelName: hotelName,
+                            discountedPrice: discountedPrice,
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColor.secondary,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColor.secondary.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: const Text(
+                            'ADD',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Direct payment notice after last combo
+                if (isLast)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+                    child: Text(
+                      'Direct payment at hotel: TOURISM FEE — ${plan.currencyCode} ${touristTaxAmount.toInt()}',
+                      style: TextStyle(fontSize: 9, color: Colors.grey[400]),
+                    ),
+                  ),
+              ],
+            );
+          }).toList(),
+
+          // ── Applied geo-discounts chips ──────────────────
+          if (plan.appliedDiscounts.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: plan.appliedDiscounts.map((d) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColor.secondary.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppColor.secondary.withOpacity(0.2),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.sell_rounded,
+                          size: 11,
+                          color: AppColor.secondary,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          '${d['promotionName'] ?? ''} (${d['discountValue']}% off)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColor.secondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+
+          // ── Member-rate CTA ──────────────────────────────
+          if (!_globalDiscountApplied)
+            GestureDetector(
+              onTap: () => _showDiscountForm(
+                plan.combos.isNotEmpty ? plan.combos.first.totalAmount : 0,
+              ),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
-                  color: AppColor.secondary.withOpacity(0.05),
+                  color: AppColor.secondary.withOpacity(0.06),
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(20),
                     bottomRight: Radius.circular(20),
                   ),
                   border: Border(
-                    top: BorderSide(
-                      color: AppColor.secondary.withOpacity(0.2),
-                    ),
+                    top: BorderSide(color: AppColor.secondary.withOpacity(0.2)),
                   ),
                 ),
                 child: Row(
@@ -2017,11 +2000,11 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: AppColor.secondary,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
-                        Icons.local_offer_rounded,
-                        size: 16,
+                        Icons.card_membership_rounded,
+                        size: 15,
                         color: Colors.white,
                       ),
                     ),
@@ -2031,17 +2014,17 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Get Discount on All Plans',
+                            'Member Rate Available',
                             style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
                               color: AppColor.text,
                             ),
                           ),
                           Text(
-                            'Sign up once - discount applies to every rate plan',
+                            'Sign up once — discount on all plans',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 11,
                               color: Colors.grey[600],
                             ),
                           ),
@@ -2049,9 +2032,9 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
                       ),
                     ),
                     Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 14,
+                      Icons.chevron_right_rounded,
                       color: AppColor.secondary,
+                      size: 20,
                     ),
                   ],
                 ),
@@ -2061,6 +2044,55 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
       ),
     );
   }
+
+  // ── Floating Book Button ──────────────────────────────────
+
+  Widget _buildFloatingBookButton({required VoidCallback onPressed}) {
+    return Container(
+      width: MediaQuery.of(context).size.width - 48,
+      height: 50,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColor.secondary, AppColor.secondary],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.primary.withOpacity(0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text(
+              'Reserve Now',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(width: 8),
+            Icon(Icons.arrow_forward_rounded, size: 20, color: Colors.white),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Form field ────────────────────────────────────────────
 
   Widget _buildFormField({
     required TextEditingController controller,
@@ -2076,105 +2108,119 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle: TextStyle(color: AppColor.primary),
-        labelStyle: TextStyle(color: AppColor.primary),
-        focusColor: AppColor.primary,
+        labelStyle: TextStyle(color: AppColor.primary, fontSize: 13),
+        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
         prefixIcon: Icon(icon, color: AppColor.secondary, size: 20),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey[800]!),
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey[800]!),
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColor.secondary, width: 2),
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: AppColor.primary, width: 1.5),
         ),
         filled: true,
         fillColor: Colors.grey[50],
-        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 14,
+          horizontal: 16,
+        ),
       ),
       validator: validator,
     );
   }
 
-  Widget _buildBookButton({required VoidCallback onPressed}) {
-    return Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: [AppColor.primary, AppColor.primary.withOpacity(0.9)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.primary.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+  // ── Error scaffold ────────────────────────────────────────
+
+  Widget _buildErrorScaffold(String message) {
+    return Scaffold(
+      backgroundColor: AppColor.background,
+      appBar: AppBar(
+        backgroundColor: AppColor.primary,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
           ),
-        ],
+          onPressed: () => Get.back(),
+        ),
       ),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              'Book Now',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColor.primary.withOpacity(0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.hotel_rounded,
+                  size: 48,
+                  color: AppColor.primary,
+                ),
               ),
-            ),
-            SizedBox(width: 8),
-            Icon(Icons.arrow_forward_rounded, size: 20, color: Colors.white),
-          ],
+              const SizedBox(height: 20),
+              Text(
+                message,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColor.textLight,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  IconData _getAmenityIcon(String amenityName) {
-    final name = amenityName.toLowerCase();
-    if (name.contains('wifi') || name.contains('internet')) {
-      return Icons.wifi_rounded;
-    } else if (name.contains('tv') || name.contains('television')) {
-      return Icons.tv_rounded;
-    } else if (name.contains('ac') || name.contains('air')) {
-      return Icons.ac_unit_rounded;
-    } else if (name.contains('parking')) {
-      return Icons.local_parking_rounded;
-    } else if (name.contains('pool') || name.contains('swimming')) {
-      return Icons.pool_rounded;
-    } else if (name.contains('gym') || name.contains('fitness')) {
+  // ── Helpers ───────────────────────────────────────────────
+
+  String _capitalize(String s) =>
+      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+
+  IconData _getAmenityIcon(String name) {
+    final n = name.toLowerCase();
+    if (n.contains('wifi') || n.contains('internet')) return Icons.wifi_rounded;
+    if (n.contains('tv') || n.contains('television')) return Icons.tv_rounded;
+    if (n.contains('ac') || n.contains('air')) return Icons.ac_unit_rounded;
+    if (n.contains('parking')) return Icons.local_parking_rounded;
+    if (n.contains('pool')) return Icons.pool_rounded;
+    if (n.contains('gym') || n.contains('fitness'))
       return Icons.fitness_center_rounded;
-    } else if (name.contains('breakfast') || name.contains('food')) {
+    if (n.contains('breakfast') || n.contains('food'))
       return Icons.restaurant_rounded;
-    } else if (name.contains('bath') || name.contains('shower')) {
+    if (n.contains('bath') || n.contains('shower'))
       return Icons.bathtub_rounded;
-    } else if (name.contains('kitchen')) {
-      return Icons.kitchen_rounded;
-    } else if (name.contains('pet')) {
-      return Icons.pets_rounded;
-    } else if (name.contains('balcony')) {
+    if (n.contains('kitchen')) return Icons.kitchen_rounded;
+    if (n.contains('pet')) return Icons.pets_rounded;
+    if (n.contains('balcony') || n.contains('terrace'))
       return Icons.balcony_rounded;
-    } else if (name.contains('safe')) {
-      return Icons.lock_rounded;
-    } else if (name.contains('coffee') || name.contains('tea')) {
-      return Icons.coffee_rounded;
-    }
-    return Icons.check_circle_rounded;
+    if (n.contains('safe') || n.contains('lock')) return Icons.lock_rounded;
+    if (n.contains('coffee') || n.contains('tea')) return Icons.coffee_rounded;
+    if (n.contains('desk') || n.contains('work')) return Icons.desk_rounded;
+    if (n.contains('phone') || n.contains('telephone'))
+      return Icons.phone_rounded;
+    if (n.contains('curtain') || n.contains('blackout'))
+      return Icons.blinds_rounded;
+    if (n.contains('slipper') || n.contains('bathrobe'))
+      return Icons.checkroom_rounded;
+    if (n.contains('alarm') || n.contains('clock')) return Icons.alarm_rounded;
+    if (n.contains('iron')) return Icons.iron_rounded;
+    if (n.contains('sound')) return Icons.volume_off_rounded;
+    if (n.contains('seating')) return Icons.chair_rounded;
+    if (n.contains('toiletries')) return Icons.wash_rounded;
+    return Icons.check_circle_outline_rounded;
   }
 }

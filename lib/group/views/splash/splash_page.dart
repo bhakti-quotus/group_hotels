@@ -34,7 +34,7 @@ class _SplashPageState extends State<SplashPage> {
       print('Error loading config: $e');
     } finally {
       Future.delayed(const Duration(seconds: 3), () {
-        Get.offNamed(AppRoutes.login);
+        Get.offNamed(AppRoutes.groupHome);
       });
     }
   }

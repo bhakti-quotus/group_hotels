@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:group/group/controllers/hotel_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
 import 'image_grid_widget.dart';
 import 'description_widget.dart';
+import 'restaurants_widget.dart';
 import 'policies_widget.dart';
 import 'image_gallery_popup.dart';
+//import 'contact_widget.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({Key? key}) : super(key: key);
@@ -63,11 +66,17 @@ class _AboutScreenState extends State<AboutScreen>
   }
 
   void _onScroll() {
-    final isScrolled = _scrollController.offset > 10;
-    if (isScrolled != _isScrolled) {
-      setState(() {
-        _isScrolled = isScrolled;
-      });
+    final shouldBeScrolled = _scrollController.offset > 20;
+    if (shouldBeScrolled != _isScrolled) {
+      setState(() => _isScrolled = shouldBeScrolled);
+      SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle(
+          statusBarColor: _isScrolled ? AppColor.primary : Colors.transparent,
+          statusBarIconBrightness: _isScrolled
+              ? Brightness.light
+              : Brightness.dark,
+        ),
+      );
     }
   }
 
@@ -82,7 +91,6 @@ class _AboutScreenState extends State<AboutScreen>
       }
     } catch (e) {
       debugPrint('Error loading about data: $e');
-
     }
   }
 
@@ -94,7 +102,6 @@ class _AboutScreenState extends State<AboutScreen>
       ),
     );
   }
-
 
   List<Map<String, dynamic>> _buildPolicies(Map<String, dynamic> policiesData) {
     final entries = [
@@ -143,19 +150,16 @@ class _AboutScreenState extends State<AboutScreen>
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0),
         child: AppBar(
-
           backgroundColor: _isScrolled ? AppColor.primary : Colors.transparent,
           elevation: 0,
           systemOverlayStyle: SystemUiOverlayStyle(
             statusBarColor: _isScrolled ? AppColor.primary : Colors.transparent,
             statusBarIconBrightness: _isScrolled
-
                 ? Brightness.light
                 : Brightness.dark,
           ),
         ),
       ),
-
       body: SingleChildScrollView(
         controller: _scrollController,
         child: Column(

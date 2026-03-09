@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:group/ui/booking_page/booking_page.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:get/get.dart';
+import 'package:group/group/models/booking_data_model.dart';
 
 class ConfirmBookingPage extends StatelessWidget {
   const ConfirmBookingPage({Key? key}) : super(key: key);
 
-  BookingData get bookingData => Get.arguments as BookingData;
+  BookingDataModel get bookingData => Get.arguments as BookingDataModel;
 
   int get totalNights =>
       bookingData.checkOut.difference(bookingData.checkIn).inDays;
@@ -42,8 +42,6 @@ class ConfirmBookingPage extends StatelessWidget {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
       ),
-
-      // -------------------------- BODY -------------------------------
       body: Column(
         children: [
           Expanded(
@@ -53,7 +51,7 @@ class ConfirmBookingPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    // ---------------- ROOM DETAILS CARD ----------------
+                    // ── Room Details Card ──────────────────────────────
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -73,7 +71,6 @@ class ConfirmBookingPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-
                           Row(
                             children: [
                               const Icon(
@@ -91,13 +88,11 @@ class ConfirmBookingPage extends StatelessWidget {
                               ),
                             ],
                           ),
-
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Divider(height: 1),
                           ),
-
-                          // ---------------- STAY DETAILS ----------------
+                          // Stay Details
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -123,10 +118,8 @@ class ConfirmBookingPage extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 12),
-
                           Row(
                             children: [
-                              // Check-in
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,15 +143,12 @@ class ConfirmBookingPage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-
                               const Icon(
                                 Icons.arrow_forward,
                                 size: 16,
                                 color: AppColor.textLight,
                               ),
                               const SizedBox(width: 8),
-
-                              // Check-out
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -184,7 +174,6 @@ class ConfirmBookingPage extends StatelessWidget {
                               ),
                             ],
                           ),
-
                           const SizedBox(height: 8),
                           Text(
                             '$totalNights Night${totalNights > 1 ? 's' : ''}',
@@ -194,13 +183,11 @@ class ConfirmBookingPage extends StatelessWidget {
                               color: AppColor.primary,
                             ),
                           ),
-
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Divider(height: 1),
                           ),
-
-                          // ---------------- GUEST DETAILS ----------------
+                          // Guest Details
                           Text(
                             'Guest Details',
                             style: TextStyle(
@@ -210,13 +197,11 @@ class ConfirmBookingPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 12),
-
                           _buildCompactGuestRow(
                             'Adults',
                             bookingData.adults,
                             Icons.person,
                           ),
-
                           if (bookingData.children > 0) ...[
                             const SizedBox(height: 8),
                             _buildCompactGuestRow(
@@ -239,10 +224,8 @@ class ConfirmBookingPage extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
-                    // ---------------- PRICE BREAKDOWN ----------------
+                    // ── Price Breakdown ────────────────────────────────
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -262,12 +245,10 @@ class ConfirmBookingPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 12),
-
                           _buildPriceRow(
                             'AED ${bookingData.basePrice} × $totalNights nights × ${bookingData.rooms} rooms',
                             'AED $roomsPrice',
                           ),
-
                           if (bookingData.adults > 1) ...[
                             const SizedBox(height: 6),
                             _buildPriceRow(
@@ -275,7 +256,6 @@ class ConfirmBookingPage extends StatelessWidget {
                               'AED $adultsPrice',
                             ),
                           ],
-
                           if (bookingData.children > 0) ...[
                             const SizedBox(height: 6),
                             _buildPriceRow(
@@ -283,35 +263,29 @@ class ConfirmBookingPage extends StatelessWidget {
                               'AED $childrenPrice',
                             ),
                           ],
-
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 10),
                             child: Divider(height: 1),
                           ),
-
                           _buildPriceRow(
                             'Subtotal',
                             'AED $subtotal',
                             isSubtotal: true,
                           ),
-
                           const SizedBox(height: 6),
                           _buildPriceRow(
                             'GST (12%)',
                             'AED ${gstAmount.toStringAsFixed(2)}',
                           ),
-
                           const SizedBox(height: 6),
                           _buildPriceRow(
                             'Service Tax (5%)',
                             'AED ${serviceTax.toStringAsFixed(2)}',
                           ),
-
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 10),
                             child: Divider(height: 1, thickness: 2),
                           ),
-
                           _buildPriceRow(
                             'Total Amount',
                             'AED ${totalPrice.toStringAsFixed(2)}',
@@ -325,11 +299,8 @@ class ConfirmBookingPage extends StatelessWidget {
               ),
             ),
           ),
-
-          // ------------------ CONFIRM BUTTON (BOTTOM) -------------------
         ],
       ),
-
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -395,8 +366,6 @@ class ConfirmBookingPage extends StatelessWidget {
       ),
     );
   }
-
-  // ------------------ HELPER WIDGETS -------------------
 
   Widget _buildCompactGuestRow(String label, int count, IconData icon) {
     return Row(

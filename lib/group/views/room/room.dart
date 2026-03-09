@@ -5,6 +5,7 @@ import 'package:group/ui/room_screen/room_screen.dart';
 import 'package:get/get.dart';
 import '../../common/bottom_navitem/bottom_navitem_list.dart';
 import '../../controllers/hotel_controller.dart';
+import 'package:flutter/material.dart' as material;
 
 class Room extends StatefulWidget {
   const Room({super.key});
@@ -16,29 +17,83 @@ class Room extends StatefulWidget {
 class _RoomState extends State<Room> {
   int _currentIndex = 0;
   List<BottomNavItem> _navItems = [];
+  bool _initialized = false; // ← guard to prevent re-init
 
   @override
   void initState() {
     super.initState();
+    _ensureHotelSelected();
     _loadNavItems();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadNavItems();
+  // ✅ REMOVED didChangeDependencies — it was causing repeated _loadNavItems()
+  // calls on every rebuild, resetting _navItems and showing the spinner again.
+
+  void _ensureHotelSelected() {
+    final hotelController = Get.find<HotelController>();
+
+    if (hotelController.getSelectedHotel() != null) {
+      // ✅ Even if already set, reload branding in case it changed
+      final hotelConfig = hotelController.getSelectedHotel()?['config'];
+      if (hotelConfig != null) BrandingColors.loadFromConfig(hotelConfig);
+      return;
+    }
+
+    final args = Get.arguments;
+    if (args != null && args is Map<String, dynamic>) {
+      if (args['config'] != null) {
+        hotelController.setSelectedHotel(args);
+        BrandingColors.loadFromConfig(args['config']); // ✅ ADD
+        print("Room: hotel set from Get.arguments: ${args['name']}");
+        return;
+      }
+      final hotelFromArgs = args['hotel'] as Map<String, dynamic>?;
+      if (hotelFromArgs != null) {
+        hotelController.setSelectedHotel(hotelFromArgs);
+        BrandingColors.loadFromConfig(hotelFromArgs['config']); // ✅ ADD
+        return;
+      }
+    }
+
+    final config = hotelController.getConfig();
+    if (config != null) {
+      final childHotels = config['childHotels'] as List<dynamic>?;
+      if (childHotels != null && childHotels.isNotEmpty) {
+        final firstHotel = Map<String, dynamic>.from(childHotels.first);
+        hotelController.setSelectedHotel(firstHotel);
+        BrandingColors.loadFromConfig(firstHotel['config']); // ✅ ADD
+        return;
+      }
+    }
   }
 
   Future<void> _loadNavItems() async {
+    if (_initialized) return; // ← prevent re-running after first load
+
     final controller = Get.find<HotelController>();
-    final config = controller.getConfig();
-    
+
+    // Use selected hotel's config for nav items
+    final selectedHotel = controller.getSelectedHotel();
+    final hotelConfig = selectedHotel?['config'] as Map<String, dynamic>?;
+    final branding =
+        hotelConfig?['branding']
+            as Map<String, dynamic>? ?? // ← child hotel first
+        controller.getConfig()?['branding']
+            as Map<String, dynamic>? ?? // ← group fallback
+        {};
+    // Fallback to group config if hotel config missing
+    final config = hotelConfig ?? controller.getConfig();
+
     final items = await BottomNavItemManager.getNavItems(config: config);
-    setState(() {
-      _navItems = items;
-      _currentIndex = _navItems.indexWhere((item) => item.route == '/rooms');
-      if (_currentIndex == -1) _currentIndex = 0;
-    });
+
+    if (mounted) {
+      setState(() {
+        _navItems = items;
+        _currentIndex = _navItems.indexWhere((item) => item.route == '/rooms');
+        if (_currentIndex == -1) _currentIndex = 0;
+        _initialized = true; // ← mark as done
+      });
+    }
   }
 
   void _onNavTap(int index) {
@@ -50,15 +105,21 @@ class _RoomState extends State<Room> {
   @override
   Widget build(BuildContext context) {
     if (_navItems.isEmpty) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: material.Center(child: CircularProgressIndicator()),
+      );
     }
 
     final controller = Get.find<HotelController>();
-    final config = controller.getConfig();
+
+    // ✅ Read branding from selected hotel's config, not group config
+    final selectedHotel = controller.getSelectedHotel();
+    final hotelConfig = selectedHotel?['config'] as Map<String, dynamic>?;
     final branding =
-        config?['branding'] as Map<String, dynamic>? ??
-        config?['config']?['branding'] as Map<String, dynamic>? ??
+        hotelConfig?['branding'] as Map<String, dynamic>? ??
+        controller.getConfig()?['branding'] as Map<String, dynamic>? ??
         {};
+
     final primaryColor = branding['primaryColor'] != null
         ? Color(int.parse(branding['primaryColor'].replaceFirst('#', '0xff')))
         : AppColor.primary;
@@ -68,7 +129,7 @@ class _RoomState extends State<Room> {
       data: ThemeData(fontFamily: fontFamily),
       child: Scaffold(
         backgroundColor: AppColor.background,
-        body: const RoomScreen(),
+        body: RoomScreen(key: ValueKey(controller.getSelectedHotel()?['code'])),
         bottomNavigationBar: BottomNavbar(
           currentIndex: _currentIndex,
           onTap: _onNavTap,

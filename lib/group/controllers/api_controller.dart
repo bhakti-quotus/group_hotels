@@ -25,10 +25,10 @@ class ApiController extends GetxController {
     final jsonMap = json.decode(data);
 
     // Load both URLs
-   // _baseUrl = jsonMap['config']['extranet']['url'];
-   // _pmsUrl = jsonMap['config']['pms']['url'];
+    // _baseUrl = jsonMap['config']['extranet']['url'];
+    // _pmsUrl = jsonMap['config']['pms']['url'];
 
-   // print('Extranet base url: $_baseUrl');
+    // print('Extranet base url: $_baseUrl');
     //print('PMS url: $_pmsUrl');
 
     _configLoaded = true;
@@ -45,12 +45,14 @@ class ApiController extends GetxController {
 
   Future<Map<String, dynamic>> fetchRooms(Map<String, dynamic> payload) async {
     await _ensureConfigLoaded();
-   // print('api url for fetch room $_baseUrl/booking-engine/fetch-rooms');
-   print('fetchroom method called');
+    // print('api url for fetch room $_baseUrl/booking-engine/fetch-rooms');
+    print('fetchroom method called');
     try {
       final response = await http
           .post(
-            Uri.parse('https://bookings.revchilltech.com/api/v1/booking-engine/fetch-rooms'),
+            Uri.parse(
+              'https://bookings.revchilltech.com/api/v1/booking-engine/fetch-rooms',
+            ),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
           )
@@ -86,15 +88,33 @@ print('payload for fetch room: $payload');
     await _ensureConfigLoaded();
 
     try {
+      // Print the payload being sent
+      print('========== GET PRICE PAYLOAD ==========');
+      print(
+        'URL: https://bookings.revchilltech.com/api/v1/booking-engine/pricing/get-price',
+      );
+      print('Payload: ${json.encode(payload)}');
+      print('Formatted Payload:');
+      _prettyPrintJson(payload);
+      print('=======================================');
       final response = await http
           .post(
-            Uri.parse('https://bookings.revchilltech.com/api/v1/ari/price/get-price'),
+            Uri.parse(
+              'https://bookings.revchilltech.com/api/v1/booking-engine/pricing/get-price',
+            ),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
           )
           .timeout(const Duration(seconds: 10));
 
       final decoded = json.decode(response.body);
+      // Print the response
+      print('========== GET PRICE RESPONSE ==========');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+      print('Formatted Response:');
+      _prettyPrintJson(decoded);
+      print('========================================');
 
       if (response.statusCode == 200 && decoded['success'] == true) {
         return {'success': true, 'data': decoded['data']};
@@ -106,6 +126,17 @@ print('payload for fetch room: $payload');
       };
     } catch (e) {
       return {'success': false, 'error': 'Error: $e'};
+    }
+  }
+
+  // Helper method to pretty print JSON
+  void _prettyPrintJson(Map<String, dynamic> json) {
+    try {
+      String prettyString = const JsonEncoder.withIndent('  ').convert(json);
+      print(prettyString);
+    } catch (e) {
+      print('Error formatting JSON: $e');
+      print(json);
     }
   }
 
@@ -149,20 +180,36 @@ print('payload for fetch room: $payload');
     await _ensureConfigLoaded();
 
     try {
+      print('=== COMPLETE BOOKING DEBUG ===');
+      print('Payload being sent: ${json.encode(payload)}');
+
       final response = await http
           .post(
-            Uri.parse('https://bookings.revchilltech.com/api/v1/pms/front-office/reservations'),
+            Uri.parse(
+              'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations',
+            ),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
           )
           .timeout(const Duration(seconds: 15));
 
+      print('Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       final decoded = json.decode(response.body);
 
       if ((response.statusCode == 200 || response.statusCode == 201) &&
           decoded['success'] == true) {
-        await hiveService.saveBooking(decoded);
-        return {'success': true, 'data': decoded['data']};
+        try {
+          print('Saving to Hive...');
+          await hiveService.saveBooking(decoded);
+          print('Hive save successful');
+          return {'success': true, 'data': decoded['data']};
+        } catch (hiveError) {
+          print('Hive save failed: $hiveError');
+          // Still return success since API call worked
+          return {'success': true, 'data': decoded['data']};
+        }
       }
 
       return {
@@ -170,10 +217,10 @@ print('payload for fetch room: $payload');
         'error': decoded['message'] ?? 'Failed to complete booking',
       };
     } catch (e) {
+      print('Exception in completeBooking: $e');
       return {'success': false, 'error': 'Error: $e'};
     }
   }
-
   // ----------------------------------------------------------
 
   Future<Map<String, dynamic>> checkInReservation(
@@ -360,7 +407,7 @@ print('payload for fetch room: $payload');
       };
 
       final uri = Uri.parse(
-        '$_baseUrl/addon/addon-datewise/available',
+        'https://bookings.revchilltech.com/api/v1/addon/addon-datewise/available',
       ).replace(queryParameters: queryParams);
 
       print('Addon API URL: $uri');
@@ -382,6 +429,45 @@ print('payload for fetch room: $payload');
         'error': decoded['message'] ?? 'Failed to fetch addons',
       };
     } catch (e) {
+      return {'success': false, 'error': 'Error: $e'};
+    }
+  }
+
+  // Add this method to your existing ApiController class
+
+  Future<Map<String, dynamic>> fetchBookingDetails({
+    required String bookingCode,
+    required String propertyCode,
+  }) async {
+    await _ensureConfigLoaded();
+
+    try {
+      final uri = Uri.parse(
+        'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations/$bookingCode',
+      ).replace(queryParameters: {'propertyCode': propertyCode});
+
+      print('Fetching booking details from: $uri');
+
+      final response = await http
+          .get(uri, headers: {'Content-Type': 'application/json'})
+          .timeout(const Duration(seconds: 10));
+
+      print(
+        'Booking details response: ${response.statusCode} - ${response.body}',
+      );
+
+      final decoded = json.decode(response.body);
+
+      if (response.statusCode == 200 && decoded['success'] == true) {
+        return {'success': true, 'data': decoded['data']};
+      }
+
+      return {
+        'success': false,
+        'error': decoded['message'] ?? 'Failed to fetch booking details',
+      };
+    } catch (e) {
+      print('Error fetching booking details: $e');
       return {'success': false, 'error': 'Error: $e'};
     }
   }

@@ -39,9 +39,9 @@ void showErrorDialog(
               const SizedBox(height: 20),
 
               // Title
-              Text(
-                title ?? 'Error',
-                style: const TextStyle(
+              const Text(
+                'Oops!',
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -93,7 +93,7 @@ void showErrorDialog(
   );
 }
 
-// Success Dialog - Supports both named and positional parameters
+// Success Dialog
 void showSuccessDialog(
   BuildContext context,
   String message, {
