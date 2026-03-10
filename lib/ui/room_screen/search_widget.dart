@@ -136,15 +136,20 @@ class _SearchWidgetState extends State<SearchWidget>
         checkIn = DateTime.parse(p['startDate']);
         checkOut = DateTime.parse(p['endDate']);
         final g = p['guests'] as Map<String, dynamic>;
-        rooms = g['rooms'] as int;
-        roomGuests = (g['roomsArray'] as List)
-            .map(
-              (r) => {
-                'adults': r['adults'] as int,
-                'children': r['children'] as int,
-              },
-            )
-            .toList();
+        rooms = g['rooms'] as int? ?? 1;
+        // Handle roomsArray if it exists, otherwise create default
+        if (g['roomsArray'] != null) {
+          roomGuests = (g['roomsArray'] as List)
+              .map(
+                (r) => {
+                  'adults': r['adults'] as int,
+                  'children': r['children'] as int,
+                },
+              )
+              .toList();
+        } else {
+          roomGuests = List.generate(rooms, (_) => {'adults': 1, 'children': 0});
+        }
       });
     }
   }
@@ -185,10 +190,10 @@ class _SearchWidgetState extends State<SearchWidget>
       "adults": totalAdults,
       "children": totalChildren,
       "rooms": rooms,
-      "roomsArray": roomGuests
-          .map((r) => {"adults": r['adults'], "children": r['children']})
-          .toList(),
     },
+    "location": "",
+    "numberOfRooms": rooms,
+    "promocode": "",
   };
 
   // ── Date picker ────────────────────────────────────────────────────────────

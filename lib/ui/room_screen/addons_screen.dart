@@ -64,6 +64,7 @@ class _AddonsScreenState extends State<AddonsScreen> {
           'image': imgs.isNotEmpty ? imgs[0] : '',
           'category': addonData['category']?['name'] ?? '',
           'variant': addonData['addonVariant']?['name'] ?? '',
+          'addonCode': addonData['code'] ?? addonData['addonCode'] ?? '',
           'dates': [addonMap['date']],
           'totalNights': 1,
         };

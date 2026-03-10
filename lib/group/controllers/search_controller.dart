@@ -34,15 +34,11 @@ class AppSearchController extends GetxController {
         "rooms": 1,
         "location": "",
         "numberOfRooms": 1,
-        // UPDATED: Include promocode in default payload
         "promocode": "",
         "guests": {
           "adults": 1,
           "children": 0,
-          "rooms": 1,
-          "roomsArray": [
-            {"adults": 1, "children": 0}
-          ],
+          "rooms": 1
         },
       };
     } catch (e) {
@@ -63,21 +59,16 @@ class AppSearchController extends GetxController {
         "rooms": 1,
         "location": "",
         "numberOfRooms": 1,
-        // UPDATED: Include promocode in fallback payload
         "promocode": "",
         "guests": {
           "adults": 1,
           "children": 0,
-          "rooms": 1,
-          "roomsArray": [
-            {"adults": 1, "children": 0}
-          ],
+          "rooms": 1
         },
       };
     }
   }
 
-  // UPDATED: Ensure promocode is properly handled
   void updateSearchPayload(Map<String, dynamic> payload) {
     print("AppSearchController: Updating search payload with: $payload");
 
@@ -100,7 +91,6 @@ class AppSearchController extends GetxController {
     // Ensure all required fields are present with default values
     newPayload["location"] = newPayload["location"] ?? "";
     newPayload["numberOfRooms"] = newPayload["numberOfRooms"] ?? 1;
-    // UPDATED: Ensure promocode exists
     newPayload["promocode"] = newPayload["promocode"] ?? "";
     newPayload["adults"] = newPayload["adults"] ?? 
         (newPayload["guests"]?["adults"] ?? 1);
@@ -109,27 +99,18 @@ class AppSearchController extends GetxController {
     newPayload["rooms"] = newPayload["rooms"] ?? 
         (newPayload["guests"]?["rooms"] ?? 1);
 
-    // Ensure guests object is present with roomsArray
+    // Ensure guests object is present
     if (newPayload["guests"] == null) {
       newPayload["guests"] = {
         "adults": newPayload["adults"] ?? 1,
         "children": newPayload["children"] ?? 0,
         "rooms": newPayload["rooms"] ?? 1,
-        "roomsArray": [
-          {"adults": newPayload["adults"] ?? 1, "children": newPayload["children"] ?? 0},
-        ],
       };
     } else {
-      // Ensure roomsArray exists in guests
-      if (newPayload["guests"]["roomsArray"] == null) {
-        newPayload["guests"]["roomsArray"] = List.generate(
-          newPayload["guests"]["rooms"] ?? 1,
-          (_) => {
-            "adults": newPayload["guests"]["adults"] ?? 1,
-            "children": newPayload["guests"]["children"] ?? 0,
-          },
-        );
-      }
+      // Ensure rooms exists in guests
+      newPayload["guests"]["rooms"] = newPayload["guests"]["rooms"] ?? newPayload["rooms"] ?? 1;
+      // Remove roomsArray if present
+      newPayload["guests"].remove("roomsArray");
     }
 
     searchPayload.value = newPayload;

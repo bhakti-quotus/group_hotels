@@ -1238,6 +1238,7 @@ class _BookingPageState extends State<BookingPage>
           'totalAmount': price * quantity,
           'currencyCode': addon['currencyCode'] ?? 'USD',
           'date': _formatDateForApi(widget.startDate),
+          'type': 'selected',
         };
       }).toList();
     }
@@ -1384,7 +1385,22 @@ class _BookingPageState extends State<BookingPage>
       'paymentMethod': 'pay_at_hotel',
       'bookingSource': 'direct',
       'selectedPromotions': widget.discountApplied ? ['10% Discount'] : [],
-      'selectedAddons': _selectedAddons.map((a) => a['id']).toList(),
+      'selectedAddons': _selectedAddons.map((addon) {
+        final price = (addon['price'] as num?) ?? 0;
+        final quantity = (addon['quantity'] as num?) ?? 1;
+        final dates = addon['dates'] as List? ?? [];
+        return {
+          'addonId': addon['id'] ?? '',
+          'addonName': addon['name'] ?? '',
+          'addonCode': addon['addonCode'] ?? '',
+          'availabilityId': addon['availabilityId'] ?? '',
+          'date': dates.isNotEmpty ? dates[0] : widget.startDate,
+          'price': price,
+          'quantity': quantity,
+          'totalPrice': price * quantity,
+          'type': addon['postingRhythm'] ?? 'per_stay',
+        };
+      }).toList(),
       'promoCode': null,
     };
 

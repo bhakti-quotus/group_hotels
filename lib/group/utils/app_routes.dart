@@ -6,6 +6,8 @@ import 'package:group/group/views/offers/offers.dart';
 import 'package:group/group/views/room/room.dart';
 import 'package:group/ui/booking_details_page.dart';
 import 'package:group/ui/booking_page/confirm_booking_page.dart';
+import 'package:group/ui/booking_page/modify_booking_page.dart';
+import 'package:group/ui/booking_page/cancel_booking_page.dart';
 import 'package:group/ui/profile_screen/profile_screen.dart';
 import 'package:get/get.dart';
 import 'package:group/ui/room_screen/room_details_screen.dart';
@@ -22,6 +24,8 @@ class AppRoutes {
   static const groupHome = '/grouphome';
   static const groupAbout = '/groupabout';
   static const groupContact = '/groupcontact';
+  static const groupBookingDetails = '/groupbookingdetails';
+  static const groupHotels = '/grouphotels';
   static const hotels = '/hotels';
   static const splash = '/';
   static const language = '/language';
@@ -33,6 +37,8 @@ class AppRoutes {
   static const offers = '/offers';
   static const BookingDetails = '/bookingdetails';
   static const confirmBooking = '/confirmBooking';
+  static const modifyBooking = '/modifyBooking';
+  static const cancelBooking = '/cancelBooking';
   static const login = '/login';
   static const register = '/register';
   static const verifyEmail = '/verifyEmail';
@@ -61,6 +67,10 @@ class AppRoutes {
     GetPage(name: profile, page: () => const ProfileScreen()),
     GetPage(name: roomDetails, page: () => const RoomDetailsScreen()),
     GetPage(name: confirmBooking, page: () => const ConfirmBookingPage()),
+    GetPage(name: modifyBooking, page: () => const ModifyBookingPage()),
+    GetPage(name: cancelBooking, page: () => const CancelBookingPage()),
+    GetPage(name: groupBookingDetails, page: () => const BookingDetailsPage()),
+    GetPage(name: groupHotels, page: () => const Hotels()),
     // ✅ FIX: Read bookingCode and propertyCode from Get.arguments
     GetPage(
       name: BookingDetails,

@@ -471,4 +471,90 @@ print('payload for fetch room: $payload');
       return {'success': false, 'error': 'Error: $e'};
     }
   }
+
+  // ----------------------------------------------------------
+
+  Future<Map<String, dynamic>> updateBooking({
+    required String bookingCode,
+    required Map<String, dynamic> payload,
+  }) async {
+    await _ensureConfigLoaded();
+
+    try {
+      print('=== UPDATE BOOKING DEBUG ===');
+      print('Booking Code: $bookingCode');
+      print('Payload being sent: ${json.encode(payload)}');
+
+      final response = await http
+          .patch(
+            Uri.parse(
+              'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations/update/$bookingCode',
+            ),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode(payload),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      print('Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      final decoded = json.decode(response.body);
+
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          decoded['success'] == true) {
+        return {'success': true, 'data': decoded['data']};
+      }
+
+      return {
+        'success': false,
+        'error': decoded['message'] ?? 'Failed to update booking',
+      };
+    } catch (e) {
+      print('Exception in updateBooking: $e');
+      return {'success': false, 'error': 'Error: $e'};
+    }
+  }
+
+  // ----------------------------------------------------------
+
+  Future<Map<String, dynamic>> cancelBooking({
+    required String reservationId,
+    required Map<String, dynamic> payload,
+  }) async {
+    await _ensureConfigLoaded();
+
+    try {
+      print('=== CANCEL BOOKING DEBUG ===');
+      print('Reservation ID: $reservationId');
+      print('Payload being sent: ${json.encode(payload)}');
+
+      final response = await http
+          .put(
+            Uri.parse(
+              'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations/cancel/$reservationId',
+            ),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode(payload),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      print('Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      final decoded = json.decode(response.body);
+
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          decoded['success'] == true) {
+        return {'success': true, 'data': decoded['data']};
+      }
+
+      return {
+        'success': false,
+        'error': decoded['message'] ?? 'Failed to cancel booking',
+      };
+    } catch (e) {
+      print('Exception in cancelBooking: $e');
+      return {'success': false, 'error': 'Error: $e'};
+    }
+  }
 }

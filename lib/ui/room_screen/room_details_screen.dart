@@ -15,14 +15,38 @@ import 'package:group/group/controllers/api_controller.dart';
 import 'dart:async';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DATA MODEL — groups raw room_price list into plan + combos
+// PERSISTENT DISCOUNT SESSION
+// Static fields survive screen rebuilds and navigation push/pop.
+// Cleared only when the user explicitly taps "Logout".
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _DiscountSession {
+  static String? guestEmail;
+  static bool discountApplied = false;
+  static int discountPercentage = 0;
+
+  static void apply({required String email, required int percentage}) {
+    guestEmail = email;
+    discountApplied = true;
+    discountPercentage = percentage;
+  }
+
+  static void clear() {
+    guestEmail = null;
+    discountApplied = false;
+    discountPercentage = 0;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA MODEL
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _ComboEntry {
   final String label;
   final List<dynamic> addons;
   final double totalAmount;
-  final Map<String, dynamic> rawRatePlan; // original map, passed to booking
+  final Map<String, dynamic> rawRatePlan;
 
   const _ComboEntry({
     required this.label,
@@ -54,10 +78,8 @@ class _GroupedPlan {
 
 List<_GroupedPlan> _groupRatePlans(List roomPrice) {
   final Map<String, _GroupedPlan> map = {};
-
   for (final rp in roomPrice) {
     if (rp is! Map<String, dynamic>) continue;
-
     final code = rp['ratePlanCode'] as String? ?? '';
     final name = rp['ratePlanName'] as String? ?? 'Standard Rate';
     final currency = rp['currencyCode'] as String? ?? 'USD';
@@ -66,21 +88,17 @@ List<_GroupedPlan> _groupRatePlans(List roomPrice) {
     final appliedDiscounts = rp['appliedDiscounts'] as List? ?? [];
     final total = (rp['totalAmount'] as num?)?.toDouble() ?? 0;
     final addons = rp['addons'] as List? ?? [];
-
-    // Build combo label: if no addons → "Room Only", else addon name
     final String label = addons.isEmpty
         ? 'Room Only'
         : (addons.first is Map
-              ? (addons.first['name'] ?? 'Add-on').toString()
-              : 'Add-on');
-
+            ? (addons.first['name'] ?? 'Add-on').toString()
+            : 'Add-on');
     final combo = _ComboEntry(
       label: label,
       addons: addons,
       totalAmount: total,
       rawRatePlan: rp,
     );
-
     if (map.containsKey(code)) {
       map[code]!.combos.add(combo);
     } else {
@@ -95,7 +113,6 @@ List<_GroupedPlan> _groupRatePlans(List roomPrice) {
       );
     }
   }
-
   return map.values.toList();
 }
 
@@ -120,27 +137,17 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
   final PageController _pageController = PageController();
   final ScrollController _scrollController = ScrollController();
 
-  // Animations
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  // Discount state
-  String? _globalGuestEmail;
-  bool _globalDiscountApplied = false;
-  double _globalDiscountedPrice = 0;
-  int _globalDiscountPercentage = 0;
   bool _isLoadingDiscount = false;
-  String? _globalCurrency;
-  double _globalOriginalPrice = 0;
-  String? _discountSourceRatePlan;
-
-  // Add-ons
   bool _isLoadingAddons = false;
-  List<dynamic> _availableAddons = [];
-  String? _selectedRatePlanCode;
-
-  // AppBar collapse
   bool _isAppBarCollapsed = false;
+
+  // Convenience getters that read from the static session
+  bool get _discountApplied => _DiscountSession.discountApplied;
+  int get _discountPercentage => _DiscountSession.discountPercentage;
+  String? get _guestEmail => _DiscountSession.guestEmail;
 
   @override
   void initState() {
@@ -149,10 +156,8 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    );
+    _fadeAnimation =
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeOut);
     _fadeController.forward();
 
     _scrollController.addListener(() {
@@ -172,13 +177,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     super.dispose();
   }
 
-  // ── Utility ──────────────────────────────────────────────
-
-  Future<void> _safeCloseDialog() async {
-    if (Get.isDialogOpen ?? false) Get.back();
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (context.mounted && Navigator.canPop(context)) Navigator.pop(context);
-  }
+  // ─── Utility ────────────────────────────────────────────────────────────────
 
   void _removeOverlay() {
     _overlayEntry?.remove();
@@ -186,82 +185,91 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     if (mounted) setState(() => _expandedPolicyIndex = null);
   }
 
-  void _clearAllDiscounts() {
-    setState(() {
-      _globalGuestEmail = null;
-      _globalDiscountApplied = false;
-      _globalDiscountedPrice = 0;
-      _globalDiscountPercentage = 0;
-      _globalCurrency = null;
-      _globalOriginalPrice = 0;
-      _discountSourceRatePlan = null;
-    });
-    Get.snackbar(
-      'Discounts Cleared',
-      'All applied discounts have been removed',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.orange,
-      colorText: Colors.white,
-      duration: const Duration(seconds: 2),
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
-    );
+  /// No API call — just wipes the static session and rebuilds.
+  void _handleLogout() {
+    _DiscountSession.clear();
+    if (mounted) setState(() {});
   }
+
+  /// Applies discount % to a base price.
+  double _discounted(double base) {
+    if (!_discountApplied) return base;
+    return base * (1 - _discountPercentage / 100);
+  }
+
+  // ─── Share ───────────────────────────────────────────────────────────────────
 
   Future<void> _shareImage() async {
     if (images.isEmpty) return;
     try {
-      showSuccessDialog(context, 'Preparing image...');
-      final imageUrl = images[_currentImageIndex];
-      final response = await http.get(Uri.parse(imageUrl));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Preparing image...'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      final response = await http.get(Uri.parse(images[_currentImageIndex]));
       if (response.statusCode == 200) {
         final tempDir = await getTemporaryDirectory();
         final file = File(
-          '${tempDir.path}/shared_room_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        );
+            '${tempDir.path}/shared_room_${DateTime.now().millisecondsSinceEpoch}.jpg');
         await file.writeAsBytes(response.bodyBytes);
-        await Share.shareXFiles([
-          XFile(file.path),
-        ], text: 'Check out this beautiful room!');
-        Future.delayed(const Duration(seconds: 30), () {
-          if (file.existsSync()) file.deleteSync();
-        });
+        await Share.shareXFiles([XFile(file.path)],
+            text: 'Check out this beautiful room!');
+        Future.delayed(
+            const Duration(seconds: 30), () => file.existsSync() ? file.deleteSync() : null);
       }
     } catch (_) {
-      showErrorDialog(context, 'Failed to share image');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(children: [
+            Icon(Icons.error_outline_rounded, color: Colors.white, size: 18),
+            SizedBox(width: 10),
+            Text('Failed to share image', style: TextStyle(color: Colors.white)),
+          ]),
+          backgroundColor: Colors.red[700],
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
-  void _showPolicyOverlay(BuildContext context, String description, int index) {
+  // ─── Policy overlay ──────────────────────────────────────────────────────────
+
+  void _showPolicyOverlay(BuildContext ctx, String description, int index) {
     _removeOverlay();
-    final policyKey = _policyKeys[index];
-    if (policyKey == null) return;
-    final RenderBox? renderBox =
-        policyKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
-    final position = renderBox.localToGlobal(Offset.zero);
-    final size = renderBox.size;
+    final key = _policyKeys[index];
+    if (key == null) return;
+    final box = key.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    final pos = box.localToGlobal(Offset.zero);
+    final size = box.size;
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
+      builder: (_) => Stack(
         children: [
           GestureDetector(
             onTap: _removeOverlay,
             child: Container(
-              color: Colors.transparent,
-              width: double.infinity,
-              height: double.infinity,
-            ),
+                color: Colors.transparent,
+                width: double.infinity,
+                height: double.infinity),
           ),
           Positioned(
-            top: position.dy + size.height + 8,
+            top: pos.dy + size.height + 8,
             right: 20,
             child: Material(
               elevation: 12,
               borderRadius: BorderRadius.circular(20),
               shadowColor: AppColor.primary.withOpacity(0.15),
               child: Container(
-                width: MediaQuery.of(context).size.width - 120,
+                width: MediaQuery.of(ctx).size.width - 120,
                 constraints: const BoxConstraints(maxWidth: 320),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -273,64 +281,46 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
+                    Row(children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
                             color: AppColor.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            Icons.policy_rounded,
-                            size: 16,
-                            color: AppColor.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Cancellation Policy',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: AppColor.text,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: _removeOverlay,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Icon(Icons.policy_rounded,
+                            size: 16, color: AppColor.primary),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                          child: Text('Cancellation Policy',
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColor.text))),
+                      GestureDetector(
+                        onTap: _removeOverlay,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
                               color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
+                              borderRadius: BorderRadius.circular(8)),
+                          child: Icon(Icons.close_rounded,
+                              size: 16, color: Colors.grey[600]),
                         ),
-                      ],
-                    ),
+                      ),
+                    ]),
                     const SizedBox(height: 14),
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      child: Text(
-                        description,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[700],
-                          height: 1.6,
-                        ),
-                      ),
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[200]!)),
+                      child: Text(description,
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[700],
+                              height: 1.6)),
                     ),
                   ],
                 ),
@@ -340,1090 +330,42 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         ],
       ),
     );
-    Overlay.of(context).insert(_overlayEntry!);
+    Overlay.of(ctx).insert(_overlayEntry!);
     setState(() => _expandedPolicyIndex = index);
   }
 
-  // ── Navigation ────────────────────────────────────────────
+  // ─── DISCOUNT FLOW ───────────────────────────────────────────────────────────
+  //
+  // Single form collects email + name + phone upfront.
+  // On submit:
+  //   1. POST {email, propertyId}  — check if already a member
+  //      • eligible  → apply discount, done.
+  //   2. If not a member → auto POST {email, propertyId, metadata:{name,mobile}}
+  //      • register & apply discount, done.
+  //
+  // No second dialog, no extra taps. Everything happens behind one spinner.
+  // Session persists until user taps Logout (no API call on logout).
 
-  Future<void> _fetchAndShowAddons({
-    required String propertyCode,
-    required String startDate,
-    required String endDate,
-    required String ratePlanCode,
-    required Map<String, dynamic> room,
-    required Map<String, dynamic> ratePlan,
-    required int adults,
-    required int children,
-    required int totalGuests,
+  void _openMemberRateFlow({
     required String propertyId,
-    required String hotelName,
-    required double discountedPrice,
-  }) async {
-    setState(() {
-      _isLoadingAddons = true;
-      _selectedRatePlanCode = ratePlanCode;
-    });
-
-    try {
-      final apiController = Get.find<ApiController>();
-      final result = await apiController.getAvailableAddons(
-        propertyCode: propertyCode,
-        startDate: startDate,
-        endDate: endDate,
-        ratePlanCode: ratePlanCode,
-      );
-
-      if (Get.isDialogOpen ?? false) Get.back();
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      if (result['success'] == true && result['data'] != null) {
-        final addonsData = result['data'] as List;
-        if (addonsData.isEmpty) {
-          _proceedToBooking(
-            room: room,
-            ratePlan: ratePlan,
-            adults: adults,
-            children: children,
-            totalGuests: totalGuests,
-            startDate: startDate,
-            endDate: endDate,
-            propertyId: propertyId,
-            propertyCode: propertyCode,
-            hotelName: hotelName,
-            discountedPrice: discountedPrice,
-            selectedAddons: [],
-          );
-        } else {
-          if (context.mounted) {
-            Get.to(
-              () => const AddonsScreen(),
-              arguments: {
-                'addons': addonsData,
-                'onAdd': (List<Map<String, dynamic>> selectedAddons) =>
-                    _proceedToBooking(
-                      room: room,
-                      ratePlan: ratePlan,
-                      adults: adults,
-                      children: children,
-                      totalGuests: totalGuests,
-                      startDate: startDate,
-                      endDate: endDate,
-                      propertyId: propertyId,
-                      propertyCode: propertyCode,
-                      hotelName: hotelName,
-                      discountedPrice: discountedPrice,
-                      selectedAddons: selectedAddons,
-                    ),
-                'onSkip': () => _proceedToBooking(
-                  room: room,
-                  ratePlan: ratePlan,
-                  adults: adults,
-                  children: children,
-                  totalGuests: totalGuests,
-                  startDate: startDate,
-                  endDate: endDate,
-                  propertyId: propertyId,
-                  propertyCode: propertyCode,
-                  hotelName: hotelName,
-                  discountedPrice: discountedPrice,
-                  selectedAddons: [],
-                ),
-              },
-            );
-          }
-        }
-      } else {
-        _proceedToBooking(
-          room: room,
-          ratePlan: ratePlan,
-          adults: adults,
-          children: children,
-          totalGuests: totalGuests,
-          startDate: startDate,
-          endDate: endDate,
-          propertyId: propertyId,
-          propertyCode: propertyCode,
-          hotelName: hotelName,
-          discountedPrice: discountedPrice,
-          selectedAddons: [],
-        );
-      }
-    } catch (e) {
-      if (Get.isDialogOpen ?? false) Get.back();
-      _proceedToBooking(
-        room: room,
-        ratePlan: ratePlan,
-        adults: adults,
-        children: children,
-        totalGuests: totalGuests,
-        startDate: startDate,
-        endDate: endDate,
-        propertyId: propertyId,
-        propertyCode: propertyCode,
-        hotelName: hotelName,
-        discountedPrice: discountedPrice,
-        selectedAddons: [],
-      );
-    } finally {
-      if (mounted) setState(() => _isLoadingAddons = false);
-    }
-  }
-
-  void _proceedToBooking({
-    required Map<String, dynamic> room,
-    required Map<String, dynamic> ratePlan,
-    required int adults,
-    required int children,
-    required int totalGuests,
-    required String startDate,
-    required String endDate,
-    required String propertyId,
-    required String propertyCode,
-    required String hotelName,
-    required double discountedPrice,
-    required List<Map<String, dynamic>> selectedAddons,
+    required String planCurrency,
   }) {
-    _removeOverlay();
-    Get.to(
-      () => BookingPage(
-        room: room,
-        ratePlan: ratePlan,
-        totalGuests: totalGuests,
-        adults: adults,
-        children: children,
-        startDate: startDate,
-        endDate: endDate,
-        propertyId: propertyId,
-        propertyCode: propertyCode,
-        hotelName: hotelName,
-        discountApplied: _globalDiscountApplied,
-        discountedPrice: discountedPrice.toInt(),
-        guestEmail: _globalGuestEmail,
-        addons: selectedAddons,
-      ),
-    );
-  }
+    // Already signed in — discount is shown on screen with logout button; nothing to do
+    if (_discountApplied) return;
 
-  // ── Build ─────────────────────────────────────────────────
+    final emailCtrl  = TextEditingController();
+    final nameCtrl   = TextEditingController();
+    final mobileCtrl = TextEditingController();
+    final formKey    = GlobalKey<FormState>();
 
-  @override
-  Widget build(BuildContext context) {
-    final args = Get.arguments;
-    if (args == null || args is! Map<String, dynamic>) {
-      return _buildErrorScaffold('Loading.....');
-    }
-
-    final room = args['room'] as Map<String, dynamic>?;
-    if (room == null)
-      return _buildErrorScaffold('Room information not available');
-
-    final totalGuests = args['totalGuests'] as int? ?? 1;
-    final propertyCode = args['propertyCode'] as String? ?? '';
-    final hotelName = args['hotelName'] as String? ?? '';
-    final propertyId = args['propertyId'] as String? ?? '';
-
-    final searchController = Get.find<search_ctrl.AppSearchController>();
-    final searchPayload = Map<String, dynamic>.from(
-      searchController.searchPayload.value,
-    );
-    final guests = searchPayload['guests'] as Map<String, dynamic>? ?? {};
-    final adults = guests['adults'] as int? ?? 1;
-    final children = guests['children'] as int? ?? 0;
-    final now = DateTime.now();
-    final startDate =
-        searchPayload['startDate'] as String? ??
-        now.add(const Duration(days: 1)).toIso8601String().split('T')[0];
-    final endDate =
-        searchPayload['endDate'] as String? ??
-        now.add(const Duration(days: 2)).toIso8601String().split('T')[0];
-
-    // Parse room data
-    final roomName = room['room_name'] ?? room['name'] ?? '';
-    final roomType = room['room_type'] ?? '';
-    final roomSize = room['room_size'] ?? 0;
-    final roomUnit = room['room_unit'] ?? 'sq ft';
-    final roomView = room['room_view'] ?? '';
-    final maxOccupancy = room['max_occupancy'] ?? room['maxOccupancy'] ?? 0;
-    final description = room['description'] ?? '';
-    images = [];
-    final rawImages = room['images'];
-    if (rawImages is List) {
-      for (var img in rawImages) {
-        if (img is String)
-          images.add(img);
-        else if (img is Map && img['url'] != null)
-          images.add(img['url'].toString());
-      }
-    }
-    final amenities = room['amenities'] as List? ?? [];
-    final roomPrice = room['room_price'] as List? ?? [];
-
-    // ── GROUP rate plans ──
-    final groupedPlans = _groupRatePlans(roomPrice);
-
-    // Parse dates
-    DateTime? checkIn, checkOut;
-    try {
-      checkIn = DateTime.parse(startDate);
-      checkOut = DateTime.parse(endDate);
-    } catch (_) {}
-    final nights = (checkIn != null && checkOut != null)
-        ? checkOut.difference(checkIn).inDays
-        : 1;
-
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final checkInStr = checkIn != null
-        ? '${checkIn.day} ${months[checkIn.month - 1]}'
-        : startDate;
-    final checkOutStr = checkOut != null
-        ? '${checkOut.day} ${months[checkOut.month - 1]}'
-        : endDate;
-
-    return Scaffold(
-      backgroundColor: AppColor.background,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            // ── Hero SliverAppBar ──────────────────────────
-            SliverAppBar(
-              expandedHeight: 380,
-              pinned: true,
-              stretch: true,
-              backgroundColor: AppColor.primary,
-              elevation: 0,
-              systemOverlayStyle: SystemUiOverlayStyle.light,
-              leading: _buildNavButton(
-                icon: Icons.arrow_back_ios_new_rounded,
-                onTap: () {
-                  _removeOverlay();
-                  Get.back();
-                },
-              ),
-              actions: [
-                _buildNavButton(icon: Icons.share_rounded, onTap: _shareImage),
-                if (_globalDiscountApplied)
-                  _buildNavButton(
-                    icon: Icons.discount_rounded,
-                    onTap: _clearAllDiscounts,
-                    color: Colors.orange,
-                  ),
-                const SizedBox(width: 4),
-              ],
-              flexibleSpace: FlexibleSpaceBar(
-                stretchModes: const [StretchMode.zoomBackground],
-                background: _buildHeroImageArea(),
-              ),
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(0),
-                child: Container(
-                  height: 0,
-                  decoration: BoxDecoration(
-                    color: AppColor.background,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // ── Content ───────────────────────────────────
-            SliverToBoxAdapter(
-              child: Container(
-                color: AppColor.background,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTitleBlock(
-                      roomName,
-                      hotelName,
-                      roomType,
-                      checkInStr,
-                      checkOutStr,
-                      nights,
-                      adults + children,
-                    ),
-                    _buildQuickStats(
-                      roomSize,
-                      roomUnit,
-                      roomView,
-                      maxOccupancy,
-                    ),
-                    _buildStayDetailsCard(
-                      checkInStr,
-                      checkOutStr,
-                      nights,
-                      adults,
-                      children,
-                    ),
-                    if (description.isNotEmpty)
-                      _buildSection(
-                        'About This Room',
-                        _buildDescriptionBlock(description),
-                      ),
-                    if (amenities.isNotEmpty)
-                      _buildSection(
-                        'Amenities',
-                        _buildAmenitiesGrid(amenities),
-                      ),
-                    _buildAppliedDiscountsBanner(roomPrice),
-
-                    // ── Grouped Rate Plans ──
-                    if (groupedPlans.isNotEmpty)
-                      _buildSection(
-                        'Rate Plans',
-                        Column(
-                          children: groupedPlans.asMap().entries.map((entry) {
-                            _policyKeys.putIfAbsent(
-                              entry.key,
-                              () => GlobalKey(),
-                            );
-                            return _buildGroupedPlanCard(
-                              plan: entry.value,
-                              planIndex: entry.key,
-                              room: room,
-                              adults: adults,
-                              children: children,
-                              totalGuests: totalGuests,
-                              startDate: startDate,
-                              endDate: endDate,
-                              propertyCode: propertyCode,
-                              hotelName: hotelName,
-                              propertyId: propertyId,
-                              nights: nights,
-                            );
-                          }).toList(),
-                        ),
-                      ),
-
-                    const SizedBox(height: 120),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-
-      floatingActionButton: roomPrice.isEmpty
-          ? _buildFloatingBookButton(
-              onPressed: () {
-                _removeOverlay();
-                Get.to(
-                  () => BookingPage(
-                    room: room,
-                    ratePlan: {},
-                    totalGuests: totalGuests,
-                    adults: adults,
-                    children: children,
-                    startDate: startDate,
-                    endDate: endDate,
-                    propertyId: propertyId,
-                    propertyCode: propertyCode,
-                    hotelName: hotelName,
-                    discountApplied: false,
-                    discountedPrice: 0,
-                    guestEmail: null,
-                    addons: [],
-                  ),
-                );
-              },
-            )
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-
-  // ── Hero Image Area ───────────────────────────────────────
-
-  Widget _buildHeroImageArea() {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        if (images.isNotEmpty)
-          PageView.builder(
-            controller: _pageController,
-            itemCount: images.length,
-            onPageChanged: (i) => setState(() => _currentImageIndex = i),
-            itemBuilder: (_, index) => Image.network(
-              images[index],
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                color: AppColor.primary.withOpacity(0.3),
-                child: Icon(
-                  Icons.hotel_rounded,
-                  size: 80,
-                  color: Colors.white.withOpacity(0.3),
-                ),
-              ),
-            ),
-          )
-        else
-          Container(
-            color: AppColor.primary,
-            child: Icon(
-              Icons.hotel_rounded,
-              size: 80,
-              color: Colors.white.withOpacity(0.2),
-            ),
-          ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withOpacity(0.25),
-                Colors.transparent,
-                Colors.transparent,
-                Colors.black.withOpacity(0.7),
-              ],
-              stops: const [0, 0.25, 0.55, 1],
-            ),
-          ),
-        ),
-        if (images.length > 1)
-          Positioned(
-            bottom: 24,
-            left: 0,
-            right: 0,
-            child: SizedBox(
-              height: 60,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: images.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (_, index) {
-                  final active = index == _currentImageIndex;
-                  return GestureDetector(
-                    onTap: () => _pageController.animateToPage(
-                      index,
-                      duration: const Duration(milliseconds: 350),
-                      curve: Curves.easeInOut,
-                    ),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: active ? 68 : 56,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: active
-                              ? Colors.white
-                              : Colors.white.withOpacity(0.3),
-                          width: active ? 2.5 : 1.5,
-                        ),
-                        boxShadow: active
-                            ? [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 8,
-                                ),
-                              ]
-                            : [],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          images[index],
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              Container(color: Colors.grey[300]),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        if (images.length > 1)
-          Positioned(
-            top: 80,
-            right: 10,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                '${_currentImageIndex + 1} / ${images.length}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  // ── Nav button ────────────────────────────────────────────
-
-  Widget _buildNavButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    Color? color,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.all(8),
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: color ?? Colors.black.withOpacity(0.3),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Icon(icon, color: Colors.white, size: 20),
-      ),
-    );
-  }
-
-  // ── Title Block ───────────────────────────────────────────
-
-  Widget _buildTitleBlock(
-    String roomName,
-    String hotelName,
-    String roomType,
-    String checkIn,
-    String checkOut,
-    int nights,
-    int totalGuests,
-  ) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (hotelName.isNotEmpty) ...[
-                      Row(
-                        children: [
-                          Container(
-                            width: 16,
-                            height: 1.5,
-                            color: AppColor.primary,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            hotelName.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: AppColor.primary,
-                              letterSpacing: 2.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                    Text(
-                      roomName,
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w700,
-                        color: AppColor.text,
-                        height: 1.15,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Container(width: 36, height: 2.5, color: AppColor.primary),
-              const SizedBox(width: 5),
-              Container(width: 10, height: 2.5, color: AppColor.secondary),
-              const SizedBox(width: 5),
-              Container(
-                width: 5,
-                height: 2.5,
-                color: AppColor.secondary.withOpacity(0.4),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Quick Stats Strip ─────────────────────────────────────
-
-  Widget _buildQuickStats(
-    int roomSize,
-    String roomUnit,
-    String roomView,
-    int maxOccupancy,
-  ) {
-    final stats = <Map<String, dynamic>>[];
-    if (roomSize > 0)
-      stats.add({
-        'icon': Icons.straighten_rounded,
-        'label': '$roomSize $roomUnit',
-        'sub': 'Room Size',
-      });
-    if (roomView.isNotEmpty)
-      stats.add({
-        'icon': Icons.landscape_rounded,
-        'label': _capitalize(roomView),
-        'sub': 'View',
-      });
-    if (maxOccupancy > 0)
-      stats.add({
-        'icon': Icons.people_outline_rounded,
-        'label': '$maxOccupancy Guests',
-        'sub': 'Max Capacity',
-      });
-    if (stats.isEmpty) return const SizedBox();
-
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 15, 10, 0),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColor.primary.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.primary.withOpacity(0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: stats.asMap().entries.map((entry) {
-          final stat = entry.value;
-          final isLast = entry.key == stats.length - 1;
-          return Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColor.primary.withOpacity(0.08),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          stat['icon'] as IconData,
-                          size: 18,
-                          color: AppColor.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        stat['label'] as String,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppColor.text,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        stat['sub'] as String,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: AppColor.textLight,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                if (!isLast)
-                  Container(width: 1, height: 48, color: Colors.grey[200]),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  // ── Stay Details Card ─────────────────────────────────────
-
-  Widget _buildStayDetailsCard(
-    String checkIn,
-    String checkOut,
-    int nights,
-    int adults,
-    int children,
-  ) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 15, 10, 0),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColor.primary, AppColor.primary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.primary.withOpacity(0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'CHECK-IN',
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white.withOpacity(0.7),
-                    letterSpacing: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  checkIn,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  'From 14:00',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white.withOpacity(0.65),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  '$nights',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  nights == 1 ? 'Night' : 'Nights',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.white.withOpacity(0.8),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'CHECK-OUT',
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white.withOpacity(0.7),
-                    letterSpacing: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  checkOut,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.end,
-                ),
-                Text(
-                  'Until 12:00',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white.withOpacity(0.65),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Section Wrapper ───────────────────────────────────────
-
-  Widget _buildSection(String title, Widget child) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle(title),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: AppColor.text,
-            letterSpacing: -0.3,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            Container(width: 36, height: 2, color: AppColor.primary),
-            const SizedBox(width: 4),
-            Container(width: 10, height: 2, color: AppColor.secondary),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // ── Description ───────────────────────────────────────────
-
-  Widget _buildDescriptionBlock(String description) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Text(
-        description,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[700],
-          height: 1.7,
-          letterSpacing: 0.1,
-        ),
-      ),
-    );
-  }
-
-  // ── Amenities ─────────────────────────────────────────────
-
-  Widget _buildAmenitiesGrid(List amenities) {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: amenities.map((a) {
-        final name = a is Map
-            ? (a['amenityName'] ?? a['name'] ?? '')
-            : a.toString();
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-          decoration: BoxDecoration(
-            color: AppColor.primary.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: AppColor.primary.withOpacity(0.14),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(_getAmenityIcon(name), size: 14, color: AppColor.primary),
-              const SizedBox(width: 7),
-              Text(
-                name,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  color: AppColor.text,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  // ── Applied Discounts Banner ──────────────────────────────
-
-  Widget _buildAppliedDiscountsBanner(List roomPrice) {
-    final geoDiscounts = <String>[];
-    for (final rp in roomPrice) {
-      final appliedDiscounts = rp['appliedDiscounts'] as List? ?? [];
-      for (final d in appliedDiscounts) {
-        final name = d['promotionName'] ?? '';
-        final val = d['discountValue'] ?? 0;
-        if (!geoDiscounts.contains('$name ($val% off)')) {
-          geoDiscounts.add('$name ($val% off)');
-        }
-      }
-    }
-    if (geoDiscounts.isEmpty) return const SizedBox();
-
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 15, 10, 0),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColor.secondary.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColor.secondary.withOpacity(0.25)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColor.secondary,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.local_offer_rounded,
-              size: 16,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Discounts Applied',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.text,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                ...geoDiscounts.map(
-                  (d) => Text(
-                    '• $d',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── GROUPED PLAN CARD ─────────────────────────────────────
-  // One card per unique ratePlanCode; combos (Room Only / addons) listed inside.
-
-  Widget _buildGroupedPlanCard({
-    required _GroupedPlan plan,
-    required int planIndex,
-    required Map<String, dynamic> room,
-    required int adults,
-    required int children,
-    required int totalGuests,
-    required String startDate,
-    required String endDate,
-    required String propertyCode,
-    required String hotelName,
-    required String propertyId,
-    required int nights,
-  }) {
-    final cancellationPolicy =
-        plan.policy?['cancellationPolicy'] as Map<String, dynamic>?;
-    final policyDescription =
-        cancellationPolicy?['description'] as String? ?? '';
-    final touristTaxAmount =
-        (plan.touristTax?['calculatedTaxAmount'] as num?)?.toDouble() ?? 0;
-
-    // Discount helper
-    double _discounted(double base) {
-      if (!_globalDiscountApplied) return base;
-      return base * (1 - _globalDiscountPercentage / 100);
-    }
-
-    void _showDiscountForm(double basePrice) {
-      final nameCtrl = TextEditingController();
-      final emailCtrl = TextEditingController();
-      final mobileCtrl = TextEditingController();
-      final formKey = GlobalKey<FormState>();
-
-      showDialog(
-        context: context,
-        builder: (dialogCtx) => Dialog(
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dlgCtx) => StatefulBuilder(
+        builder: (_, setDlg) => Dialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          child: Padding(
             padding: const EdgeInsets.all(24),
             child: Form(
               key: formKey,
@@ -1431,20 +373,35 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('Get Exclusive Discount'),
-                  const SizedBox(height: 14),
-                  Text(
-                    'Sign up to unlock exclusive rates on all plans!',
-                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 22),
+                  // ── Header ──
+                  Row(children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          color: AppColor.secondary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Icon(Icons.card_membership_rounded,
+                          color: AppColor.secondary, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text('Member Rate',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColor.text)),
+                        Text('Sign up to unlock exclusive rates!',
+                            style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                      ]),
+                    ),
+                  ]),
+                  const SizedBox(height: 20),
+
+                  // ── Fields ──
                   _buildFormField(
                     controller: nameCtrl,
                     label: 'Full Name',
                     hint: 'Enter your name',
                     icon: Icons.person_outline_rounded,
-                    validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Required' : null,
+                    validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
                   ),
                   const SizedBox(height: 14),
                   _buildFormField(
@@ -1473,134 +430,909 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                     },
                   ),
                   const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(dialogCtx),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            side: BorderSide(color: Colors.grey[300]!),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+
+                  // ── Buttons ──
+                  Row(children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(dlgCtx),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(color: Colors.grey[300]!),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
                         ),
+                        child: Text('Cancel',
+                            style: TextStyle(
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w600)),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            if (!formKey.currentState!.validate()) return;
-                            setState(() => _isLoadingDiscount = true);
-                            try {
-                              final response = await http
-                                  .post(
-                                    Uri.parse(
-                                      'https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount',
-                                    ),
-                                    headers: {
-                                      'Content-Type': 'application/json',
-                                    },
-                                    body: json.encode({
-                                      'email': emailCtrl.text.trim(),
-                                      'propertyId': propertyId,
-                                    }),
-                                  )
-                                  .timeout(const Duration(seconds: 10));
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isLoadingDiscount
+                            ? null
+                            : () async {
+                                if (!formKey.currentState!.validate()) return;
+                                setDlg(() => _isLoadingDiscount = true);
 
-                              Navigator.pop(dialogCtx);
+                                final email  = emailCtrl.text.trim();
+                                final name   = nameCtrl.text.trim();
+                                final mobile = mobileCtrl.text.trim();
 
-                              if (response.statusCode == 200) {
-                                final data = json.decode(response.body);
-                                if (data['success'] == true &&
-                                    data['data'] != null) {
-                                  final d = data['data'];
-                                  if (d['isLoyaltyMember'] == true) {
-                                    final discount =
-                                        d['discount']?['value'] ?? 0;
-                                    setState(() {
-                                      _globalGuestEmail = emailCtrl.text.trim();
-                                      _globalDiscountApplied = true;
-                                      _globalDiscountPercentage = discount;
-                                      _globalCurrency = plan.currencyCode;
-                                      _globalOriginalPrice = basePrice;
-                                      _globalDiscountedPrice =
-                                          basePrice * (1 - discount / 100);
-                                      _discountSourceRatePlan =
-                                          plan.ratePlanCode;
-                                      _isLoadingDiscount = false;
-                                    });
-                                    if (context.mounted) {
-                                      showSuccessDialog(
-                                        context,
-                                        '🎉 $discount% discount applied!',
-                                      );
-                                    }
-                                  } else {
-                                    setState(() => _isLoadingDiscount = false);
-                                    if (context.mounted) {
-                                      showErrorDialog(
-                                        context,
-                                        'Not eligible for discount.',
-                                      );
-                                    }
+                                // Step 1 — check if already a member
+                                final checkResult = await _callCheckDiscount(
+                                    email: email, propertyId: propertyId);
+
+                                if (checkResult['eligible'] == true) {
+                                  // Already a member — close dialog, reset flag, apply
+                                  if (mounted) setState(() => _isLoadingDiscount = false);
+                                  if (!mounted) return;
+                                  Navigator.pop(dlgCtx);
+                                  _applyDiscount(
+                                      email: email,
+                                      percentage: checkResult['percentage'] as int);
+                                  return;
+                                }
+
+                                // Step 2 — not a member, auto-register silently
+                                final regResult = await _callRegister(
+                                  email: email,
+                                  propertyId: propertyId,
+                                  guestName: name,
+                                  mobileNumber: mobile,
+                                );
+
+                                if (mounted) setState(() => _isLoadingDiscount = false);
+                                if (!mounted) return;
+                                Navigator.pop(dlgCtx);
+
+                                if (regResult['eligible'] == true) {
+                                  _applyDiscount(
+                                      email: email,
+                                      percentage: regResult['percentage'] as int);
+                                } else {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Row(children: [
+                                          const Icon(Icons.error_outline_rounded, color: Colors.white, size: 18),
+                                          const SizedBox(width: 10),
+                                          Expanded(child: Text(regResult['message'] as String? ?? 'Something went wrong. Try again.',
+                                              style: const TextStyle(color: Colors.white))),
+                                        ]),
+                                        backgroundColor: Colors.red[700],
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        margin: const EdgeInsets.all(16),
+                                        duration: const Duration(seconds: 3),
+                                      ),
+                                    );
                                   }
                                 }
-                              }
-                            } catch (_) {
-                              Navigator.pop(dialogCtx);
-                              setState(() => _isLoadingDiscount = false);
-                              if (context.mounted) {
-                                showErrorDialog(
-                                  context,
-                                  'Network error. Try again.',
-                                );
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColor.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: _isLoadingDiscount
-                              ? const SizedBox(
-                                  height: 18,
-                                  width: 18,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text(
-                                  'Sign Up',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColor.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                          elevation: 0,
                         ),
+                        child: _isLoadingDiscount
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2))
+                            : const Text('Get Discount',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white)),
                       ),
-                    ],
-                  ),
+                    ),
+                  ]),
                 ],
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Check membership (email + propertyId only, no metadata).
+  Future<Map<String, dynamic>> _callCheckDiscount({
+    required String email,
+    required String propertyId,
+  }) async {
+    try {
+      final res = await http
+          .post(
+            Uri.parse(
+                'https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({'email': email, 'propertyId': propertyId}),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
+        final msg  = (data['message'] as String? ?? '').toLowerCase();
+
+        if (msg.contains('already registered')) {
+          final pct = (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
+          return {'eligible': true, 'percentage': pct};
+        }
+
+        if (data['success'] == true && data['data'] != null) {
+          final d = data['data'];
+          if (d['isLoyaltyMember'] == true) {
+            final pct = (d['discount']?['value'] as num?)?.toInt() ?? 10;
+            return {'eligible': true, 'percentage': pct};
+          }
+        }
+      }
+    } catch (_) {}
+    return {'eligible': false};
+  }
+
+  /// Register with full metadata.
+  Future<Map<String, dynamic>> _callRegister({
+    required String email,
+    required String propertyId,
+    required String guestName,
+    required String mobileNumber,
+  }) async {
+    try {
+      final res = await http
+          .post(
+            Uri.parse(
+                'https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              'email': email,
+              'propertyId': propertyId,
+              'metadata': {
+                'Guest Name': guestName,
+                'Mobile Number': mobileNumber,
+              },
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
+        final msg  = (data['message'] as String? ?? '').toLowerCase();
+
+        if (msg.contains('already registered')) {
+          final pct = (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
+          return {'eligible': true, 'percentage': pct};
+        }
+
+        if (data['success'] == true) {
+          final d   = data['data'];
+          final pct = (d?['discount']?['value'] as num?)?.toInt() ?? 10;
+          return {'eligible': true, 'percentage': pct};
+        }
+
+        return {'eligible': false, 'message': data['message'] ?? 'Not eligible'};
+      }
+      return {'eligible': false, 'message': 'Server error'};
+    } catch (_) {
+      return {'eligible': false, 'message': 'Network error. Try again.'};
+    }
+  }
+
+  /// Saves to static session, closes any open loaders, rebuilds screen silently.
+  void _applyDiscount({required String email, required int percentage}) {
+    _DiscountSession.apply(email: email, percentage: percentage);
+
+    // Close any GetX loading dialog that may still be open
+    if (Get.isDialogOpen ?? false) Get.back();
+
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(children: [
+            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+            const SizedBox(width: 10),
+            Text('$percentage% member discount applied!',
+                style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
+          ]),
+          backgroundColor: Colors.green[700],
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
+  }
+
+
+  // ─── Navigation ──────────────────────────────────────────────────────────────
+
+  Future<void> _fetchAndShowAddons({
+    required String propertyCode,
+    required String startDate,
+    required String endDate,
+    required String ratePlanCode,
+    required Map<String, dynamic> room,
+    required Map<String, dynamic> ratePlan,
+    required int adults,
+    required int children,
+    required int totalGuests,
+    required String propertyId,
+    required String hotelName,
+    required double discountedPrice,
+  }) async {
+    setState(() => _isLoadingAddons = true);
+    try {
+      final result = await Get.find<ApiController>().getAvailableAddons(
+        propertyCode: propertyCode,
+        startDate: startDate,
+        endDate: endDate,
+        ratePlanCode: ratePlanCode,
+      );
+
+      if (result['success'] == true && result['data'] != null) {
+        final addonsData = result['data'] as List;
+        if (addonsData.isEmpty) {
+          _proceedToBooking(
+              room: room, ratePlan: ratePlan, adults: adults,
+              children: children, totalGuests: totalGuests,
+              startDate: startDate, endDate: endDate, propertyId: propertyId,
+              propertyCode: propertyCode, hotelName: hotelName,
+              discountedPrice: discountedPrice, selectedAddons: []);
+        } else {
+          if (context.mounted) {
+            Get.to(() => const AddonsScreen(), arguments: {
+              'addons': addonsData,
+              'onAdd': (List<Map<String, dynamic>> sel) => _proceedToBooking(
+                  room: room, ratePlan: ratePlan, adults: adults,
+                  children: children, totalGuests: totalGuests,
+                  startDate: startDate, endDate: endDate, propertyId: propertyId,
+                  propertyCode: propertyCode, hotelName: hotelName,
+                  discountedPrice: discountedPrice, selectedAddons: sel),
+              'onSkip': () => _proceedToBooking(
+                  room: room, ratePlan: ratePlan, adults: adults,
+                  children: children, totalGuests: totalGuests,
+                  startDate: startDate, endDate: endDate, propertyId: propertyId,
+                  propertyCode: propertyCode, hotelName: hotelName,
+                  discountedPrice: discountedPrice, selectedAddons: []),
+            });
+          }
+        }
+      } else {
+        _proceedToBooking(
+            room: room, ratePlan: ratePlan, adults: adults,
+            children: children, totalGuests: totalGuests,
+            startDate: startDate, endDate: endDate, propertyId: propertyId,
+            propertyCode: propertyCode, hotelName: hotelName,
+            discountedPrice: discountedPrice, selectedAddons: []);
+      }
+    } catch (_) {
+      _proceedToBooking(
+          room: room, ratePlan: ratePlan, adults: adults,
+          children: children, totalGuests: totalGuests,
+          startDate: startDate, endDate: endDate, propertyId: propertyId,
+          propertyCode: propertyCode, hotelName: hotelName,
+          discountedPrice: discountedPrice, selectedAddons: []);
+    } finally {
+      if (mounted) setState(() => _isLoadingAddons = false);
+    }
+  }
+
+  void _proceedToBooking({
+    required Map<String, dynamic> room,
+    required Map<String, dynamic> ratePlan,
+    required int adults,
+    required int children,
+    required int totalGuests,
+    required String startDate,
+    required String endDate,
+    required String propertyId,
+    required String propertyCode,
+    required String hotelName,
+    required double discountedPrice,
+    required List<Map<String, dynamic>> selectedAddons,
+  }) {
+    _removeOverlay();
+    Get.to(() => BookingPage(
+          room: room,
+          ratePlan: ratePlan,
+          totalGuests: totalGuests,
+          adults: adults,
+          children: children,
+          startDate: startDate,
+          endDate: endDate,
+          propertyId: propertyId,
+          propertyCode: propertyCode,
+          hotelName: hotelName,
+          discountApplied: _discountApplied,
+          discountedPrice: discountedPrice.toInt(),
+          guestEmail: _guestEmail,
+          addons: selectedAddons,
+        ));
+  }
+
+  // ─── BUILD ───────────────────────────────────────────────────────────────────
+
+  @override
+  Widget build(BuildContext context) {
+    final args = Get.arguments;
+    if (args == null || args is! Map<String, dynamic>) {
+      return _buildErrorScaffold('Loading.....');
+    }
+    final room = args['room'] as Map<String, dynamic>?;
+    if (room == null) return _buildErrorScaffold('Room information not available');
+
+    final totalGuests = args['totalGuests'] as int? ?? 1;
+    final propertyCode = args['propertyCode'] as String? ?? '';
+    final hotelName = args['hotelName'] as String? ?? '';
+    final propertyId = args['propertyId'] as String? ?? '';
+
+    final sc = Get.find<search_ctrl.AppSearchController>();
+    final sp = Map<String, dynamic>.from(sc.searchPayload.value);
+    final guests = sp['guests'] as Map<String, dynamic>? ?? {};
+    final adults = guests['adults'] as int? ?? 1;
+    final children = guests['children'] as int? ?? 0;
+    final now = DateTime.now();
+    final startDate = sp['startDate'] as String? ??
+        now.add(const Duration(days: 1)).toIso8601String().split('T')[0];
+    final endDate = sp['endDate'] as String? ??
+        now.add(const Duration(days: 2)).toIso8601String().split('T')[0];
+
+    final roomName = room['room_name'] ?? room['name'] ?? '';
+    final roomSize = room['room_size'] ?? 0;
+    final roomUnit = room['room_unit'] ?? 'sq ft';
+    final roomView = room['room_view'] ?? '';
+    final maxOccupancy = room['max_occupancy'] ?? room['maxOccupancy'] ?? 0;
+    final description = room['description'] ?? '';
+
+    images = [];
+    final rawImages = room['images'];
+    if (rawImages is List) {
+      for (var img in rawImages) {
+        if (img is String)
+          images.add(img);
+        else if (img is Map && img['url'] != null)
+          images.add(img['url'].toString());
+      }
+    }
+
+    final amenities = room['amenities'] as List? ?? [];
+    final roomPrice = room['room_price'] as List? ?? [];
+    final groupedPlans = _groupRatePlans(roomPrice);
+
+    DateTime? checkIn, checkOut;
+    try {
+      checkIn = DateTime.parse(startDate);
+      checkOut = DateTime.parse(endDate);
+    } catch (_) {}
+    final nights = (checkIn != null && checkOut != null)
+        ? checkOut.difference(checkIn).inDays
+        : 1;
+
+    const months = [
+      'Jan','Feb','Mar','Apr','May','Jun',
+      'Jul','Aug','Sep','Oct','Nov','Dec'
+    ];
+    final checkInStr = checkIn != null
+        ? '${checkIn.day} ${months[checkIn.month - 1]}'
+        : startDate;
+    final checkOutStr = checkOut != null
+        ? '${checkOut.day} ${months[checkOut.month - 1]}'
+        : endDate;
+
+    return Scaffold(
+      backgroundColor: AppColor.background,
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 380,
+              pinned: true,
+              stretch: true,
+              backgroundColor: AppColor.primary,
+              elevation: 0,
+              systemOverlayStyle: SystemUiOverlayStyle.light,
+              leading: _buildNavButton(
+                icon: Icons.arrow_back_ios_new_rounded,
+                onTap: () { _removeOverlay(); Get.back(); },
+              ),
+              actions: [
+                _buildNavButton(icon: Icons.share_rounded, onTap: _shareImage),
+                if (_discountApplied)
+                  _buildNavButton(
+                    icon: Icons.logout_rounded,
+                    onTap: _handleLogout,
+                    color: Colors.orange,
+                  ),
+                const SizedBox(width: 4),
+              ],
+              flexibleSpace: FlexibleSpaceBar(
+                stretchModes: const [StretchMode.zoomBackground],
+                background: _buildHeroImageArea(),
+              ),
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(0),
+                child: Container(
+                  height: 0,
+                  decoration: BoxDecoration(
+                    color: AppColor.background,
+                    borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(28)),
+                  ),
+                ),
+              ),
+            ),
+
+            SliverToBoxAdapter(
+              child: Container(
+                color: AppColor.background,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTitleBlock(roomName, hotelName, '', checkInStr,
+                        checkOutStr, nights, adults + children),
+                    _buildQuickStats(roomSize, roomUnit, roomView, maxOccupancy),
+                    _buildStayDetailsCard(
+                        checkInStr, checkOutStr, nights, adults, children),
+                    if (description.isNotEmpty)
+                      _buildSection(
+                          'About This Room', _buildDescriptionBlock(description)),
+                    if (amenities.isNotEmpty)
+                      _buildSection('Amenities', _buildAmenitiesGrid(amenities)),
+                    _buildAppliedDiscountsBanner(roomPrice),
+                    if (groupedPlans.isNotEmpty)
+                      _buildSection(
+                        'Rate Plans',
+                        Column(
+                          children: groupedPlans.asMap().entries.map((e) {
+                            _policyKeys.putIfAbsent(e.key, () => GlobalKey());
+                            return _buildGroupedPlanCard(
+                              plan: e.value,
+                              planIndex: e.key,
+                              room: room,
+                              adults: adults,
+                              children: children,
+                              totalGuests: totalGuests,
+                              startDate: startDate,
+                              endDate: endDate,
+                              propertyCode: propertyCode,
+                              hotelName: hotelName,
+                              propertyId: propertyId,
+                              nights: nights,
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    const SizedBox(height: 120),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: roomPrice.isEmpty
+          ? _buildFloatingBookButton(
+              onPressed: () {
+                _removeOverlay();
+                Get.to(() => BookingPage(
+                      room: room,
+                      ratePlan: {},
+                      totalGuests: totalGuests,
+                      adults: adults,
+                      children: children,
+                      startDate: startDate,
+                      endDate: endDate,
+                      propertyId: propertyId,
+                      propertyCode: propertyCode,
+                      hotelName: hotelName,
+                      discountApplied: false,
+                      discountedPrice: 0,
+                      guestEmail: null,
+                      addons: [],
+                    ));
+              },
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  // ─── Hero ────────────────────────────────────────────────────────────────────
+
+  Widget _buildHeroImageArea() {
+    return Stack(fit: StackFit.expand, children: [
+      if (images.isNotEmpty)
+        PageView.builder(
+          controller: _pageController,
+          itemCount: images.length,
+          onPageChanged: (i) => setState(() => _currentImageIndex = i),
+          itemBuilder: (_, i) => Image.network(images[i],
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                    color: AppColor.primary.withOpacity(0.3),
+                    child: Icon(Icons.hotel_rounded,
+                        size: 80, color: Colors.white.withOpacity(0.3)),
+                  )),
+        )
+      else
+        Container(
+          color: AppColor.primary,
+          child: Icon(Icons.hotel_rounded,
+              size: 80, color: Colors.white.withOpacity(0.2)),
+        ),
+      DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.black.withOpacity(0.25),
+              Colors.transparent,
+              Colors.transparent,
+              Colors.black.withOpacity(0.7),
+            ],
+            stops: const [0, 0.25, 0.55, 1],
+          ),
+        ),
+      ),
+      if (images.length > 1)
+        Positioned(
+          bottom: 24,
+          left: 0,
+          right: 0,
+          child: SizedBox(
+            height: 60,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: images.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (_, i) {
+                final active = i == _currentImageIndex;
+                return GestureDetector(
+                  onTap: () => _pageController.animateToPage(i,
+                      duration: const Duration(milliseconds: 350),
+                      curve: Curves.easeInOut),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: active ? 68 : 56,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: active
+                            ? Colors.white
+                            : Colors.white.withOpacity(0.3),
+                        width: active ? 2.5 : 1.5,
+                      ),
+                      boxShadow: active
+                          ? [BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 8)]
+                          : [],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(images[i],
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              Container(color: Colors.grey[300])),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      if (images.length > 1)
+        Positioned(
+          top: 80,
+          right: 10,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(20)),
+            child: Text('${_currentImageIndex + 1} / ${images.length}',
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5)),
+          ),
+        ),
+    ]);
+  }
+
+  Widget _buildNavButton(
+      {required IconData icon, required VoidCallback onTap, Color? color}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(8),
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color ?? Colors.black.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(icon, color: Colors.white, size: 20),
+      ),
+    );
+  }
+
+  Widget _buildTitleBlock(String roomName, String hotelName, String roomType,
+      String checkIn, String checkOut, int nights, int totalGuests) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (hotelName.isNotEmpty) ...[
+                Row(children: [
+                  Container(width: 16, height: 1.5, color: AppColor.primary),
+                  const SizedBox(width: 8),
+                  Text(hotelName.toUpperCase(),
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: AppColor.primary,
+                          letterSpacing: 2.5)),
+                ]),
+                const SizedBox(height: 8),
+              ],
+              Text(roomName,
+                  style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      color: AppColor.text,
+                      height: 1.15,
+                      letterSpacing: -0.5)),
+            ]),
+          ),
+        ]),
+        Row(children: [
+          Container(width: 36, height: 2.5, color: AppColor.primary),
+          const SizedBox(width: 5),
+          Container(width: 10, height: 2.5, color: AppColor.secondary),
+          const SizedBox(width: 5),
+          Container(
+              width: 5,
+              height: 2.5,
+              color: AppColor.secondary.withOpacity(0.4)),
+        ]),
+      ]),
+    );
+  }
+
+  Widget _buildQuickStats(
+      int roomSize, String roomUnit, String roomView, int maxOccupancy) {
+    final stats = <Map<String, dynamic>>[];
+    if (roomSize > 0)
+      stats.add({'icon': Icons.straighten_rounded, 'label': '$roomSize $roomUnit', 'sub': 'Room Size'});
+    if (roomView.isNotEmpty)
+      stats.add({'icon': Icons.landscape_rounded, 'label': _capitalize(roomView), 'sub': 'View'});
+    if (maxOccupancy > 0)
+      stats.add({'icon': Icons.people_outline_rounded, 'label': '$maxOccupancy Guests', 'sub': 'Max Capacity'});
+    if (stats.isEmpty) return const SizedBox();
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColor.primary.withOpacity(0.08)),
+        boxShadow: [BoxShadow(color: AppColor.primary.withOpacity(0.06), blurRadius: 16, offset: const Offset(0, 4))],
+      ),
+      child: Row(
+        children: stats.asMap().entries.map((e) {
+          final s = e.value;
+          final isLast = e.key == stats.length - 1;
+          return Expanded(
+            child: Row(children: [
+              Expanded(
+                child: Column(children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: AppColor.primary.withOpacity(0.08),
+                        shape: BoxShape.circle),
+                    child: Icon(s['icon'] as IconData, size: 18, color: AppColor.primary),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(s['label'] as String,
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColor.text),
+                      textAlign: TextAlign.center),
+                  const SizedBox(height: 2),
+                  Text(s['sub'] as String,
+                      style: const TextStyle(fontSize: 10, color: AppColor.textLight),
+                      textAlign: TextAlign.center),
+                ]),
+              ),
+              if (!isLast) Container(width: 1, height: 48, color: Colors.grey[200]),
+            ]),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildStayDetailsCard(String checkIn, String checkOut, int nights,
+      int adults, int children) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [AppColor.primary, AppColor.primary]),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [BoxShadow(color: AppColor.primary.withOpacity(0.25), blurRadius: 16, offset: const Offset(0, 6))],
+      ),
+      child: Row(children: [
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('CHECK-IN',
+                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Colors.white.withOpacity(0.7), letterSpacing: 1.5)),
+            const SizedBox(height: 4),
+            Text(checkIn, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
+            Text('From 14:00', style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.65))),
+          ]),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(14)),
+          child: Column(children: [
+            Text('$nights', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)),
+            Text(nights == 1 ? 'Night' : 'Nights',
+                style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w500)),
+          ]),
+        ),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            Text('CHECK-OUT',
+                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Colors.white.withOpacity(0.7), letterSpacing: 1.5)),
+            const SizedBox(height: 4),
+            Text(checkOut,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
+                textAlign: TextAlign.end),
+            Text('Until 12:00', style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.65))),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  Widget _buildSection(String title, Widget child) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _buildSectionTitle(title),
+        const SizedBox(height: 16),
+        child,
+      ]),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(title,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColor.text, letterSpacing: -0.3)),
+      const SizedBox(height: 6),
+      Row(children: [
+        Container(width: 36, height: 2, color: AppColor.primary),
+        const SizedBox(width: 4),
+        Container(width: 10, height: 2, color: AppColor.secondary),
+      ]),
+    ]);
+  }
+
+  Widget _buildDescriptionBlock(String description) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 3))],
+      ),
+      child: Text(description,
+          style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.7, letterSpacing: 0.1)),
+    );
+  }
+
+  Widget _buildAmenitiesGrid(List amenities) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: amenities.map((a) {
+        final name = a is Map ? (a['amenityName'] ?? a['name'] ?? '') : a.toString();
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          decoration: BoxDecoration(
+            color: AppColor.primary.withOpacity(0.06),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: AppColor.primary.withOpacity(0.14), width: 1),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(_getAmenityIcon(name), size: 14, color: AppColor.primary),
+            const SizedBox(width: 7),
+            Text(name, style: TextStyle(fontSize: 12.5, color: AppColor.text, fontWeight: FontWeight.w500)),
+          ]),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildAppliedDiscountsBanner(List roomPrice) {
+    final geoDiscounts = <String>[];
+    for (final rp in roomPrice) {
+      final list = rp['appliedDiscounts'] as List? ?? [];
+      for (final d in list) {
+        final s = '${d['promotionName'] ?? ''} (${d['discountValue']}% off)';
+        if (!geoDiscounts.contains(s)) geoDiscounts.add(s);
+      }
+    }
+    if (geoDiscounts.isEmpty) return const SizedBox();
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColor.secondary.withOpacity(0.07),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColor.secondary.withOpacity(0.25)),
+      ),
+      child: Row(children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: AppColor.secondary, borderRadius: BorderRadius.circular(12)),
+          child: const Icon(Icons.local_offer_rounded, size: 16, color: Colors.white),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Discounts Applied',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColor.text)),
+            const SizedBox(height: 4),
+            ...geoDiscounts.map((d) => Text('• $d', style: TextStyle(fontSize: 12, color: Colors.grey[600]))),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  // ─── PLAN CARD ───────────────────────────────────────────────────────────────
+
+  Widget _buildGroupedPlanCard({
+    required _GroupedPlan plan,
+    required int planIndex,
+    required Map<String, dynamic> room,
+    required int adults,
+    required int children,
+    required int totalGuests,
+    required String startDate,
+    required String endDate,
+    required String propertyCode,
+    required String hotelName,
+    required String propertyId,
+    required int nights,
+  }) {
+    final cancellationPolicy =
+        plan.policy?['cancellationPolicy'] as Map<String, dynamic>?;
+    final policyDescription =
+        cancellationPolicy?['description'] as String? ?? '';
+    final touristTaxAmount =
+        (plan.touristTax?['calculatedTaxAmount'] as num?)?.toDouble() ?? 0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -1608,491 +1340,275 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: _globalDiscountApplied
+          color: _discountApplied
               ? AppColor.secondary.withOpacity(0.4)
               : Colors.grey[200]!,
-          width: _globalDiscountApplied ? 1.5 : 1,
+          width: _discountApplied ? 1.5 : 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.primary.withOpacity(0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: AppColor.primary.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Plan header row ──────────────────────────────
-          Container(
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
-            decoration: BoxDecoration(
-              color: AppColor.primary.withOpacity(0.04),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        plan.ratePlanName.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: AppColor.primary,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                    ),
-                    if (_globalDiscountApplied)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColor.secondary,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '-$_globalDiscountPercentage%',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                // Tax line
-                Text(
-                  'TAX NOT INCLUDED · TOURISM FEE: ${plan.currencyCode} ${touristTaxAmount.toInt()} · PAY AT THE HOTEL',
-                  style: TextStyle(fontSize: 9, color: Colors.grey[500]),
-                ),
-                // Policy link
-                if (policyDescription.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  GestureDetector(
-                    key: _policyKeys[planIndex],
-                    onTap: () {
-                      if (_expandedPolicyIndex == planIndex) {
-                        _removeOverlay();
-                      } else {
-                        _showPolicyOverlay(
-                          context,
-                          policyDescription,
-                          planIndex,
-                        );
-                      }
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.policy_outlined,
-                          size: 13,
-                          color: AppColor.primary,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          'Booking conditions →',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColor.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 3),
-                        Icon(
-                          _expandedPolicyIndex == planIndex
-                              ? Icons.keyboard_arrow_up_rounded
-                              : Icons.keyboard_arrow_down_rounded,
-                          size: 14,
-                          color: AppColor.primary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
+        // ── Header ─────────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+          decoration: BoxDecoration(
+            color: AppColor.primary.withOpacity(0.04),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
-
-          // ── Combo rows ───────────────────────────────────
-          ...plan.combos.asMap().entries.map((comboEntry) {
-            final ci = comboEntry.key;
-            final combo = comboEntry.value;
-            final isLast = ci == plan.combos.length - 1;
-
-            final double basePrice = combo.totalAmount;
-            final double discountedPrice = _discounted(basePrice);
-            final double savings = basePrice - discountedPrice;
-
-            // Original base (before this combo's addon) for strikethrough
-            final double? addonPrice =
-                combo.addons.isNotEmpty && combo.addons.first is Map
-                ? (combo.addons.first['price'] as num?)?.toDouble()
-                : null;
-            final double roomOnlyPrice = addonPrice != null
-                ? basePrice - addonPrice
-                : basePrice;
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Divider between combos
-                if (ci > 0)
-                  Divider(height: 1, color: Colors.grey[100], thickness: 1),
-
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Label column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  combo.addons.isEmpty ? '↳ ' : '+ ',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey[400],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    combo.label,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: combo.addons.isEmpty
-                                          ? FontWeight.w500
-                                          : FontWeight.w600,
-                                      color: combo.addons.isEmpty
-                                          ? Colors.grey[700]
-                                          : AppColor.text,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // Show base price as sub-label when addon present
-                            if (combo.addons.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                'Base price: ${plan.currencyCode} ${roomOnlyPrice.toInt()}',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      // Price + ADD button
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          // Strikethrough original if discounted
-                          if (_globalDiscountApplied && savings > 0)
-                            Text(
-                              '${plan.currencyCode} ${basePrice.toInt()}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[400],
-                                decoration: TextDecoration.lineThrough,
-                              ),
-                            ),
-                          Row(
-                            children: [
-                              Text(
-                                '${plan.currencyCode} ',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: AppColor.primary,
-                                ),
-                              ),
-                              Text(
-                                '${discountedPrice.toInt()}',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColor.primary,
-                                  height: 1,
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (_globalDiscountApplied && savings > 0)
-                            Container(
-                              margin: const EdgeInsets.only(top: 2),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColor.secondary.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                'Save ${plan.currencyCode} ${savings.toInt()}',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColor.secondary,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-
-                      const SizedBox(width: 10),
-
-                      // ADD button
-                      GestureDetector(
-                        onTap: () async {
-                          _removeOverlay();
-                          Get.dialog(
-                            const Center(child: CircularProgressIndicator()),
-                            barrierDismissible: false,
-                          );
-                          await _fetchAndShowAddons(
-                            propertyCode: propertyCode,
-                            startDate: startDate,
-                            endDate: endDate,
-                            ratePlanCode: plan.ratePlanCode,
-                            room: room,
-                            ratePlan: combo.rawRatePlan,
-                            adults: adults,
-                            children: children,
-                            totalGuests: totalGuests,
-                            propertyId: propertyId,
-                            hotelName: hotelName,
-                            discountedPrice: discountedPrice,
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColor.secondary,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColor.secondary.withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Text(
-                            'ADD',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Expanded(
+                child: Text(plan.ratePlanName.toUpperCase(),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColor.primary, letterSpacing: 0.4)),
+              ),
+              if (_discountApplied)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(color: AppColor.secondary, borderRadius: BorderRadius.circular(8)),
+                  child: Text('-$_discountPercentage%',
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
                 ),
-
-                // Direct payment notice after last combo
-                if (isLast)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
-                    child: Text(
-                      'Direct payment at hotel: TOURISM FEE — ${plan.currencyCode} ${touristTaxAmount.toInt()}',
-                      style: TextStyle(fontSize: 9, color: Colors.grey[400]),
-                    ),
+            ]),
+            const SizedBox(height: 4),
+            Text(
+              'TAX NOT INCLUDED · TOURISM FEE: ${plan.currencyCode} ${touristTaxAmount.toInt()} · PAY AT THE HOTEL',
+              style: TextStyle(fontSize: 9, color: Colors.grey[500]),
+            ),
+            if (policyDescription.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              GestureDetector(
+                key: _policyKeys[planIndex],
+                onTap: () => _expandedPolicyIndex == planIndex
+                    ? _removeOverlay()
+                    : _showPolicyOverlay(context, policyDescription, planIndex),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.policy_outlined, size: 13, color: AppColor.primary),
+                  const SizedBox(width: 5),
+                  Text('Booking conditions →',
+                      style: TextStyle(fontSize: 11, color: AppColor.primary, fontWeight: FontWeight.w600)),
+                  const SizedBox(width: 3),
+                  Icon(
+                    _expandedPolicyIndex == planIndex
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    size: 14,
+                    color: AppColor.primary,
                   ),
-              ],
-            );
-          }).toList(),
+                ]),
+              ),
+            ],
+          ]),
+        ),
 
-          // ── Applied geo-discounts chips ──────────────────
-          if (plan.appliedDiscounts.isNotEmpty) ...[
+        // ── Combo rows ─────────────────────────────────────
+        ...plan.combos.asMap().entries.map((comboEntry) {
+          final ci = comboEntry.key;
+          final combo = comboEntry.value;
+          final isLast = ci == plan.combos.length - 1;
+          final double basePrice = combo.totalAmount;
+          final double discountedPrice = _discounted(basePrice);
+          final double savings = basePrice - discountedPrice;
+          final double? addonPrice = combo.addons.isNotEmpty && combo.addons.first is Map
+              ? (combo.addons.first['price'] as num?)?.toDouble()
+              : null;
+          final double roomOnlyPrice =
+              addonPrice != null ? basePrice - addonPrice : basePrice;
+
+          return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (ci > 0) Divider(height: 1, color: Colors.grey[100], thickness: 1),
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                children: plan.appliedDiscounts.map((d) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColor.secondary.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColor.secondary.withOpacity(0.2),
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Row(children: [
+                      Text(combo.addons.isEmpty ? '↳ ' : '+ ',
+                          style: TextStyle(fontSize: 13, color: Colors.grey[400])),
+                      Expanded(
+                        child: Text(combo.label,
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: combo.addons.isEmpty ? FontWeight.w500 : FontWeight.w600,
+                                color: combo.addons.isEmpty ? Colors.grey[700] : AppColor.text)),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.sell_rounded,
-                          size: 11,
-                          color: AppColor.secondary,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          '${d['promotionName'] ?? ''} (${d['discountValue']}% off)',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColor.secondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-
-          // ── Member-rate CTA ──────────────────────────────
-          if (!_globalDiscountApplied)
-            GestureDetector(
-              onTap: () => _showDiscountForm(
-                plan.combos.isNotEmpty ? plan.combos.first.totalAmount : 0,
-              ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 14,
+                    ]),
+                    if (combo.addons.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text('Base price: ${plan.currencyCode} ${roomOnlyPrice.toInt()}',
+                          style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+                    ],
+                  ]),
                 ),
-                decoration: BoxDecoration(
-                  color: AppColor.secondary.withOpacity(0.06),
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                  border: Border(
-                    top: BorderSide(color: AppColor.secondary.withOpacity(0.2)),
-                  ),
-                ),
-                child: Row(
-                  children: [
+                const SizedBox(width: 12),
+                Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                  if (_discountApplied && savings > 0)
+                    Text('${plan.currencyCode} ${basePrice.toInt()}',
+                        style: TextStyle(fontSize: 11, color: Colors.grey[400], decoration: TextDecoration.lineThrough)),
+                  Row(children: [
+                    Text('${plan.currencyCode} ', style: TextStyle(fontSize: 11, color: AppColor.primary)),
+                    Text('${discountedPrice.toInt()}',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColor.primary, height: 1)),
+                  ]),
+                  if (_discountApplied && savings > 0)
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      margin: const EdgeInsets.only(top: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColor.secondary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.card_membership_rounded,
-                        size: 15,
-                        color: Colors.white,
-                      ),
+                          color: AppColor.secondary.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(6)),
+                      child: Text('Save ${plan.currencyCode} ${savings.toInt()}',
+                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppColor.secondary)),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Member Rate Available',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColor.text,
-                            ),
-                          ),
-                          Text(
-                            'Sign up once — discount on all plans',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
+                ]),
+                const SizedBox(width: 10),
+                // ADD button
+                GestureDetector(
+                  onTap: () async {
+                    _removeOverlay();
+                    await _fetchAndShowAddons(
+                      propertyCode: propertyCode,
+                      startDate: startDate,
+                      endDate: endDate,
+                      ratePlanCode: plan.ratePlanCode,
+                      room: room,
+                      ratePlan: combo.rawRatePlan,
+                      adults: adults,
+                      children: children,
+                      totalGuests: totalGuests,
+                      propertyId: propertyId,
+                      hotelName: hotelName,
+                      discountedPrice: discountedPrice,
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
                       color: AppColor.secondary,
-                      size: 20,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [BoxShadow(color: AppColor.secondary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))],
                     ),
-                  ],
+                    child: const Text('ADD',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 0.5)),
+                  ),
+                ),
+              ]),
+            ),
+            if (isLast)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+                child: Text(
+                  'Direct payment at hotel: TOURISM FEE — ${plan.currencyCode} ${touristTaxAmount.toInt()}',
+                  style: TextStyle(fontSize: 9, color: Colors.grey[400]),
                 ),
               ),
+          ]);
+        }).toList(),
+
+        // ── Geo-discount chips ─────────────────────────────
+        if (plan.appliedDiscounts.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: plan.appliedDiscounts.map((d) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColor.secondary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColor.secondary.withOpacity(0.2)),
+                ),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.sell_rounded, size: 11, color: AppColor.secondary),
+                  const SizedBox(width: 5),
+                  Text('${d['promotionName'] ?? ''} (${d['discountValue']}% off)',
+                      style: TextStyle(fontSize: 11, color: AppColor.secondary)),
+                ]),
+              )).toList(),
             ),
-        ],
-      ),
+          ),
+
+        // ── BOTTOM BANNER ──────────────────────────────────
+        // Not signed in → "Member Rate Available" CTA (full banner)
+        // Signed in     → only a slim logout button; entire text block removed
+        if (!_discountApplied)
+          GestureDetector(
+            onTap: () => _openMemberRateFlow(
+                propertyId: propertyId, planCurrency: plan.currencyCode),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColor.secondary.withOpacity(0.06),
+                borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20)),
+                border: Border(
+                    top: BorderSide(color: AppColor.secondary.withOpacity(0.2))),
+              ),
+              child: Row(children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                      color: AppColor.secondary,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: const Icon(Icons.card_membership_rounded,
+                      size: 15, color: Colors.white),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Member Rate Available',
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppColor.text)),
+                        Text('Sign up once — discount on all plans',
+                            style:
+                                TextStyle(fontSize: 11, color: Colors.grey[600])),
+                      ]),
+                ),
+                Icon(Icons.chevron_right_rounded,
+                    color: AppColor.secondary, size: 20),
+              ]),
+            ),
+          )
+        
+    ])
     );
   }
 
-  // ── Floating Book Button ──────────────────────────────────
+  // ─── Floating button ─────────────────────────────────────────────────────────
 
   Widget _buildFloatingBookButton({required VoidCallback onPressed}) {
     return Container(
       width: MediaQuery.of(context).size.width - 48,
       height: 50,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColor.secondary, AppColor.secondary],
-        ),
+        gradient: LinearGradient(colors: [AppColor.secondary, AppColor.secondary]),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.primary.withOpacity(0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: AppColor.primary.withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))],
       ),
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              'Reserve Now',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(width: 8),
-            Icon(Icons.arrow_forward_rounded, size: 20, color: Colors.white),
-          ],
-        ),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          Text('Reserve Now',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+          SizedBox(width: 8),
+          Icon(Icons.arrow_forward_rounded, size: 20, color: Colors.white),
+        ]),
       ),
     );
   }
 
-  // ── Form field ────────────────────────────────────────────
+  // ─── Form field ───────────────────────────────────────────────────────────────
 
   Widget _buildFormField({
     required TextEditingController controller,
@@ -2112,29 +1628,23 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
         prefixIcon: Icon(icon, color: AppColor.secondary, size: 20),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: Colors.grey[300]!)),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: Colors.grey[300]!)),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppColor.primary, width: 1.5),
-        ),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: AppColor.primary, width: 1.5)),
         filled: true,
         fillColor: Colors.grey[50],
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 14,
-          horizontal: 16,
-        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       ),
       validator: validator,
     );
   }
 
-  // ── Error scaffold ────────────────────────────────────────
+  // ─── Error scaffold ───────────────────────────────────────────────────────────
 
   Widget _buildErrorScaffold(String message) {
     return Scaffold(
@@ -2143,49 +1653,31 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         backgroundColor: AppColor.primary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
-          ),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Get.back(),
         ),
       ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColor.primary.withOpacity(0.08),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.hotel_rounded,
-                  size: 48,
-                  color: AppColor.primary,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                message,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColor.textLight,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                  color: AppColor.primary.withOpacity(0.08), shape: BoxShape.circle),
+              child: Icon(Icons.hotel_rounded, size: 48, color: AppColor.primary),
+            ),
+            const SizedBox(height: 20),
+            Text(message,
+                style: TextStyle(fontSize: 16, color: AppColor.textLight, height: 1.5),
+                textAlign: TextAlign.center),
+          ]),
         ),
       ),
     );
   }
 
-  // ── Helpers ───────────────────────────────────────────────
+  // ─── Helpers ─────────────────────────────────────────────────────────────────
 
   String _capitalize(String s) =>
       s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
@@ -2197,25 +1689,18 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     if (n.contains('ac') || n.contains('air')) return Icons.ac_unit_rounded;
     if (n.contains('parking')) return Icons.local_parking_rounded;
     if (n.contains('pool')) return Icons.pool_rounded;
-    if (n.contains('gym') || n.contains('fitness'))
-      return Icons.fitness_center_rounded;
-    if (n.contains('breakfast') || n.contains('food'))
-      return Icons.restaurant_rounded;
-    if (n.contains('bath') || n.contains('shower'))
-      return Icons.bathtub_rounded;
+    if (n.contains('gym') || n.contains('fitness')) return Icons.fitness_center_rounded;
+    if (n.contains('breakfast') || n.contains('food')) return Icons.restaurant_rounded;
+    if (n.contains('bath') || n.contains('shower')) return Icons.bathtub_rounded;
     if (n.contains('kitchen')) return Icons.kitchen_rounded;
     if (n.contains('pet')) return Icons.pets_rounded;
-    if (n.contains('balcony') || n.contains('terrace'))
-      return Icons.balcony_rounded;
+    if (n.contains('balcony') || n.contains('terrace')) return Icons.balcony_rounded;
     if (n.contains('safe') || n.contains('lock')) return Icons.lock_rounded;
     if (n.contains('coffee') || n.contains('tea')) return Icons.coffee_rounded;
     if (n.contains('desk') || n.contains('work')) return Icons.desk_rounded;
-    if (n.contains('phone') || n.contains('telephone'))
-      return Icons.phone_rounded;
-    if (n.contains('curtain') || n.contains('blackout'))
-      return Icons.blinds_rounded;
-    if (n.contains('slipper') || n.contains('bathrobe'))
-      return Icons.checkroom_rounded;
+    if (n.contains('phone') || n.contains('telephone')) return Icons.phone_rounded;
+    if (n.contains('curtain') || n.contains('blackout')) return Icons.blinds_rounded;
+    if (n.contains('slipper') || n.contains('bathrobe')) return Icons.checkroom_rounded;
     if (n.contains('alarm') || n.contains('clock')) return Icons.alarm_rounded;
     if (n.contains('iron')) return Icons.iron_rounded;
     if (n.contains('sound')) return Icons.volume_off_rounded;

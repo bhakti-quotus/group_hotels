@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HeroBanner extends StatefulWidget {
   final Map<String, dynamic> bannerData;
@@ -185,7 +186,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
             ),
           ),
 
-          // ── Top bar: logo + page indicator ────────────────────────────
+          // ── Top bar: logo (left) + Partner Login (right) ──────────────
           Positioned(
             top: topPad + 12,
             left: 20,
@@ -221,28 +222,75 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                       : const Icon(Icons.hotel, color: Colors.white, size: 24),
                 ),
 
-                // Page dots
-                if (_allImages.length > 1)
-                  Row(
-                    children: List.generate(_allImages.length, (i) {
-                      final isActive = i == _currentPage;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        width: isActive ? 18 : 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? AppColor.secondary
-                              : Colors.white.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      );
-                    }),
+                // ── Partner Login button (top-right) ──────────────────
+                GestureDetector(
+                  onTap: () => launchUrl(
+                    Uri.parse('https://agent.revchilltech.com/'),
+                    mode: LaunchMode.externalApplication,
                   ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColor.secondary.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColor.secondary.withOpacity(0.35),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Text(
+                          'Partner Login',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
+
+          // ── Page dots (bottom-right) ───────────────────────────────────
+          if (_allImages.length > 1)
+            Positioned(
+              bottom: 60,
+              right: 20,
+              child: Row(
+                children: List.generate(_allImages.length, (i) {
+                  final isActive = i == _currentPage;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: isActive ? 18 : 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? AppColor.secondary
+                          : Colors.white.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  );
+                }),
+              ),
+            ),
 
           // ── Bottom text content ────────────────────────────────────────
           Positioned(
