@@ -123,7 +123,7 @@ class _BookingPageState extends State<BookingPage>
       };
 
       // Add guest email if discount applied
-      if (widget.discountApplied && widget.guestEmail != null) {
+      if (widget.discountApplied && widget.guestEmail != null && widget.guestEmail!.isNotEmpty) {
         payload['guestEmail'] = widget.guestEmail;
       }
 
