@@ -10,6 +10,7 @@ import 'gallery_widget.dart';
 import 'rooms_list_widget.dart';
 import 'search_widget.dart'; // ← import your SearchWidget
 
+/// Main screen that displays rooms, amenities, and gallery for the selected hotel.
 class RoomScreen extends StatefulWidget {
   const RoomScreen({Key? key}) : super(key: key);
 
