@@ -177,8 +177,8 @@ class _AddonsScreenState extends State<AddonsScreen> {
               // Back button
               GestureDetector(
                 onTap: () {
-                  Get.back();
-                  _onSkip();
+                  Get.offNamed('/rooms');
+                  // _onSkip();
                 },
                 child: Container(
                   width: 40,
@@ -638,8 +638,12 @@ class _AddonsScreenState extends State<AddonsScreen> {
                 flex: 2,
                 child: GestureDetector(
                   onTap: () {
-                    Get.back();
-                    _onAdd(sel);
+                    if (totalItems == 0) {
+                      _showAddOrSkipDialog();
+                    } else {
+                      Get.back();
+                      _onAdd(sel);
+                    }
                   },
                   child: Container(
                     height: 50,
@@ -685,6 +689,186 @@ class _AddonsScreenState extends State<AddonsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // Add this new method to show the dialog
+  void _showAddOrSkipDialog() {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 40,
+                offset: const Offset(0, 16),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(28, 28, 28, 24),
+                child: Column(
+                  children: [
+                    // Icon badge
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: AppColor.primary.withOpacity(0.08),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.hotel_class_outlined,
+                        size: 30,
+                        color: AppColor.primary,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Title
+                    const Text(
+                      'No Add-ons Selected',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.3,
+                        color: Color(0xFF1A1A2E),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Divider with dot
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 1,
+                          color: Colors.grey.shade200,
+                        ),
+                        Container(
+                          width: 5,
+                          height: 5,
+                          margin: const EdgeInsets.symmetric(horizontal: 6),
+                          decoration: BoxDecoration(
+                            color: AppColor.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        Container(
+                          width: 32,
+                          height: 1,
+                          color: Colors.grey.shade200,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // Subtitle
+                    const Text(
+                      'You haven\'t selected any add-ons for your stay. Would you like to enhance your experience or continue without them?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.65,
+                        color: Color(0xFF6B7280),
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // Primary button — Add Extras
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.back();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColor.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.add_circle_outline,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Add Extras',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Secondary button — Skip
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Get.back();
+                          Get.back();
+                          _onSkip();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: BorderSide(
+                            color: Colors.grey.shade300,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text(
+                          'Continue Without Add-ons',
+                          style: TextStyle(
+                            color: Color(0xFF6B7280),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierColor: Colors.black.withOpacity(0.45),
     );
   }
 }

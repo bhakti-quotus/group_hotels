@@ -1805,6 +1805,8 @@ class _PaymentPageState extends State<PaymentPage>
             widget.bookingDetails['propertyCode'] as String? ??
             '';
 
+        setState(() => _isProcessingBooking = false);
+
         _showBookingSuccessDialog(
           bookingCode: bookingCode,
           propertyCode: propertyCode,
@@ -1894,7 +1896,7 @@ class _PaymentPageState extends State<PaymentPage>
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    if (mounted) setState(() => _isProcessingBooking = false);
+                    //if (mounted) setState(() => _isProcessingBooking = false);
                     Navigator.pop(context);
                     // ✅ Pass bookingCode and propertyCode so the page can fetch details
                     Get.offAllNamed(

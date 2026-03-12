@@ -141,6 +141,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
 
   // AppBar collapse
   bool _isAppBarCollapsed = false;
+  final Set<String> _expandedCombos = {};
 
   @override
   void initState() {
@@ -1726,16 +1727,18 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
           ),
 
           // ── Combo rows ───────────────────────────────────
+          // ── Combo rows ───────────────────────────────────
           ...plan.combos.asMap().entries.map((comboEntry) {
             final ci = comboEntry.key;
             final combo = comboEntry.value;
             final isLast = ci == plan.combos.length - 1;
+            final comboKey = '${plan.ratePlanCode}_$ci';
+            final isExpanded = _expandedCombos.contains(comboKey);
 
             final double basePrice = combo.totalAmount;
             final double discountedPrice = _discounted(basePrice);
             final double savings = basePrice - discountedPrice;
 
-            // Original base (before this combo's addon) for strikethrough
             final double? addonPrice =
                 combo.addons.isNotEmpty && combo.addons.first is Map
                 ? (combo.addons.first['price'] as num?)?.toDouble()
@@ -1747,122 +1750,232 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Divider between combos
                 if (ci > 0)
                   Divider(height: 1, color: Colors.grey[100], thickness: 1),
 
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Label column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  combo.addons.isEmpty ? '↳ ' : '+ ',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey[400],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    combo.label,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: combo.addons.isEmpty
-                                          ? FontWeight.w500
-                                          : FontWeight.w600,
-                                      color: combo.addons.isEmpty
-                                          ? Colors.grey[700]
-                                          : AppColor.text,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // Show base price as sub-label when addon present
-                            if (combo.addons.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                'Base price: ${plan.currencyCode} ${roomOnlyPrice.toInt()}',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ],
+                // ── Tappable header row ──
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isExpanded) {
+                        _expandedCombos.remove(comboKey);
+                      } else {
+                        _expandedCombos.add(comboKey);
+                      }
+                    });
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+                    child: Row(
+                      children: [
+                        // Expand/collapse icon
+                        AnimatedRotation(
+                          turns: isExpanded ? 0.5 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 18,
+                            color: AppColor.primary,
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
 
-                      const SizedBox(width: 12),
-
-                      // Price + ADD button
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          // Strikethrough original if discounted
-                          if (_globalDiscountApplied && savings > 0)
-                            Text(
-                              '${plan.currencyCode} ${basePrice.toInt()}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[400],
-                                decoration: TextDecoration.lineThrough,
-                              ),
+                        // Label
+                        Expanded(
+                          child: Text(
+                            combo.label,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColor.text,
                             ),
-                          Row(
-                            children: [
-                              Text(
-                                '${plan.currencyCode} ',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: AppColor.primary,
-                                ),
-                              ),
-                              Text(
-                                '${discountedPrice.toInt()}',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColor.primary,
-                                  height: 1,
-                                ),
+                          ),
+                        ),
+
+                        // Price (compact)
+                        if (_globalDiscountApplied && savings > 0)
+                          Text(
+                            '${plan.currencyCode} ${basePrice.toInt()}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[400],
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${plan.currencyCode} ${discountedPrice.toInt()}',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: AppColor.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ── Inline expanded detail ──
+                AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 250),
+                  crossFadeState: isExpanded
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  firstChild: const SizedBox(width: double.infinity),
+                  secondChild: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // BASE PRICE card
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.grey[200]!),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
-                          if (_globalDiscountApplied && savings > 0)
-                            Container(
-                              margin: const EdgeInsets.only(top: 2),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColor.secondary.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                'Save ${plan.currencyCode} ${savings.toInt()}',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'BASE PRICE',
                                 style: TextStyle(
                                   fontSize: 9,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColor.secondary,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey[500],
+                                  letterSpacing: 1.2,
                                 ),
                               ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Text(
+                                    '${plan.currencyCode} ${roomOnlyPrice.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColor.text,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+
+                                  Text(
+                                    '/per night',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey[400],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        // Only show INCLUDED ADDONS if there are addons
+                        if (combo.addons.isNotEmpty) ...[
+                          const SizedBox(width: 10),
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: AppColor.secondary.withOpacity(0.06),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: AppColor.secondary.withOpacity(0.25),
+                              ),
                             ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'INCLUDED ADDONS',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColor.secondary,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                ...combo.addons.map((addon) {
+                                  final addonName = addon is Map
+                                      ? (addon['name'] ?? 'Add-on').toString()
+                                      : addon.toString();
+                                  final addonAmt = addon is Map
+                                      ? (addon['price'] as num?)?.toDouble() ??
+                                            0
+                                      : 0.0;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 4),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            addonName,
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: AppColor.text,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          ' +${plan.currencyCode} ${addonAmt.toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColor.secondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                          ),
                         ],
-                      ),
+                      ],
+                    ),
+                  ),
+                ),
 
-                      const SizedBox(width: 10),
-
-                      // ADD button
+                // ADD button row (always visible below expanded or collapsed)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (_globalDiscountApplied && savings > 0)
+                        Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColor.secondary.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Save ${plan.currencyCode} ${savings.toInt()}',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: AppColor.secondary,
+                            ),
+                          ),
+                        ),
                       GestureDetector(
                         onTap: () async {
                           _removeOverlay();
@@ -1887,7 +2000,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
+                            horizontal: 20,
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
@@ -1916,7 +2029,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                   ),
                 ),
 
-                // Direct payment notice after last combo
                 if (isLast)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
@@ -1928,7 +2040,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               ],
             );
           }).toList(),
-
           // ── Applied geo-discounts chips ──────────────────
           if (plan.appliedDiscounts.isNotEmpty) ...[
             Padding(
