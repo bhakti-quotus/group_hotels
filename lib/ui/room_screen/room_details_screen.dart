@@ -1834,7 +1834,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey[200]!),
                             boxShadow: [
                               BoxShadow(
@@ -1886,7 +1886,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                         if (combo.addons.isNotEmpty) ...[
                           const SizedBox(width: 10),
                           Container(
-                            padding: const EdgeInsets.all(14),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: AppColor.secondary.withOpacity(0.06),
                               borderRadius: BorderRadius.circular(14),
