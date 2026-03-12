@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:group/group/controllers/api_controller.dart';
+import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -100,6 +101,10 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
         'noOfRooms': 1,
         'previousRooms': 1,
       };
+
+      // Add guestDistribution from fetchRoomsAPI searchCriteria.guests equivalent (roomsArray)
+      final searchController = Get.find<search_ctrl.AppSearchController>();
+      payload['guestDistribution'] = searchController.searchPayload['guests']?['roomsArray'] ?? [];
 
       final result = await _apiController.getPrice(payload);
 
@@ -238,13 +243,27 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
 
   Future<void> _selectDateOfBirth(bool isChild, int index) async {
     final DateTime now = DateTime.now();
+    DateTime firstDate;
+    DateTime maxDate;
+    DateTime initialDate;
+    
+    if (isChild) {
+      // Child: age 0 (maxDate=now) to max age 12 (firstDate=now-12yrs)
+      firstDate = DateTime(now.year - 12, now.month, now.day);
+      maxDate = now;
+      initialDate = DateTime.now().subtract(Duration(days: 365 * 8));
+    } else {
+      // Adult: min age 16 (maxDate=now-16yrs), max age 100 (firstDate=now-100yrs)
+      firstDate = DateTime(now.year - 100, now.month, now.day);
+      maxDate = DateTime(now.year - 16, now.month, now.day);
+      initialDate = DateTime.now().subtract(Duration(days: 365 * 30));
+    }
+    
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: now.subtract(const Duration(days: 365 * 18)),
-      firstDate: now.subtract(const Duration(days: 365 * 100)),
-      lastDate: isChild
-          ? now
-          : now.subtract(const Duration(days: 365 * 18)),
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: maxDate,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -269,6 +288,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1303,39 +1323,51 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
       List<Map<String, dynamic>> guests = [];
 
       for (var guest in _guests) {
-        guests.add({
-          'type': guest['type'] ?? 'adult',
-          'firstName': guest['firstName'] ?? '',
-          'lastName': guest['lastName'] ?? '',
-          'dob': guest['dateOfBirth'] ?? '',
-        });
+        final dob = guest['dateOfBirth'] ?? '';
+        if (guest['type'] == 'child') {
+          guests.add({
+            'type': guest['type'] ?? 'child',
+            'firstName': guest['firstName'] ?? '',
+            'lastName': guest['lastName'] ?? '',
+            'dob': dob,
+            'age': dob.isNotEmpty ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365) : 0
+          });
+        } else {
+          guests.add({
+            'type': guest['type'] ?? 'adult',
+            'firstName': guest['firstName'] ?? '',
+            'lastName': guest['lastName'] ?? '',
+            'dateOfBirth': dob,
+          });
+        }
       }
 
+
       for (var adult in _newAdults) {
+        final dob = adult['dateOfBirth'] != null
+            ? DateTime.parse(adult['dateOfBirth']).toIso8601String().split('T')[0]
+            : '';
         guests.add({
           'type': 'adult',
           'firstName': adult['firstName'] ?? '',
           'lastName': adult['lastName'] ?? '',
-          'dob': adult['dateOfBirth'] != null
-              ? DateTime.parse(adult['dateOfBirth'])
-                  .toIso8601String()
-                  .split('T')[0]
-              : '',
+          'dateOfBirth': dob,
         });
       }
 
       for (var child in _newChildren) {
+        final dob = child['dateOfBirth'] != null
+            ? DateTime.parse(child['dateOfBirth']).toIso8601String().split('T')[0]
+            : '';
         guests.add({
           'type': 'child',
           'firstName': child['firstName'] ?? '',
           'lastName': child['lastName'] ?? '',
-          'dob': child['dateOfBirth'] != null
-              ? DateTime.parse(child['dateOfBirth'])
-                  .toIso8601String()
-                  .split('T')[0]
-              : '',
+          'dob': dob,
+          'age': dob.isNotEmpty ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365) : 0
         });
       }
+
 
       final totalAdults =
           guests.where((g) => g['type'] == 'adult').length;

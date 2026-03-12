@@ -122,13 +122,13 @@ class _RoomScreenState extends State<RoomScreen> {
 
     if (searchController.hasSearchPayload()) {
       payload = searchController.getSearchPayload();
-      payload["PropertyCode"] = propertyCode;
+      payload["propertyCode"] = propertyCode;
     } else {
       final searchPayloadFromConfig =
           data['searchPayload'] as Map<String, dynamic>?;
       if (searchPayloadFromConfig != null) {
         payload = Map<String, dynamic>.from(searchPayloadFromConfig);
-        payload["PropertyCode"] = propertyCode;
+        payload["propertyCode"] = propertyCode;
       } else {
         setState(() => _errorMessage = 'no_search_payload');
         return;

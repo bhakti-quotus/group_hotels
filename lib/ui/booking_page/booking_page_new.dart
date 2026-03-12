@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:get/get.dart';
 import 'package:group/group/controllers/api_controller.dart';
+import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
 import 'package:group/group/models/booking_data_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -58,7 +59,9 @@ class _BookingPageState extends State<BookingPage>
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final List<Map<String, TextEditingController>> _adultControllers = [];
+final List<Map<String, TextEditingController>> _adultControllers = [];
+  List<Map<String, TextEditingController>> _childControllers = [];
+
 
   @override
   void initState() {
@@ -81,13 +84,21 @@ class _BookingPageState extends State<BookingPage>
       _emailController.text = widget.guestEmail!;
     }
 
-    for (int i = 0; i < widget.adults; i++) {
+for (int i = 0; i < widget.adults; i++) {
       _adultControllers.add({
         'firstName': TextEditingController(),
         'lastName': TextEditingController(),
         'dob': TextEditingController(),
       });
     }
+    
+    // Add child controllers
+    _childControllers = List.generate(widget.children, (index) => {
+      'firstName': TextEditingController(),
+      'lastName': TextEditingController(),
+      'dob': TextEditingController(),
+    });
+    
     _getPrice();
   }
 
@@ -122,6 +133,7 @@ class _BookingPageState extends State<BookingPage>
     );
   }
 
+
   @override
   void dispose() {
     _fadeController.dispose();
@@ -132,8 +144,14 @@ class _BookingPageState extends State<BookingPage>
       controllers['lastName']?.dispose();
       controllers['dob']?.dispose();
     }
+    for (var controllers in _childControllers) {
+      controllers['firstName']?.dispose();
+      controllers['lastName']?.dispose();
+      controllers['dob']?.dispose();
+    }
     super.dispose();
   }
+
 
   Future<void> _getPrice() async {
     if (!mounted) return;
@@ -174,10 +192,11 @@ class _BookingPageState extends State<BookingPage>
           });
         }
         payload['parsedAddons'] = parsedAddons;
-        payload['includedAddons'] = _selectedAddons
-            .map((addon) => addon['id'] ?? '')
-            .toList();
       }
+
+      // Add guestDistribution from fetchRoomsAPI searchCriteria.guests equivalent (roomsArray)
+      final searchController = Get.find<search_ctrl.AppSearchController>();
+      payload['guestDistribution'] = searchController.searchPayload['guests']['roomsArray'];
 
       final result = await Get.find<ApiController>().getPrice(payload);
 
@@ -231,24 +250,36 @@ class _BookingPageState extends State<BookingPage>
   Future<void> _selectDate(
     BuildContext context,
     TextEditingController controller,
+    bool isAdult,
   ) async {
     final DateTime today = DateTime.now();
-    final DateTime seventeenyearsago = DateTime(
-      today.year - 17,
-      today.month,
-      today.day,
-    );
+    
+    DateTime firstDate;
+    DateTime maxDate;
+    DateTime initialDate;
+    
+    if (isAdult) {
+      // Adult: min age 16 (maxDate=today-16yrs), max age 100 (firstDate=today-100yrs)
+      firstDate = DateTime(today.year - 100, today.month, today.day);
+      maxDate = DateTime(today.year - 16, today.month, today.day);
+      initialDate = DateTime.now().subtract(Duration(days: 365 * 17));
+    } else {
+      // Child: age 0 (maxDate=today) to max age 12 (firstDate=today-12yrs)
+      firstDate = DateTime(today.year - 15, today.month, today.day);
+      maxDate = today;
+      initialDate = DateTime.now().subtract(Duration(days: 365 * 1));
+    }
 
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(today.year - 17, today.month, today.day),
-      firstDate: DateTime(1900),
-      lastDate: seventeenyearsago,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: maxDate,
       builder: (context, child) {
         return Theme(
-          data: Theme.of(
-            context,
-          ).copyWith(colorScheme: ColorScheme.light(primary: AppColor.primary)),
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(primary: AppColor.primary)
+          ),
           child: child!,
         );
       },
@@ -258,6 +289,7 @@ class _BookingPageState extends State<BookingPage>
       controller.text = picked.toIso8601String().split('T')[0];
     }
   }
+
 
   int _calculateNights() {
     try {
@@ -620,72 +652,86 @@ class _BookingPageState extends State<BookingPage>
       sectionTitle: 'GUEST INFORMATION',
       sectionIcon: Icons.person_outline_rounded,
       child: Column(
-        children: List.generate(widget.adults, (index) {
-          return Column(
-            children: [
-              if (index > 0)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 1,
-                        width: 24,
-                        color: AppColor.primary.withOpacity(0.15),
+        children: [
+          // Adults
+          if (widget.adults > 0) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text(
+                'ADULTS (${widget.adults})',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColor.primary.withOpacity(0.7),
+                ),
+              ),
+            ),
+            ...List.generate(widget.adults, (index) {
+              return Column(
+                children: [
+                  if (index > 0)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 1,
+                            width: 24,
+                            color: AppColor.primary.withOpacity(0.15),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'GUEST ${index + 1}',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColor.primary.withOpacity(0.5),
+                              letterSpacing: 2,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Container(
+                              height: 1,
+                              color: AppColor.primary.withOpacity(0.15),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'GUEST ${index + 1}',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: AppColor.primary.withOpacity(0.5),
-                          letterSpacing: 2,
+                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildElegantField(
+                          controller: _adultControllers[index]['firstName']!,
+                          label: 'First Name',
+                          icon: Icons.badge_outlined,
+                          validator: (value) {
+                            if (value == null || value.isEmpty)
+                              return 'First name is required';
+                            return null;
+                          },
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: Container(
-                          height: 1,
-                          color: AppColor.primary.withOpacity(0.15),
+                        child: _buildElegantField(
+                          controller: _adultControllers[index]['lastName']!,
+                          label: 'Last Name',
+                          icon: Icons.badge_outlined,
+                          validator: (value) {
+                            if (value == null || value.isEmpty)
+                              return 'Last name is required';
+                            return null;
+                          },
                         ),
                       ),
                     ],
                   ),
-                ),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildElegantField(
-                      controller: _adultControllers[index]['firstName']!,
-                      label: 'First Name',
-                      icon: Icons.badge_outlined,
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return 'First name is required';
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildElegantField(
-                      controller: _adultControllers[index]['lastName']!,
-                      label: 'Last Name',
-                      icon: Icons.badge_outlined,
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return 'Last name is required';
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
+                  const SizedBox(height: 12),
               InkWell(
                 onTap: () =>
-                    _selectDate(context, _adultControllers[index]['dob']!),
+                    _selectDate(context, _adultControllers[index]['dob']!, true),
                 borderRadius: BorderRadius.circular(10),
                 child: IgnorePointer(
                   child: _buildElegantField(
@@ -696,12 +742,98 @@ class _BookingPageState extends State<BookingPage>
                   ),
                 ),
               ),
-            ],
-          );
-        }),
+
+                ],
+              );
+            }),
+          ],
+          // Children
+          if (widget.children > 0) ...[
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text(
+                'CHILDREN (${widget.children})',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColor.primary.withOpacity(0.7),
+                ),
+              ),
+            ),
+            ...List.generate(widget.children, (index) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'CHILD ${index + 1}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        // Add remove button if needed later
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildElegantField(
+                            controller: _childControllers[index]['firstName']!,
+                            label: 'First Name',
+                            icon: Icons.child_care_outlined,
+                            validator: (value) {
+                              if (value == null || value.isEmpty)
+                                return 'First name is required';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildElegantField(
+                            controller: _childControllers[index]['lastName']!,
+                            label: 'Last Name',
+                            icon: Icons.child_care_outlined,
+                            validator: (value) {
+                              if (value == null || value.isEmpty)
+                                return 'Last name is required';
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    InkWell(
+                      onTap: () => _selectDate(context, _childControllers[index]['dob']!, false),
+                      borderRadius: BorderRadius.circular(10),
+                      child: IgnorePointer(
+                        child: _buildElegantField(
+                          controller: _childControllers[index]['dob']!,
+                          label: 'Date of Birth',
+                          icon: Icons.cake_outlined,
+                          readOnly: true,
+                        ),
+                      ),
+                    ),
+
+                  ],
+                ),
+              );
+            }),
+          ],
+        ],
       ),
     );
   }
+
 
   Widget _buildContactSection() {
     return _buildRoyalCard(
@@ -1217,12 +1349,24 @@ class _BookingPageState extends State<BookingPage>
       return;
     }
     List<Map<String, dynamic>> guestDetails = [];
+    // Add adults
     for (var controllers in _adultControllers) {
       guestDetails.add({
         'type': 'adult',
         'firstName': controllers['firstName']?.text ?? '',
         'lastName': controllers['lastName']?.text ?? '',
         'dateOfBirth': controllers['dob']?.text ?? '',
+      });
+    }
+    // Add children  
+    for (var controllers in _childControllers) {
+      final dob = controllers['dob']?.text ?? '';
+      guestDetails.add({
+        'type': 'child',
+        'firstName': controllers['firstName']?.text ?? '',
+        'lastName': controllers['lastName']?.text ?? '',
+        'dob': dob,
+        'age': dob.isNotEmpty ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365) : 0
       });
     }
 
