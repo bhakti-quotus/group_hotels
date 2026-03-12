@@ -143,6 +143,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
   bool _isLoadingDiscount = false;
   bool _isLoadingAddons = false;
   bool _isAppBarCollapsed = false;
+  final Set<String> _expandedCombos = {};
 
   // Convenience getters that read from the static session
   bool get _discountApplied => _DiscountSession.discountApplied;

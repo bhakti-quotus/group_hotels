@@ -91,6 +91,37 @@ class _BookingPageState extends State<BookingPage>
     _getPrice();
   }
 
+  void _showSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.info_outline_rounded, color: Colors.white, size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.red[600],
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: const Duration(seconds: 3),
+        elevation: 6,
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _fadeController.dispose();
@@ -105,10 +136,12 @@ class _BookingPageState extends State<BookingPage>
   }
 
   Future<void> _getPrice() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
+    final BuildContext currentContext = context; // capture context before async
+
     try {
-      // Create the correct payload structure
       final Map<String, dynamic> payload = {
         "propertyCode": widget.propertyCode,
         "invTypeCode":
@@ -119,7 +152,7 @@ class _BookingPageState extends State<BookingPage>
         "noOfAdults": widget.adults,
         "noOfChildren": widget.children,
         "noOfRooms": 1,
-        "promoCode": "", // Empty string if no promo code
+        "promoCode": "",
       };
 
       // Add guest email if discount applied
@@ -127,59 +160,43 @@ class _BookingPageState extends State<BookingPage>
         payload['guestEmail'] = widget.guestEmail;
       }
 
-      // Handle addons with the new structure
       if (_selectedAddons.isNotEmpty) {
-        // Create parsedAddons array
         final List<Map<String, dynamic>> parsedAddons = [];
-
         for (var addon in _selectedAddons) {
           parsedAddons.add({
             "addOnId": addon['id'] ?? '',
             "availability": [
               {
-                "date":
-                    "${widget.startDate}T00:00:00.000Z", // Format with T and Z
+                "date": "${widget.startDate}T00:00:00.000Z",
                 "quantity": addon['quantity'] ?? 1,
               },
             ],
           });
         }
-
         payload['parsedAddons'] = parsedAddons;
-
-        // Also add includedAddons if needed (array of addon IDs)
-        // You might need to get these from somewhere else or use the same IDs
         payload['includedAddons'] = _selectedAddons
             .map((addon) => addon['id'] ?? '')
             .toList();
       }
 
-      // Print the payload to verify
-      print('📤 SENDING CORRECTED PRICE PAYLOAD:');
-      print('Payload: ${json.encode(payload)}');
-      print('Formatted:');
-      _prettyPrintJson(payload);
-
       final result = await Get.find<ApiController>().getPrice(payload);
+
+      if (!mounted) return; // check after await
 
       if (result['success'] == true) {
         setState(() {
           _priceData = result['data'] as Map<String, dynamic>?;
           _isLoading = false;
         });
-
-        // Print response to verify
-        print('📥 RECEIVED PRICE RESPONSE:');
-        print('Total Amount: ${_priceData?['totalAmount']}');
-        print('Addon Breakdown: ${_priceData?['addonBrakeDown']}');
       } else {
         _showError(
-          context,
+          currentContext,
           result['error'] ?? result['message'] ?? 'Failed to get price',
         );
       }
     } catch (e) {
-      _showError(context, 'Error getting price: $e');
+      if (!mounted) return;
+      _showError(currentContext, 'Error getting price: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -197,6 +214,8 @@ class _BookingPageState extends State<BookingPage>
   }
 
   void _showError(BuildContext context, String message) {
+    if (!mounted) return;
+
     setState(() => _isLoading = false);
 
     showErrorDialog(
@@ -641,6 +660,11 @@ class _BookingPageState extends State<BookingPage>
                       controller: _adultControllers[index]['firstName']!,
                       label: 'First Name',
                       icon: Icons.badge_outlined,
+                      validator: (value) {
+                        if (value == null || value.isEmpty)
+                          return 'First name is required';
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -649,6 +673,11 @@ class _BookingPageState extends State<BookingPage>
                       controller: _adultControllers[index]['lastName']!,
                       label: 'Last Name',
                       icon: Icons.badge_outlined,
+                      validator: (value) {
+                        if (value == null || value.isEmpty)
+                          return 'Last name is required';
+                        return null;
+                      },
                     ),
                   ),
                 ],
@@ -1183,8 +1212,10 @@ class _BookingPageState extends State<BookingPage>
   // ─── Business Logic (unchanged) ───────────────────────────────────────────────
 
   void _proceedToPayment() {
-    if (!_formKey.currentState!.validate()) return;
-
+    if (!_formKey.currentState!.validate()) {
+      _showSnackbar('Please fill in all required fields');
+      return;
+    }
     List<Map<String, dynamic>> guestDetails = [];
     for (var controllers in _adultControllers) {
       guestDetails.add({
