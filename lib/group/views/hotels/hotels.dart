@@ -20,7 +20,7 @@ class Hotels extends StatefulWidget {
 
 class _HotelsState extends State<Hotels> {
   Map<String, dynamic> groupData = {};
-  int _currentIndex = 0;
+  int _currentIndex = 1;
   List<BottomNavItem> _navItems = [];
   bool _isLoading = true;
 
@@ -67,7 +67,7 @@ class _HotelsState extends State<Hotels> {
     setState(() {
       _navItems = items;
       _currentIndex = _navItems.indexWhere((item) => item.route == '/hotels');
-      if (_currentIndex == -1) _currentIndex = 0;
+      if (_currentIndex == -1) _currentIndex = 1;
     });
   }
 
