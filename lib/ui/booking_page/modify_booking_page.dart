@@ -50,6 +50,26 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
     _loadBookingData();
   }
 
+  DateTime? _safeParse(dynamic value) {
+    if (value == null) return null;
+    try {
+      final s = value.toString().trim();
+      return DateTime.parse(s.replaceFirst(' ', 'T'));
+    } catch (_) {
+      try {
+        final parts = value.toString().split(RegExp(r'[-/]'));
+        if (parts.length == 3 && parts[0].length == 2) {
+          return DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+        }
+      } catch (_) {}
+      return null;
+    }
+  }
+
   void _loadBookingData() {
     final args = Get.arguments;
     Map<String, dynamic>? booking;
@@ -61,19 +81,35 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
       _bookingData = booking;
       _bookingCode = booking['bookingCode'] as String?;
 
-      try {
-        _checkInDate = DateTime.parse(
-            booking['checkInDate'] ?? DateTime.now().toString());
-        _checkOutDate = DateTime.parse(booking['checkOutDate'] ??
-            DateTime.now().add(const Duration(days: 1)).toString());
-      } catch (e) {
-        _checkInDate = DateTime.now();
-        _checkOutDate = DateTime.now().add(const Duration(days: 1));
-      }
+      _checkInDate = _safeParse(booking['checkInDate']) ?? DateTime.now();
+      _checkOutDate =
+          _safeParse(booking['checkOutDate']) ??
+          DateTime.now().add(const Duration(days: 1));
 
       _primaryGuest = booking['primaryGuest'] as Map<String, dynamic>?;
+
+      // Sanitize guests — convert empty dateOfBirth strings to null
       final guestsList = booking['guests'] as List? ?? [];
-      _guests = List<Map<String, dynamic>>.from(guestsList);
+      _guests = List<Map<String, dynamic>>.from(
+        guestsList.map((g) {
+          final guest = Map<String, dynamic>.from(g);
+          final dob = guest['dateOfBirth'];
+          if (dob != null && dob.toString().trim().isEmpty) {
+            guest['dateOfBirth'] = null;
+          }
+          return guest;
+        }),
+      );
+
+      // Sanitize primaryGuest dateOfBirth too
+      if (_primaryGuest != null) {
+        _primaryGuest = Map<String, dynamic>.from(_primaryGuest!);
+        final dob = _primaryGuest!['dateOfBirth'];
+        if (dob != null && dob.toString().trim().isEmpty) {
+          _primaryGuest!['dateOfBirth'] = null;
+        }
+      }
+
       _priceData = booking['finalPrice'] as Map<String, dynamic>?;
     } else {
       _checkInDate = DateTime.now();
@@ -104,7 +140,8 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
 
       // Add guestDistribution from fetchRoomsAPI searchCriteria.guests equivalent (roomsArray)
       final searchController = Get.find<search_ctrl.AppSearchController>();
-      payload['guestDistribution'] = searchController.searchPayload['guests']?['roomsArray'] ?? [];
+      payload['guestDistribution'] =
+          searchController.searchPayload['guests']?['roomsArray'] ?? [];
 
       final result = await _apiController.getPrice(payload);
 
@@ -246,7 +283,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
     DateTime firstDate;
     DateTime maxDate;
     DateTime initialDate;
-    
+
     if (isChild) {
       // Child: age 0 (maxDate=now) to max age 12 (firstDate=now-12yrs)
       firstDate = DateTime(now.year - 12, now.month, now.day);
@@ -258,7 +295,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
       maxDate = DateTime(now.year - 16, now.month, now.day);
       initialDate = DateTime.now().subtract(Duration(days: 365 * 30));
     }
-    
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -289,7 +326,6 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -299,8 +335,11 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
         backgroundColor: AppColor.primary,
         leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+            size: 20,
+          ),
         ),
         title: const Text(
           'Modify Booking',
@@ -313,8 +352,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child:
-              Container(height: 1, color: Colors.white.withOpacity(0.15)),
+          child: Container(height: 1, color: Colors.white.withOpacity(0.15)),
         ),
       ),
       body: Column(
@@ -345,10 +383,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
             child: TabBarView(
               controller: _tabController,
               physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildModifyTab(),
-                _buildPriceTab(),
-              ],
+              children: [_buildModifyTab(), _buildPriceTab()],
             ),
           ),
         ],
@@ -410,8 +445,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
           // Nights pill
           Center(
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: AppColor.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
@@ -419,8 +453,11 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.nights_stay_rounded,
-                      color: AppColor.primary, size: 18),
+                  Icon(
+                    Icons.nights_stay_rounded,
+                    color: AppColor.primary,
+                    size: 18,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     '${_checkOutDate.difference(_checkInDate).inDays} Night(s)',
@@ -606,10 +643,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
             const SizedBox(height: 8),
             Text(
               _formatDate(date),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -662,7 +696,9 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
                 style: TextButton.styleFrom(
                   foregroundColor: AppColor.primary,
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
@@ -673,8 +709,10 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
             const Divider(height: 1),
             ...List.generate(guests.length, (index) {
               final guest = guests[index];
-              final singularTitle =
-                  title.substring(0, title.length - 1); // Adult / Child
+              final singularTitle = title.substring(
+                0,
+                title.length - 1,
+              ); // Adult / Child
               return Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: Column(
@@ -692,8 +730,11 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
                         const Spacer(),
                         GestureDetector(
                           onTap: () => onRemove(index),
-                          child: const Icon(Icons.remove_circle_outline,
-                              color: Colors.red, size: 20),
+                          child: const Icon(
+                            Icons.remove_circle_outline,
+                            color: Colors.red,
+                            size: 20,
+                          ),
                         ),
                       ],
                     ),
@@ -722,20 +763,26 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
                       onTap: () => onSelectDOB(index),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 11),
+                          horizontal: 12,
+                          vertical: 11,
+                        ),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey[300]!),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.cake_rounded,
-                                size: 16, color: Colors.grey[500]),
+                            Icon(
+                              Icons.cake_rounded,
+                              size: 16,
+                              color: Colors.grey[500],
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               guest['dateOfBirth'] != null
-                                  ? _formatDate(DateTime.parse(
-                                      guest['dateOfBirth']))
+                                  ? _formatDate(
+                                      DateTime.parse(guest['dateOfBirth']),
+                                    )
                                   : 'Date of Birth',
                               style: TextStyle(
                                 fontSize: 13,
@@ -768,8 +815,10 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(fontSize: 13, color: Colors.grey[400]),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: Colors.grey[300]!),
@@ -848,7 +897,9 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
                         if (isPrimary)
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 2),
+                              horizontal: 7,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColor.primary,
                               borderRadius: BorderRadius.circular(5),
@@ -866,15 +917,17 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
                     ),
                     if (email != null) ...[
                       const SizedBox(height: 3),
-                      Text(email,
-                          style: TextStyle(
-                              fontSize: 11, color: Colors.grey[600])),
+                      Text(
+                        email,
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                      ),
                     ],
                     if (phone != null) ...[
                       const SizedBox(height: 2),
-                      Text(phone,
-                          style: TextStyle(
-                              fontSize: 11, color: Colors.grey[600])),
+                      Text(
+                        phone,
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                      ),
                     ],
                   ],
                 ),
@@ -887,18 +940,18 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
             const SizedBox(height: 10),
             Row(
               children: [
-                Icon(Icons.cake_rounded,
-                    size: 14, color: Colors.grey[400]),
+                Icon(Icons.cake_rounded, size: 14, color: Colors.grey[400]),
                 const SizedBox(width: 6),
                 Text(
                   'DOB: ',
-                  style:
-                      TextStyle(fontSize: 11, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                 ),
                 Text(
                   _formatDate(DateTime.parse(dateOfBirth)),
                   style: const TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.w600),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -932,21 +985,20 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.receipt_long_rounded,
-                size: 56, color: Colors.grey[300]),
+            Icon(Icons.receipt_long_rounded, size: 56, color: Colors.grey[300]),
             const SizedBox(height: 16),
             Text(
               'No price fetched yet',
               style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[500]),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[500],
+              ),
             ),
             const SizedBox(height: 6),
             Text(
               'Go back and tap "Fetch Updated Price"',
-              style:
-                  TextStyle(fontSize: 13, color: Colors.grey[400]),
+              style: TextStyle(fontSize: 13, color: Colors.grey[400]),
             ),
           ],
         ),
@@ -957,14 +1009,10 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
     final currency = priceData['currencyCode'] ?? 'USD';
     final amountBeforeTax =
         (priceData['amountBeforeTax'] as num?)?.toDouble() ?? 0.0;
-    final taxedAmount =
-        (priceData['taxedAmount'] as num?)?.toDouble() ?? 0.0;
-    final totalAmount =
-        (priceData['totalAmount'] as num?)?.toDouble() ?? 0.0;
-    final dailyBreakdown =
-        priceData['dailyPriceBrakeDown'] as List? ?? [];
-    final taxBreakdown =
-        priceData['taxBrakeDown'] as List? ?? [];
+    final taxedAmount = (priceData['taxedAmount'] as num?)?.toDouble() ?? 0.0;
+    final totalAmount = (priceData['totalAmount'] as num?)?.toDouble() ?? 0.0;
+    final dailyBreakdown = priceData['dailyPriceBrakeDown'] as List? ?? [];
+    final taxBreakdown = priceData['taxBrakeDown'] as List? ?? [];
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -982,14 +1030,11 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
           // Dates summary chip row
           Row(
             children: [
-              _buildInfoChip(
-                  Icons.login_rounded, _formatDate(_checkInDate)),
+              _buildInfoChip(Icons.login_rounded, _formatDate(_checkInDate)),
               const SizedBox(width: 8),
-              Icon(Icons.arrow_forward,
-                  size: 16, color: Colors.grey[400]),
+              Icon(Icons.arrow_forward, size: 16, color: Colors.grey[400]),
               const SizedBox(width: 8),
-              _buildInfoChip(
-                  Icons.logout_rounded, _formatDate(_checkOutDate)),
+              _buildInfoChip(Icons.logout_rounded, _formatDate(_checkOutDate)),
             ],
           ),
           const SizedBox(height: 20),
@@ -1010,8 +1055,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
               final date = day['date'] ?? '';
               final base =
                   (day['baseChargesAmount'] as num?)?.toDouble() ?? 0.0;
-              final total =
-                  (day['totalAmount'] as num?)?.toDouble() ?? 0.0;
+              final total = (day['totalAmount'] as num?)?.toDouble() ?? 0.0;
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(12),
@@ -1023,9 +1067,13 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(date,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 13)),
+                    Text(
+                      date,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -1040,7 +1088,9 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
                         Text(
                           'Base: $currency ${base.toStringAsFixed(2)}',
                           style: TextStyle(
-                              fontSize: 11, color: Colors.grey[500]),
+                            fontSize: 11,
+                            color: Colors.grey[500],
+                          ),
                         ),
                       ],
                     ),
@@ -1057,8 +1107,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
             const SizedBox(height: 10),
             ...taxBreakdown.map((tax) {
               final name = tax['name'] ?? '';
-              final amount =
-                  (tax['taxedAmount'] as num?)?.toDouble() ?? 0.0;
+              final amount = (tax['taxedAmount'] as num?)?.toDouble() ?? 0.0;
               return _buildPriceRow(
                 label: name,
                 value: '+$currency ${amount.toStringAsFixed(2)}',
@@ -1075,10 +1124,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  AppColor.primary,
-                  AppColor.primary.withOpacity(0.82)
-                ],
+                colors: [AppColor.primary, AppColor.primary.withOpacity(0.82)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -1100,9 +1146,10 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
                     const Text(
                       'Total Amount',
                       style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.white70,
-                          fontWeight: FontWeight.w500),
+                        fontSize: 13,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     const Text(
@@ -1142,9 +1189,10 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
         children: [
           Icon(icon, size: 14, color: AppColor.primary),
           const SizedBox(width: 6),
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
@@ -1165,11 +1213,8 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
             label,
             style: TextStyle(
               fontSize: isSubtitle ? 14 : 13,
-              fontWeight:
-                  isSubtitle ? FontWeight.w600 : FontWeight.w500,
-              color: isSubtitle
-                  ? const Color(0xFF1A2236)
-                  : Colors.grey[700],
+              fontWeight: isSubtitle ? FontWeight.w600 : FontWeight.w500,
+              color: isSubtitle ? const Color(0xFF1A2236) : Colors.grey[700],
             ),
           ),
           Text(
@@ -1177,10 +1222,9 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
             style: TextStyle(
               fontSize: isSubtitle ? 15 : 13,
               fontWeight: FontWeight.w600,
-              color: valueColor ??
-                  (isSubtitle
-                      ? const Color(0xFF1A2236)
-                      : Colors.grey[700]),
+              color:
+                  valueColor ??
+                  (isSubtitle ? const Color(0xFF1A2236) : Colors.grey[700]),
             ),
           ),
         ],
@@ -1213,14 +1257,17 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
                     height: 18,
                     width: 18,
                     child: CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2),
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
                   )
-                : const Icon(Icons.price_check_rounded,
-                    color: Colors.white, size: 20),
+                : const Icon(
+                    Icons.price_check_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
             label: Text(
-              _isLoadingPrice
-                  ? 'Fetching Price...'
-                  : 'Fetch Updated Price',
+              _isLoadingPrice ? 'Fetching Price...' : 'Fetch Updated Price',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -1228,7 +1275,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColor.primary,
+              backgroundColor: Colors.green[600],
               padding: const EdgeInsets.symmetric(vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -1261,8 +1308,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
             // Back to modify link
             TextButton.icon(
               onPressed: () => _tabController.animateTo(0),
-              icon: Icon(Icons.edit_rounded,
-                  size: 16, color: AppColor.primary),
+              icon: Icon(Icons.edit_rounded, size: 16, color: AppColor.primary),
               label: Text(
                 'Edit dates or guests',
                 style: TextStyle(color: AppColor.primary, fontSize: 13),
@@ -1278,10 +1324,15 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
                         height: 18,
                         width: 18,
                         child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2),
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
                       )
-                    : const Icon(Icons.check_circle_rounded,
-                        color: Colors.white, size: 20),
+                    : const Icon(
+                        Icons.check_circle_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                 label: Text(
                   _isLoading ? 'Processing...' : 'Confirm Changes',
                   style: const TextStyle(
@@ -1310,10 +1361,13 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
 
   Future<void> _submitModification() async {
     if (_bookingCode == null || _bookingData == null) {
-      Get.snackbar('Error', 'Booking data not found',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        'Booking data not found',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
 
@@ -1330,7 +1384,9 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
             'firstName': guest['firstName'] ?? '',
             'lastName': guest['lastName'] ?? '',
             'dob': dob,
-            'age': dob.isNotEmpty ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365) : 0
+            'age': dob.isNotEmpty
+                ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365)
+                : 0,
           });
         } else {
           guests.add({
@@ -1342,10 +1398,11 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
         }
       }
 
-
       for (var adult in _newAdults) {
         final dob = adult['dateOfBirth'] != null
-            ? DateTime.parse(adult['dateOfBirth']).toIso8601String().split('T')[0]
+            ? DateTime.parse(
+                adult['dateOfBirth'],
+              ).toIso8601String().split('T')[0]
             : '';
         guests.add({
           'type': 'adult',
@@ -1357,38 +1414,37 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
 
       for (var child in _newChildren) {
         final dob = child['dateOfBirth'] != null
-            ? DateTime.parse(child['dateOfBirth']).toIso8601String().split('T')[0]
+            ? DateTime.parse(
+                child['dateOfBirth'],
+              ).toIso8601String().split('T')[0]
             : '';
         guests.add({
           'type': 'child',
           'firstName': child['firstName'] ?? '',
           'lastName': child['lastName'] ?? '',
           'dob': dob,
-          'age': dob.isNotEmpty ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365) : 0
+          'age': dob.isNotEmpty
+              ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365)
+              : 0,
         });
       }
 
-
-      final totalAdults =
-          guests.where((g) => g['type'] == 'adult').length;
-      final totalChildren =
-          guests.where((g) => g['type'] == 'child').length;
+      final totalAdults = guests.where((g) => g['type'] == 'adult').length;
+      final totalChildren = guests.where((g) => g['type'] == 'child').length;
 
       final priceData = _priceData ?? {};
       final currencyCode = priceData['currencyCode'] ?? 'USD';
-      final totalAmount =
-          (priceData['totalAmount'] as num?)?.toDouble() ?? 0.0;
+      final totalAmount = (priceData['totalAmount'] as num?)?.toDouble() ?? 0.0;
       final amountBeforeTax =
           (priceData['amountBeforeTax'] as num?)?.toDouble() ?? 0.0;
-      final taxedAmount =
-          (priceData['taxedAmount'] as num?)?.toDouble() ?? 0.0;
+      final taxedAmount = (priceData['taxedAmount'] as num?)?.toDouble() ?? 0.0;
       final totalAddonAmount =
           (priceData['totalAddonAmount'] as num?)?.toDouble() ?? 0.0;
       final totalPromotionAmount =
           (priceData['totalPromotionAmount'] as num?)?.toDouble() ?? 0.0;
       final currentChargeableAmount =
           (priceData['currentChargeableAmount'] as num?)?.toDouble() ??
-              totalAmount;
+          totalAmount;
       final latterpayableAmount =
           (priceData['latterpayableAmount'] as num?)?.toDouble() ?? 0.0;
 
@@ -1420,7 +1476,7 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
         'checkOutDate': _checkOutDate.toIso8601String().split('T')[0],
         'requestedRooms': 1,
         'rooms': [
-          {'adults': totalAdults, 'children': totalChildren, 'childAges': []}
+          {'adults': totalAdults, 'children': totalChildren, 'childAges': []},
         ],
         'previousRooms': 1,
         'guests': guests,
