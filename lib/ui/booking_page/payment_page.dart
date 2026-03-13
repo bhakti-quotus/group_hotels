@@ -10,6 +10,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'price_breakdown_widget.dart';
+import 'package:group/group/controllers/api_controller.dart';
 
 class PaymentPage extends StatefulWidget {
   final Map<String, dynamic> priceData; // This comes from get-price API via BookingPage
@@ -32,7 +33,6 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage>
     with SingleTickerProviderStateMixin {
   bool _isLoadingPaymentData = true;
-  bool _isUploading = false;
   Map<String, dynamic>? _fetchedPaymentData;
   String? _errorMessage;
   String? _selectedPaymentMethod;
@@ -193,6 +193,15 @@ class _PaymentPageState extends State<PaymentPage>
     return '';
   }
 
+  // Simple helper to safely get double values - NO CALCULATIONS
+  double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is int) return value.toDouble();
+    if (value is double) return value;
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
   // ─── Helpers ──────────────────────────────────────────────────────────────────
 
   String _formatDate(String? date) {
@@ -251,7 +260,34 @@ class _PaymentPageState extends State<PaymentPage>
                     const SizedBox(height: 10),
                     _buildGuestDetailsCard(),
                     const SizedBox(height: 10),
-                    _buildPriceSummaryCard(), // This now uses the API price data
+                  _buildRoyalCard(
+                    sectionTitle: 'PRICE SUMMARY',
+                    sectionIcon: Icons.receipt_long_outlined,
+                    trailingAction: GestureDetector(
+                      key: _priceInfoIconKey,
+                      onTap: () =>
+                          _priceWidgetKey.currentState?.showPriceDetailsPopup(context),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: AppColor.primary.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColor.primary.withOpacity(0.15)),
+                        ),
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          size: 16,
+                          color: AppColor.primary,
+                        ),
+                      ),
+                    ),
+                    child: PriceBreakdownWidget(
+                      key: _priceWidgetKey,
+                      priceData: widget.priceData,
+                      infoIconKey: _priceInfoIconKey,
+                    ),
+                  ),
                     const SizedBox(height: 10),
                     _buildPaymentOptionsCard(),
                     if (_selectedPaymentMethod == 'upi' ||
@@ -883,13 +919,12 @@ class _PaymentPageState extends State<PaymentPage>
   }
 
   // ─── Price Summary ────────────────────────────────────────────────────────────
-  // This now uses the priceData passed from BookingPage (which comes from get-price API)
+  // This now uses the simplified PriceBreakdownWidget that directly shows API data
 
   Widget _buildPriceSummaryCard() {
     return _buildRoyalCard(
       sectionTitle: 'PRICE SUMMARY',
       sectionIcon: Icons.receipt_long_outlined,
-      // ↓ the info icon lives here, right next to the section title
       trailingAction: GestureDetector(
         key: _priceInfoIconKey,
         onTap: () =>
@@ -911,7 +946,7 @@ class _PaymentPageState extends State<PaymentPage>
       ),
       child: PriceBreakdownWidget(
         key: _priceWidgetKey,
-        priceData: widget.priceData, // This is the API response data
+        priceData: widget.priceData, // This is the raw API response data
         infoIconKey: _priceInfoIconKey,
       ),
     );
@@ -1063,6 +1098,8 @@ class _PaymentPageState extends State<PaymentPage>
     String? paymentMethodKey,
   }) {
     final isSelected = _selectedPaymentMethod == paymentMethodKey;
+    final currentChargeableAmount = _toDouble(widget.priceData['currentChargeableAmount']);
+    final currency = widget.priceData['currencyCode'] ?? 'USD';
 
     return Stack(
       clipBehavior: Clip.none,
@@ -1183,11 +1220,11 @@ class _PaymentPageState extends State<PaymentPage>
                         ),
                       ),
                       child: paymentMethodKey == 'payAtHotel'
-                          ? _buildPayAtHotelDetails(paymentData)
+                          ? _buildPayAtHotelDetails(paymentData, currency, currentChargeableAmount)
                           : paymentMethodKey == 'upi'
-                          ? _buildEnhancedUpiDetails(paymentData)
+                          ? _buildEnhancedUpiDetails(paymentData, currency, currentChargeableAmount)
                           : paymentMethodKey == 'bankTransfer'
-                          ? _buildBankTransferDetails(paymentData)
+                          ? _buildBankTransferDetails(paymentData, currency, currentChargeableAmount)
                           : _buildGatewayDetails(paymentData),
                     ),
                   ],
@@ -1240,9 +1277,7 @@ class _PaymentPageState extends State<PaymentPage>
 
   // ─── Payment Detail Widgets ───────────────────────────────────────────────────
 
-  Widget _buildPayAtHotelDetails(Map<String, dynamic> data) {
-    final currentPayable = widget.priceData['currentChargeableAmount'] ?? 0;
-    
+  Widget _buildPayAtHotelDetails(Map<String, dynamic> data, String currency, double amount) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1273,7 +1308,7 @@ class _PaymentPageState extends State<PaymentPage>
                 ),
               ),
               Text(
-                '${widget.priceData['currencyCode'] ?? 'USD'} ${currentPayable.toStringAsFixed(2)}',
+                '$currency ${amount.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -1287,10 +1322,10 @@ class _PaymentPageState extends State<PaymentPage>
     );
   }
 
-  Widget _buildEnhancedUpiDetails(Map<String, dynamic> data) {
+  Widget _buildEnhancedUpiDetails(Map<String, dynamic> data, String currency, double amount) {
     final upiId = data['upiId'] ?? '';
     final name = data['accountHolder'] ?? '';
-    final amount = (widget.priceData['currentChargeableAmount'] ?? 0).toString();
+    final amountStr = amount.toString();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1299,7 +1334,7 @@ class _PaymentPageState extends State<PaymentPage>
         const SizedBox(height: 10),
         _elegantDetailRow('UPI ID', upiId, showCopy: true),
         _elegantDetailRow('Payee Name', name),
-        _elegantDetailRow('Amount', '${widget.priceData['currencyCode'] ?? 'INR'} $amount'),
+        _elegantDetailRow('Amount', '$currency $amountStr'),
         const SizedBox(height: 14),
         // QR
         Center(
@@ -1312,7 +1347,7 @@ class _PaymentPageState extends State<PaymentPage>
             ),
             child: QrImageView(
               data:
-                  'upi://pay?pa=$upiId&pn=${Uri.encodeComponent(name)}&am=$amount&cu=INR&tn=Hotel Booking',
+                  'upi://pay?pa=$upiId&pn=${Uri.encodeComponent(name)}&am=$amountStr&cu=INR&tn=Hotel Booking',
               size: 160,
             ),
           ),
@@ -1321,7 +1356,7 @@ class _PaymentPageState extends State<PaymentPage>
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () => _launchUpiApp(upiId, name, amount),
+            onPressed: () => _launchUpiApp(upiId, name, amountStr),
             icon: const Icon(Icons.payment, color: Colors.white, size: 18),
             label: const Text(
               'Open UPI App',
@@ -1346,12 +1381,12 @@ class _PaymentPageState extends State<PaymentPage>
     );
   }
 
-  Widget _buildBankTransferDetails(Map<String, dynamic> data) {
+  Widget _buildBankTransferDetails(Map<String, dynamic> data, String currency, double amount) {
     final accountHolder = data['accountHolder'] ?? '';
     final accountNumber = data['accountNumber'] ?? '';
     final ifscCode = data['ifscCode'] ?? '';
     final bankName = data['bankName'] ?? '';
-    final amount = (widget.priceData['currentChargeableAmount'] ?? 0).toString();
+    final amountStr = amount.toString();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1365,7 +1400,7 @@ class _PaymentPageState extends State<PaymentPage>
         if (ifscCode.isNotEmpty)
           _elegantDetailRow('IFSC Code', ifscCode, showCopy: true),
         if (bankName.isNotEmpty) _elegantDetailRow('Bank', bankName),
-        _elegantDetailRow('Amount', '${widget.priceData['currencyCode'] ?? 'INR'} $amount'),
+        _elegantDetailRow('Amount', '$currency $amountStr'),
         const SizedBox(height: 12),
         _infoNotice(
           icon: Icons.info_outline_rounded,
@@ -1725,7 +1760,7 @@ class _PaymentPageState extends State<PaymentPage>
     required String sectionTitle,
     required IconData sectionIcon,
     required Widget child,
-    Widget? trailingAction, // ← new optional param
+    Widget? trailingAction,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -1778,7 +1813,6 @@ class _PaymentPageState extends State<PaymentPage>
                     ),
                   ),
                 ),
-                // ↓ renders info icon (or nothing) on the right
                 if (trailingAction != null) trailingAction,
               ],
             ),
@@ -1788,6 +1822,7 @@ class _PaymentPageState extends State<PaymentPage>
       ),
     );
   }
+  
   // ─── Footer ───────────────────────────────────────────────────────────────────
 
   Widget _buildFooter() {
@@ -1918,54 +1953,79 @@ class _PaymentPageState extends State<PaymentPage>
   }
 
   // ── Complete Booking ──────────────────────────────────────────────────────────
-  void _completeBooking() async {
-    if (!_isCompleteBookingEnabled || _isProcessingBooking) return;
+void _completeBooking() async {
+  if (!_isCompleteBookingEnabled || _isProcessingBooking) return;
 
-    setState(() => _isProcessingBooking = true);
+  setState(() => _isProcessingBooking = true);
 
-    try {
-      final payload = {
-        'data': {
-          'bankDetails': _fetchedPaymentData,
-          'bookingDetails': widget.bookingDetails,
-          'priceData': widget.priceData, // Include the API price data
-          'guestDetails': widget.bookingDetails['guestDetails'],
-          'paymentMethod': _selectedPaymentMethod,
-          'paymentScreenshot': _paymentScreenshot != null
-              ? base64Encode(await _paymentScreenshot!.readAsBytes())
-              : null,
-        },
-      };
+  try {
+    // Construct enhanced version ONLY for backend if needed
+    final enhancedPriceData = {
+      ...widget.priceData, // Start with raw API data
+      // Add any fields the backend expects that might be missing
+      'totalAmount': _toDouble(widget.priceData['totalAmount']),
+      'amountBeforeTax': _toDouble(widget.priceData['amountBeforeTax']),
+      'taxedAmount': _toDouble(widget.priceData['taxedAmount']),
+      'totalAddonAmount': _toDouble(widget.priceData['totalAddonAmount']),
+      'totalPromotionAmount': _toDouble(widget.priceData['totalPromotionAmount'] ?? 0),
+      'currentChargeableAmount': _toDouble(widget.priceData['currentChargeableAmount']),
+      'latterpayableAmount': _toDouble(widget.priceData['latterpayableAmount'] ?? 0),
+      'loyalityDiscount': _toDouble(widget.priceData['loyalityDiscount'] ?? 0),
+      'promoCodeDiscount': _toDouble(widget.priceData['promoCodeDiscount'] ?? 0),
+      'currencyCode': widget.priceData['currencyCode'] ?? 'USD',
+      'numberOfNights': _calculateNights(),
+      'baseRatePerNight': _toDouble(widget.priceData['baseRatePerNight'] ?? 0),
+      'requestedRooms': 1,
+      'additionalGuestCharges': _toDouble(widget.priceData['additionalGuestCharges'] ?? 0),
+      'totalTaxAmount': _toDouble(widget.priceData['taxedAmount']),
+      'taxBrakeDown': widget.priceData['taxBrakeDown'] ?? [],
+      'addonBrakeDown': widget.priceData['addonBrakeDown'] ?? [],
+      'promotionBrakeDown': widget.priceData['promotionBrakeDown'] ?? [],
+      'dailyBreakdown': widget.priceData['dailyPriceBrakeDown'] ?? [],
+      'dailyPriceBrakeDown': widget.priceData['dailyPriceBrakeDown'] ?? [],
+    };
 
-      final result = await Get.find<ApiController>().completeBooking(payload);
+    final payload = {
+      'data': {
+        'bankDetails': _fetchedPaymentData,
+        'bookingDetails': widget.bookingDetails,
+        'priceData': enhancedPriceData, // Use enhanced version for backend
+        'guestDetails': widget.bookingDetails['guestDetails'],
+        'paymentMethod': _selectedPaymentMethod,
+        'paymentScreenshot': _paymentScreenshot != null
+            ? base64Encode(await _paymentScreenshot!.readAsBytes())
+            : null,
+      },
+    };
 
-      if (!mounted) return;
+    final result = await Get.find<ApiController>().completeBooking(payload);
 
-      if (result['success'] == true) {
-        // ✅ Extract bookingCode and propertyCode from result
-        final bookingData = result['data'] as Map<String, dynamic>? ?? {};
-        final bookingCode = bookingData['bookingCode'] as String? ?? '';
-        final propertyCode =
-            bookingData['propertyCode'] as String? ??
-            widget.bookingDetails['propertyCode'] as String? ??
-            '';
+    if (!mounted) return;
 
-        setState(() => _isProcessingBooking = false);
+    if (result['success'] == true) {
+      final bookingData = result['data'] as Map<String, dynamic>? ?? {};
+      final bookingCode = bookingData['bookingCode'] as String? ?? '';
+      final propertyCode =
+          bookingData['propertyCode'] as String? ??
+          widget.bookingDetails['propertyCode'] as String? ??
+          '';
 
-        _showBookingSuccessDialog(
-          bookingCode: bookingCode,
-          propertyCode: propertyCode,
-        );
-      } else {
-        setState(() => _isProcessingBooking = false);
-        showErrorDialog(context, 'Booking failed: ${result['error']}');
-      }
-    } catch (e) {
-      if (!mounted) return;
       setState(() => _isProcessingBooking = false);
-      showErrorDialog(context, 'Booking failed: $e');
+
+      _showBookingSuccessDialog(
+        bookingCode: bookingCode,
+        propertyCode: propertyCode,
+      );
+    } else {
+      setState(() => _isProcessingBooking = false);
+      showErrorDialog(context, 'Booking failed: ${result['error']}');
     }
+  } catch (e) {
+    if (!mounted) return;
+    setState(() => _isProcessingBooking = false);
+    showErrorDialog(context, 'Booking failed: $e');
   }
+}
 
   // ── Booking Success Dialog ────────────────────────────────────────────────────
   void _showBookingSuccessDialog({

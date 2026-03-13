@@ -1344,250 +1344,86 @@ for (int i = 0; i < widget.adults; i++) {
   // ─── Business Logic (unchanged) ───────────────────────────────────────────────
 
   void _proceedToPayment() {
-    if (!_formKey.currentState!.validate()) {
-      _showSnackbar('Please fill in all required fields');
-      return;
-    }
-    List<Map<String, dynamic>> guestDetails = [];
-    // Add adults
-    for (var controllers in _adultControllers) {
-      guestDetails.add({
-        'type': 'adult',
-        'firstName': controllers['firstName']?.text ?? '',
-        'lastName': controllers['lastName']?.text ?? '',
-        'dateOfBirth': controllers['dob']?.text ?? '',
-      });
-    }
-    // Add children  
-    for (var controllers in _childControllers) {
-      final dob = controllers['dob']?.text ?? '';
-      guestDetails.add({
-        'type': 'child',
-        'firstName': controllers['firstName']?.text ?? '',
-        'lastName': controllers['lastName']?.text ?? '',
-        'dob': dob,
-        'age': dob.isNotEmpty ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365) : 0
-      });
-    }
-
-    final numberOfNights = _calculateNights();
-
-    final totalAmount =
-        (widget.discountApplied
-                ? widget.discountedPrice
-                : (_priceData?['totalAmount'] ??
-                      widget.ratePlan['totalAmount'] ??
-                      0))
-            as num;
-
-    List<Map<String, dynamic>> taxBreakdown = [];
-    if (_priceData != null && _priceData!['tax'] != null) {
-      taxBreakdown = List<Map<String, dynamic>>.from(_priceData!['tax']);
-    } else {
-      taxBreakdown = [
-        {'name': 'VAT', 'taxedAmount': 15, 'currencyCode': 'USD'},
-        {'name': 'Service Charge', 'taxedAmount': 31.5, 'currencyCode': 'USD'},
-        {
-          'name': 'Municipality Fee',
-          'taxedAmount': 24.255,
-          'currencyCode': 'USD',
-        },
-      ];
-    }
-
-    double totalTaxAmount = 0;
-    for (var tax in taxBreakdown) {
-      totalTaxAmount += (tax['taxedAmount'] as num?)?.toDouble() ?? 0;
-    }
-
-    List<Map<String, dynamic>> addonBreakdown = [];
-    if (_selectedAddons.isNotEmpty) {
-      addonBreakdown = _selectedAddons.map((addon) {
-        final price = (addon['price'] as num?) ?? 0;
-        final quantity = (addon['quantity'] as num?) ?? 1;
-        return {
-          'addonId': addon['id'] ?? '',
-          'name': addon['name'] ?? '',
-          'amount': price,
-          'quantity': quantity,
-          'totalAmount': price * quantity,
-          'currencyCode': addon['currencyCode'] ?? 'USD',
-          'date': _formatDateForApi(widget.startDate),
-          'type': 'selected',
-        };
-      }).toList();
-    }
-
-    double addonsTotal = 0;
-    for (var addon in addonBreakdown) {
-      addonsTotal += (addon['totalAmount'] as num?)?.toDouble() ?? 0;
-    }
-
-    List<Map<String, dynamic>> dailyBreakdown = [];
-    if (_priceData != null && _priceData!['dailyBreakdown'] != null) {
-      dailyBreakdown =
-          (_priceData!['dailyBreakdown'] as List?)?.map((day) {
-            final baseRate =
-                (day['baseRate'] as num?) ??
-                (day['baseChargesAmount'] as num?) ??
-                300;
-            final totalPerRoom =
-                (day['totalPerRoom'] as num?) ??
-                (day['totalAmount'] as num?) ??
-                totalAmount;
-            return {
-              'date': _formatDateForApi(day['date'] ?? widget.startDate),
-              'dayOfWeek': _getDayOfWeek(day['date'] ?? widget.startDate),
-              'ratePlanCode': widget.ratePlan['ratePlanCode'] ?? '',
-              'baseRate': baseRate,
-              'baseRatePerNight': baseRate,
-              'baseChargesAmount':
-                  (day['baseChargesAmount'] as num?) ?? baseRate,
-              'additionalChargesAmount':
-                  (day['additionalChargesAmount'] as num?) ?? 0,
-              'totalPerRoom': totalPerRoom,
-              'totalForAllRooms':
-                  (day['totalForAllRooms'] as num?) ?? totalPerRoom,
-              'totalAmount': (day['totalAmount'] as num?) ?? totalAmount,
-              'totalDailyTaxedAmount':
-                  (day['totalDailyTaxedAmount'] as num?) ?? totalTaxAmount,
-              'currencyCode': day['currencyCode'] ?? 'USD',
-              'taxBrakeDown': taxBreakdown,
-              'addOnBrakeDown': [],
-            };
-          }).toList() ??
-          [];
-    } else {
-      dailyBreakdown = [
-        {
-          'date': _formatDateForApi(widget.startDate),
-          'dayOfWeek': _getDayOfWeek(widget.startDate),
-          'ratePlanCode': widget.ratePlan['ratePlanCode'] ?? '',
-          'baseRate': 300,
-          'baseRatePerNight': 300,
-          'baseChargesAmount': 300,
-          'additionalChargesAmount': 0,
-          'totalPerRoom': totalAmount,
-          'totalForAllRooms': totalAmount,
-          'totalAmount': totalAmount,
-          'totalDailyTaxedAmount': totalTaxAmount,
-          'currencyCode': 'USD',
-          'taxBrakeDown': taxBreakdown,
-          'addOnBrakeDown': [],
-        },
-      ];
-    }
-
-    List<Map<String, dynamic>> dailyPriceBreakdown = [];
-    if (_priceData != null && _priceData!['dailyPriceBrakeDown'] != null) {
-      dailyPriceBreakdown = List<Map<String, dynamic>>.from(
-        _priceData!['dailyPriceBrakeDown'] as List? ?? [],
-      );
-    } else {
-      dailyPriceBreakdown = [
-        {
-          'date': _formatDateForApi(widget.startDate),
-          'baseChargesAmount': 300,
-          'additionalChargesAmount': 0,
-          'totalAmount': (totalAmount as num) - addonsTotal,
-          'currencyCode': 'USD',
-          'totalDailyTaxedAmount': totalTaxAmount,
-          'taxBrakeDown': taxBreakdown,
-          'addOnBrakeDown': addonBreakdown,
-        },
-      ];
-    }
-
-    final discountAmount = widget.discountApplied
-        ? ((totalAmount as num) * 0.1)
-        : 0;
-
-    final enhancedFinalPrice = {
-      'totalAmount': totalAmount,
-      'amountBeforeTax': (_priceData?['amountBeforeTax'] as num?) ?? 300,
-      'taxedAmount': totalTaxAmount,
-      'totalAddonAmount': addonsTotal,
-      'totalPromotionAmount': discountAmount,
-      'currentChargeableAmount': (totalAmount as num) - discountAmount,
-      'latterpayableAmount': discountAmount,
-      'loyalityDiscount': 0,
-      'promoCodeDiscount': 0,
-      'currencyCode': widget.ratePlan['currencyCode'] ?? 'USD',
-      'numberOfNights': numberOfNights,
-      'baseRatePerNight': (_priceData?['baseRatePerNight'] as num?) ?? 300,
-      'requestedRooms': 1,
-      'additionalGuestCharges':
-          (_priceData?['additionalGuestCharges'] as num?) ?? 0,
-      'totalTaxAmount': totalTaxAmount,
-      'taxBrakeDown': taxBreakdown,
-      'addonBrakeDown': addonBreakdown,
-      'promotionBrakeDown': widget.discountApplied
-          ? [
-              {
-                'id': 'discount-${DateTime.now().millisecondsSinceEpoch}',
-                'promotionType': 'normal',
-                'name': '10% Discount',
-                'discountType': 'percentage',
-                'discountValue': 10,
-                'currencyCode': 'USD',
-                'discountAmount': discountAmount,
-                'restrictionType': 'payNow',
-              },
-            ]
-          : [],
-      'dailyBreakdown': dailyBreakdown,
-      'dailyPriceBrakeDown': dailyPriceBreakdown,
-    };
-
-    final bookingDetails = {
-      'startDate': widget.startDate,
-      'endDate': widget.endDate,
-      'propertyCode': widget.propertyCode,
-      'hotelName': widget.hotelName,
-      'roomTypeCode': widget.room['room_type'],
-      'numberOfRooms': 1,
-      'currency': widget.ratePlan['currencyCode'] ?? 'USD',
-      'email': _emailController.text.trim(),
-      'phone': _phoneController.text.trim(),
-      'finalPrice': enhancedFinalPrice,
-      'guests': {
-        'rooms': 1,
-        'adults': widget.adults,
-        'children': widget.children,
-      },
-      'guestDetails': guestDetails,
-      'ratePlanCode': widget.ratePlan['ratePlanCode'],
-      'paymentMethod': 'pay_at_hotel',
-      'bookingSource': 'direct',
-      'selectedPromotions': widget.discountApplied ? ['10% Discount'] : [],
-      'selectedAddons': _selectedAddons.map((addon) {
-        final price = (addon['price'] as num?) ?? 0;
-        final quantity = (addon['quantity'] as num?) ?? 1;
-        final dates = addon['dates'] as List? ?? [];
-        return {
-          'addonId': addon['id'] ?? '',
-          'addonName': addon['name'] ?? '',
-          'addonCode': addon['addonCode'] ?? '',
-          'availabilityId': addon['availabilityId'] ?? '',
-          'date': dates.isNotEmpty ? dates[0] : widget.startDate,
-          'price': price,
-          'quantity': quantity,
-          'totalPrice': price * quantity,
-          'type': addon['postingRhythm'] ?? 'per_stay',
-        };
-      }).toList(),
-      'promoCode': null,
-    };
-
-    Get.to(
-      () => PaymentPage(
-        priceData: enhancedFinalPrice,
-        paymentData: {},
-        bookingDetails: bookingDetails,
-        propertyId: widget.propertyId,
-      ),
-    );
+  if (!_formKey.currentState!.validate()) {
+    _showSnackbar('Please fill in all required fields');
+    return;
   }
+  
+  List<Map<String, dynamic>> guestDetails = [];
+  // Add adults
+  for (var controllers in _adultControllers) {
+    guestDetails.add({
+      'type': 'adult',
+      'firstName': controllers['firstName']?.text ?? '',
+      'lastName': controllers['lastName']?.text ?? '',
+      'dateOfBirth': controllers['dob']?.text ?? '',
+    });
+  }
+  // Add children  
+  for (var controllers in _childControllers) {
+    final dob = controllers['dob']?.text ?? '';
+    guestDetails.add({
+      'type': 'child',
+      'firstName': controllers['firstName']?.text ?? '',
+      'lastName': controllers['lastName']?.text ?? '',
+      'dob': dob,
+      'age': dob.isNotEmpty ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365) : 0
+    });
+  }
+
+  final numberOfNights = _calculateNights();
+
+  // REMOVE all the enhancedFinalPrice construction code
+  // Instead, use the raw API data directly
+
+  final bookingDetails = {
+    'startDate': widget.startDate,
+    'endDate': widget.endDate,
+    'propertyCode': widget.propertyCode,
+    'hotelName': widget.hotelName,
+    'roomTypeCode': widget.room['room_type'],
+    'numberOfRooms': 1,
+    'currency': widget.ratePlan['currencyCode'] ?? 'USD',
+    'email': _emailController.text.trim(),
+    'phone': _phoneController.text.trim(),
+    'guests': {
+      'rooms': 1,
+      'adults': widget.adults,
+      'children': widget.children,
+    },
+    'guestDetails': guestDetails,
+    'ratePlanCode': widget.ratePlan['ratePlanCode'],
+    'paymentMethod': 'pay_at_hotel',
+    'bookingSource': 'direct',
+    'selectedPromotions': widget.discountApplied ? ['10% Discount'] : [],
+    'selectedAddons': _selectedAddons.map((addon) {
+      final price = (addon['price'] as num?) ?? 0;
+      final quantity = (addon['quantity'] as num?) ?? 1;
+      final dates = addon['dates'] as List? ?? [];
+      return {
+        'addonId': addon['id'] ?? '',
+        'addonName': addon['name'] ?? '',
+        'addonCode': addon['addonCode'] ?? '',
+        'availabilityId': addon['availabilityId'] ?? '',
+        'date': dates.isNotEmpty ? dates[0] : widget.startDate,
+        'price': price,
+        'quantity': quantity,
+        'totalPrice': price * quantity,
+        'type': addon['postingRhythm'] ?? 'per_stay',
+      };
+    }).toList(),
+    'promoCode': null,
+  };
+
+  Get.to(
+    () => PaymentPage(
+      priceData: _priceData!, // ← Pass the RAW API response from getPrice()
+      paymentData: {},
+      bookingDetails: bookingDetails,
+      propertyId: widget.propertyId,
+    ),
+  );
+}
 
   String _formatDateForApi(String date) {
     try {
