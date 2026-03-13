@@ -25,8 +25,14 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
   bool _showAddonBreakdown = false;
   bool _showPromotionBreakdown = false;
 
-  double _d(dynamic v, [double fallback = 0]) =>
-      (v as num?)?.toDouble() ?? fallback;
+  // Simple helper to safely get double values - NO CALCULATIONS, just casting
+  double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is int) return value.toDouble();
+    if (value is double) return value;
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
 
   // ─── Public: called by parent's info-icon tap ─────────────────────────────
   void showPriceDetailsPopup(BuildContext context) {
@@ -51,16 +57,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
             child: Material(
               color: Colors.transparent,
               child: _PriceDetailsPopup(
-                currencyCode: currency,
-                amountBeforeTax: _d(d['amountBeforeTax']),
-                totalAddonAmount: _d(d['totalAddonAmount']),
-                taxedAmount: _d(d['taxedAmount']),
-                latterPayableAmount: _d(d['latterpayableAmount']),
-                totalAmount: _d(d['totalAmount']),
-                currentChargeableAmount: _d(d['currentChargeableAmount']),
-                taxBreakdown: d['taxBrakeDown'] as List? ?? [],
-                addonBreakdown: d['addonBrakeDown'] as List? ?? [],
-                promotionBreakdown: d['promotionBrakeDown'] as List? ?? [],
+                priceData: d, // Pass the entire priceData
               ),
             ),
           ),
@@ -74,12 +71,16 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
   Widget build(BuildContext context) {
     final d = widget.priceData;
     final currency = d['currencyCode'] ?? 'USD';
-    final amountBeforeTax = _d(d['amountBeforeTax']);
-    final totalAmount = _d(d['totalAmount']);
-    final taxedAmount = _d(d['taxedAmount']);
-    final currentChargeableAmount = _d(d['currentChargeableAmount']);
-    final loyalityDiscount = _d(d['loyalityDiscount']);
-    final totalAddonAmt = _d(d['totalAddonAmount']);
+    
+    // Get values directly from API - NO CALCULATIONS
+    final amountBeforeTax = _toDouble(d['amountBeforeTax']);
+    final totalAmount = _toDouble(d['totalAmount']);
+    final taxedAmount = _toDouble(d['taxedAmount']);
+    final currentChargeableAmount = _toDouble(d['currentChargeableAmount']);
+    final loyalityDiscount = _toDouble(d['loyalityDiscount']);
+    final totalAddonAmt = _toDouble(d['totalAddonAmount']);
+    
+    // Get arrays directly from API
     final taxBreakdown = d['taxBrakeDown'] as List? ?? [];
     final addonBreakdown = d['addonBrakeDown'] as List? ?? [];
     final promotionBreakdown = d['promotionBrakeDown'] as List? ?? [];
@@ -108,7 +109,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
         ],
 
         // ── Add-ons ─────────────────────────────────────────────────────
-        if (addonBreakdown.isNotEmpty || totalAddonAmt > 0) ...[
+        if (addonBreakdown.isNotEmpty) ...[
           _buildExpandable(
             title: 'Add-ons',
             trailingValue: '+$currency ${totalAddonAmt.toStringAsFixed(2)}',
@@ -119,7 +120,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
             children: addonBreakdown.map<Widget>((a) {
               return _buildSubItem(
                 label: a['name'] ?? 'Add-on',
-                value: '$currency ${_d(a['amount']).toStringAsFixed(2)}',
+                value: '$currency ${_toDouble(a['amount']).toStringAsFixed(2)}',
               );
             }).toList(),
           ),
@@ -138,8 +139,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
               final name = t['name'] as String? ?? '';
               return _buildSubItem(
                 label: name,
-                value: '$currency ${_d(t['taxedAmount']).toStringAsFixed(2)}',
-                highlight: name == 'Municipality Fee',
+                value: '$currency ${_toDouble(t['taxedAmount']).toStringAsFixed(2)}',
               );
             }).toList(),
           ),
@@ -158,7 +158,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
             ),
             children: promotionBreakdown.map<Widget>((p) {
               final name = p['name'] as String? ?? '';
-              final discountAmount = _d(p['discountAmount']);
+              final discountAmount = _toDouble(p['discountAmount']);
               final restrictionType = p['restrictionType'] as String? ?? '';
               final isPayLater = restrictionType == 'payLater';
               
@@ -190,8 +190,8 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
                 .map<Widget>(
                   (day) => _buildDayItem(
                     date: day['date'] ?? '',
-                    base: _d(day['baseChargesAmount']),
-                    total: _d(day['totalAmount']),
+                    base: _toDouble(day['baseChargesAmount']),
+                    total: _toDouble(day['totalAmount']),
                     currency: currency,
                   ),
                 )
@@ -352,7 +352,6 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
     required String label,
     required String value,
     String? sublabel,
-    bool highlight = false,
     Color valueColor = const Color(0xFF4A5568),
   }) {
     return Padding(
@@ -362,10 +361,8 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
           Container(
             width: 6,
             height: 6,
-            decoration: BoxDecoration(
-              color: highlight
-                  ? const Color(0xFF6B7280)
-                  : const Color(0xFFCBD0DC),
+            decoration: const BoxDecoration(
+              color: Color(0xFFCBD0DC),
               shape: BoxShape.circle,
             ),
           ),
@@ -376,12 +373,10 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: highlight
-                        ? const Color(0xFF374151)
-                        : const Color(0xFF4A5568),
+                    color: Color(0xFF4A5568),
                   ),
                 ),
                 if (sublabel != null)
@@ -511,34 +506,33 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
 
 // ─── Popup ─────────────────────────────────────────────────────────────────────
 class _PriceDetailsPopup extends StatelessWidget {
-  final String currencyCode;
-  final double amountBeforeTax;
-  final double totalAddonAmount;
-  final double taxedAmount;
-  final double latterPayableAmount;
-  final double totalAmount;
-  final double currentChargeableAmount;
-  final List taxBreakdown;
-  final List addonBreakdown;
-  final List promotionBreakdown;
+  final Map<String, dynamic> priceData;
 
   const _PriceDetailsPopup({
-    required this.currencyCode,
-    required this.amountBeforeTax,
-    required this.totalAddonAmount,
-    required this.taxedAmount,
-    required this.latterPayableAmount,
-    required this.totalAmount,
-    required this.currentChargeableAmount,
-    required this.taxBreakdown,
-    required this.addonBreakdown,
-    required this.promotionBreakdown,
+    required this.priceData,
   });
 
-  double _d(dynamic v) => (v as num?)?.toDouble() ?? 0;
+  double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is int) return value.toDouble();
+    if (value is double) return value;
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final currency = priceData['currencyCode'] ?? 'USD';
+    final amountBeforeTax = _toDouble(priceData['amountBeforeTax']);
+    final totalAddonAmount = _toDouble(priceData['totalAddonAmount']);
+    final taxedAmount = _toDouble(priceData['taxedAmount']);
+    final totalAmount = _toDouble(priceData['totalAmount']);
+    final currentChargeableAmount = _toDouble(priceData['currentChargeableAmount']);
+    
+    final taxBreakdown = priceData['taxBrakeDown'] as List? ?? [];
+    final addonBreakdown = priceData['addonBrakeDown'] as List? ?? [];
+    final promotionBreakdown = priceData['promotionBrakeDown'] as List? ?? [];
+
     return Container(
       width: 320,
       decoration: BoxDecoration(
@@ -601,107 +595,69 @@ class _PriceDetailsPopup extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                _row(
+                _buildRow(
                   'Base Amount',
-                  '$currencyCode ${amountBeforeTax.toStringAsFixed(2)}',
+                  '$currency ${amountBeforeTax.toStringAsFixed(2)}',
                   isFirst: true,
                 ),
                 if (addonBreakdown.isNotEmpty) ...[
-                  _row(
+                  _buildRow(
                     'Add-ons',
-                    '+$currencyCode ${totalAddonAmount.toStringAsFixed(2)}',
+                    '+$currency ${totalAddonAmount.toStringAsFixed(2)}',
                     valueColor: const Color(0xFF4A5568),
                   ),
                   ...addonBreakdown.map((a) {
-                    return _subRow(
+                    return _buildSubRow(
                       a['name'] ?? '',
-                      '$currencyCode ${_d(a['amount']).toStringAsFixed(2)}',
+                      '$currency ${_toDouble(a['amount']).toStringAsFixed(2)}',
                     );
                   }),
                 ],
                 if (taxedAmount > 0)
-                  _row(
+                  _buildRow(
                     'Taxes & Fees',
-                    '+$currencyCode ${taxedAmount.toStringAsFixed(2)}',
+                    '+$currency ${taxedAmount.toStringAsFixed(2)}',
                     valueColor: const Color(0xFF4A5568),
                   ),
                 ...taxBreakdown.map(
-                  (t) => _subRow(
+                  (t) => _buildSubRow(
                     t['name'] ?? '',
-                    '$currencyCode ${_d(t['taxedAmount']).toStringAsFixed(2)}',
+                    '$currency ${_toDouble(t['taxedAmount']).toStringAsFixed(2)}',
                   ),
                 ),
                 if (promotionBreakdown.isNotEmpty) ...[
-                  _row(
+                  _buildRow(
                     'Promotions & Fees',
                     '',
                     valueColor: const Color(0xFF4A5568),
                   ),
                   ...promotionBreakdown.map((p) {
                     final name = p['name'] ?? '';
-                    final amount = _d(p['discountAmount']);
+                    final amount = _toDouble(p['discountAmount']);
                     final isPayLater = p['restrictionType'] == 'payLater';
-                    return _subRow(
+                    return _buildSubRow(
                       name,
                       isPayLater
-                          ? '+$currencyCode ${amount.toStringAsFixed(2)}'
-                          : '-$currencyCode ${amount.toStringAsFixed(2)}',
+                          ? '+$currency ${amount.toStringAsFixed(2)}'
+                          : '-$currency ${amount.toStringAsFixed(2)}',
                       valueColor: isPayLater
                           ? const Color(0xFF4A5568)
                           : Colors.green.shade700,
                     );
                   }),
                 ],
-                if (latterPayableAmount > 0)
-                  _row(
-                    'Tourism Fee',
-                    '$currencyCode ${latterPayableAmount.toStringAsFixed(2)}',
-                    sublabel: 'Pay at hotel',
-                    valueColor: const Color(0xFF4A5568),
-                  ),
                 const SizedBox(height: 6),
                 const Divider(height: 1, color: Color(0xFFEEF0F4)),
                 const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Current Payable',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1A2236),
-                      ),
-                    ),
-                    Text(
-                      '$currencyCode ${currentChargeableAmount.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: AppColor.primary,
-                      ),
-                    ),
-                  ],
+                _buildTotalRow(
+                  'Current Payable',
+                  '$currency ${currentChargeableAmount.toStringAsFixed(2)}',
+                  isMainTotal: true,
                 ),
                 const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Total (before fees)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF8A94A6),
-                      ),
-                    ),
-                    Text(
-                      '$currencyCode ${totalAmount.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF8A94A6),
-                      ),
-                    ),
-                  ],
+                _buildTotalRow(
+                  'Total (before fees)',
+                  '$currency ${totalAmount.toStringAsFixed(2)}',
                 ),
               ],
             ),
@@ -711,7 +667,7 @@ class _PriceDetailsPopup extends StatelessWidget {
     );
   }
 
-  Widget _row(
+  Widget _buildRow(
     String label,
     String value, {
     String? sublabel,
@@ -759,7 +715,7 @@ class _PriceDetailsPopup extends StatelessWidget {
     );
   }
 
-  Widget _subRow(String label, String value, {Color valueColor = const Color(0xFF8A94A6)}) {
+  Widget _buildSubRow(String label, String value, {Color valueColor = const Color(0xFF8A94A6)}) {
     return Padding(
       padding: const EdgeInsets.only(left: 12, bottom: 6),
       child: Row(
@@ -796,6 +752,30 @@ class _PriceDetailsPopup extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTotalRow(String label, String value, {bool isMainTotal = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: isMainTotal ? 14 : 12,
+            fontWeight: isMainTotal ? FontWeight.w800 : FontWeight.w500,
+            color: isMainTotal ? const Color(0xFF1A2236) : const Color(0xFF8A94A6),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: isMainTotal ? 16 : 12,
+            fontWeight: isMainTotal ? FontWeight.w800 : FontWeight.w500,
+            color: isMainTotal ? AppColor.primary : const Color(0xFF8A94A6),
+          ),
+        ),
+      ],
     );
   }
 }
