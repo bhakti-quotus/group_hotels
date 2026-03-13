@@ -511,13 +511,6 @@
           "route": "/hotels",
           "visible": true
         },
-         {
-              "id": "my_bookings",
-              "icon": "booking",
-              "label": "My Bookings",
-              "route": "/bookingdetails",
-              "visible": true
-            },
         {
           "id": "about",
           "icon": "info",
