@@ -1,44 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:group/group/common/theme/theme.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PriceBreakdownWidget
-//
-// • No internal header — the parent's _buildRoyalCard provides the header.
-// • Accepts [infoIconKey] so the parent can trigger [showPriceDetailsPopup]
-//   from the info icon it renders inside _buildRoyalCard's header row.
-//
-// Usage in parent:
-//
-//   final _priceInfoKey = GlobalKey();
-//   final _priceWidgetKey = GlobalKey<_PriceBreakdownWidgetState>();  // optional
-//
-//   Widget _buildPriceSummaryCard() {
-//     return _buildRoyalCard(
-//       sectionTitle: 'PRICE SUMMARY',
-//       sectionIcon: Icons.receipt_long_outlined,
-//       trailingAction: GestureDetector(           // ← pass this
-//         key: _priceInfoKey,
-//         onTap: () => _priceWidget.showPriceDetailsPopup(context),
-//         child: Container(
-//           width: 30, height: 30,
-//           decoration: BoxDecoration(
-//             color: AppColor.primary.withOpacity(0.08),
-//             borderRadius: BorderRadius.circular(8),
-//           ),
-//           child: Icon(Icons.info_outline_rounded,
-//               size: 16, color: AppColor.primary),
-//         ),
-//       ),
-//       child: PriceBreakdownWidget(
-//         key: _priceWidget,
-//         priceData: widget.priceData,
-//         infoIconKey: _priceInfoKey,
-//       ),
-//     );
-//   }
-// ─────────────────────────────────────────────────────────────────────────────
-
 class PriceBreakdownWidget extends StatefulWidget {
   final Map<String, dynamic> priceData;
 
@@ -61,6 +23,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
   bool _showDailyBreakdown = false;
   bool _showTaxBreakdown = false;
   bool _showAddonBreakdown = false;
+  bool _showPromotionBreakdown = false;
 
   double _d(dynamic v, [double fallback = 0]) =>
       (v as num?)?.toDouble() ?? fallback;
@@ -94,8 +57,10 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
                 taxedAmount: _d(d['taxedAmount']),
                 latterPayableAmount: _d(d['latterpayableAmount']),
                 totalAmount: _d(d['totalAmount']),
+                currentChargeableAmount: _d(d['currentChargeableAmount']),
                 taxBreakdown: d['taxBrakeDown'] as List? ?? [],
                 addonBreakdown: d['addonBrakeDown'] as List? ?? [],
+                promotionBreakdown: d['promotionBrakeDown'] as List? ?? [],
               ),
             ),
           ),
@@ -110,14 +75,15 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
     final d = widget.priceData;
     final currency = d['currencyCode'] ?? 'USD';
     final amountBeforeTax = _d(d['amountBeforeTax']);
-    final totalAmount = _d(d['currentChargeableAmount']);
+    final totalAmount = _d(d['totalAmount']);
     final taxedAmount = _d(d['taxedAmount']);
-    final latterPayableAmount = _d(d['latterpayableAmount']);
+    final currentChargeableAmount = _d(d['currentChargeableAmount']);
+    final loyalityDiscount = _d(d['loyalityDiscount']);
     final totalAddonAmt = _d(d['totalAddonAmount']);
     final taxBreakdown = d['taxBrakeDown'] as List? ?? [];
     final addonBreakdown = d['addonBrakeDown'] as List? ?? [];
+    final promotionBreakdown = d['promotionBrakeDown'] as List? ?? [];
     final dailyBreakdown = d['dailyPriceBrakeDown'] as List? ?? [];
-    final loyalityDiscount = d['loyalityDiscount'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,11 +92,22 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
         _buildLineItem(
           label: 'Base Amount',
           sublabel: 'Before taxes & fees',
-          value: '$currency ${(amountBeforeTax-loyalityDiscount).toStringAsFixed(2)}',
+          value: '$currency ${amountBeforeTax.toStringAsFixed(2)}',
         ),
         const _DashedDivider(),
 
-        // ── Privileges ─────────────────────────────────────────────────────
+        // ── Loyalty Discount (if any) ──────────────────────────────────────
+        if (loyalityDiscount > 0) ...[
+          _buildLineItem(
+            label: 'Loyalty Discount',
+            sublabel: 'Applied to your stay',
+            value: '-$currency ${loyalityDiscount.toStringAsFixed(2)}',
+            valueColor: Colors.green.shade700,
+          ),
+          const _DashedDivider(),
+        ],
+
+        // ── Add-ons ─────────────────────────────────────────────────────
         if (addonBreakdown.isNotEmpty || totalAddonAmt > 0) ...[
           _buildExpandable(
             title: 'Add-ons',
@@ -140,14 +117,9 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
             onTap: () =>
                 setState(() => _showAddonBreakdown = !_showAddonBreakdown),
             children: addonBreakdown.map<Widget>((a) {
-              final qty = _d(a['quantity'], 1);
-              final amt = _d(a['totalAmount']) > 0
-                  ? _d(a['totalAmount'])
-                  : _d(a['amount']) * qty;
               return _buildSubItem(
                 label: a['name'] ?? 'Add-on',
-                sublabel: qty > 1 ? 'Qty: ${qty.toInt()}' : null,
-                value: '$currency ${amt.toStringAsFixed(2)}',
+                value: '$currency ${_d(a['amount']).toStringAsFixed(2)}',
               );
             }).toList(),
           ),
@@ -174,11 +146,42 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
           const _DashedDivider(),
         ],
 
+        // ── Promotions ────────────────────────────────────────────────────
+        if (promotionBreakdown.isNotEmpty) ...[
+          _buildExpandable(
+            title: 'Promotions & Fees',
+            trailingValue: '',
+            trailingColor: const Color(0xFF4A5568),
+            isExpanded: _showPromotionBreakdown,
+            onTap: () => setState(
+              () => _showPromotionBreakdown = !_showPromotionBreakdown,
+            ),
+            children: promotionBreakdown.map<Widget>((p) {
+              final name = p['name'] as String? ?? '';
+              final discountAmount = _d(p['discountAmount']);
+              final restrictionType = p['restrictionType'] as String? ?? '';
+              final isPayLater = restrictionType == 'payLater';
+              
+              return _buildSubItem(
+                label: name,
+                sublabel: isPayLater ? 'Pay at hotel' : null,
+                value: isPayLater
+                    ? '$currency ${discountAmount.toStringAsFixed(2)}'
+                    : '-$currency ${discountAmount.toStringAsFixed(2)}',
+                valueColor: isPayLater
+                    ? const Color(0xFF4A5568)
+                    : Colors.green.shade700,
+              );
+            }).toList(),
+          ),
+          const _DashedDivider(),
+        ],
+
         // ── Daily Breakdown ────────────────────────────────────────────────
         if (dailyBreakdown.isNotEmpty) ...[
           _buildExpandable(
             title: 'Daily Breakdown',
-            trailingValue: '${dailyBreakdown.length} nights',
+            trailingValue: '${dailyBreakdown.length} night${dailyBreakdown.length > 1 ? 's' : ''}',
             trailingColor: const Color(0xFF4A5568),
             isExpanded: _showDailyBreakdown,
             onTap: () =>
@@ -187,9 +190,9 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
                 .map<Widget>(
                   (day) => _buildDayItem(
                     date: day['date'] ?? '',
-                    base: _d(day['baseChargesAmount'])- loyalityDiscount,
-                    total: _d(day['totalAmount']) - loyalityDiscount,
-                    currency: currency, 
+                    base: _d(day['baseChargesAmount']),
+                    total: _d(day['totalAmount']),
+                    currency: currency,
                   ),
                 )
                 .toList(),
@@ -197,21 +200,16 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
           const _DashedDivider(),
         ],
 
-        // ── Tourism Fee ────────────────────────────────────────────────────
-        if (latterPayableAmount > 0) ...[
-          _buildLineItem(
-            label: 'Tourism Fee',
-            sublabel: 'Payable at hotel',
-            value: '$currency ${latterPayableAmount.toStringAsFixed(2)}',
-            valueColor: const Color(0xFF4A5568),
-          ),
-          const _DashedDivider(),
-        ],
-
         const SizedBox(height: 12),
 
-        // ── Grand Total ────────────────────────────────────────────────────
-        _buildGrandTotal(currency, totalAmount-loyalityDiscount),
+        // ── Current Chargeable Amount ────────────────────────────────────
+        _buildGrandTotal(
+          currency,
+          currentChargeableAmount,
+          sublabel: currentChargeableAmount != totalAmount
+              ? 'Includes promotions & fees'
+              : null,
+        ),
       ],
     );
   }
@@ -308,14 +306,15 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
                     ),
                   ),
                 ),
-                Text(
-                  trailingValue,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: trailingColor,
+                if (trailingValue.isNotEmpty)
+                  Text(
+                    trailingValue,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: trailingColor,
+                    ),
                   ),
-                ),
                 const SizedBox(width: 6),
                 AnimatedRotation(
                   turns: isExpanded ? 0.5 : 0,
@@ -354,6 +353,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
     required String value,
     String? sublabel,
     bool highlight = false,
+    Color valueColor = const Color(0xFF4A5568),
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
@@ -400,9 +400,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: highlight
-                  ? const Color(0xFF374151)
-                  : const Color(0xFF4A5568),
+              color: valueColor,
             ),
           ),
         ],
@@ -455,7 +453,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
     );
   }
 
-  Widget _buildGrandTotal(String currency, double total) {
+  Widget _buildGrandTotal(String currency, double total, {String? sublabel}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       decoration: BoxDecoration(
@@ -478,20 +476,22 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'Total Amount',
+            children: [
+              const Text(
+                'Total Payable',
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.white70,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 2),
-              Text(
-                'Taxes & fees included',
-                style: TextStyle(fontSize: 11, color: Colors.white54),
-              ),
+              if (sublabel != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  sublabel,
+                  style: const TextStyle(fontSize: 11, color: Colors.white54),
+                ),
+              ],
             ],
           ),
           Text(
@@ -517,8 +517,10 @@ class _PriceDetailsPopup extends StatelessWidget {
   final double taxedAmount;
   final double latterPayableAmount;
   final double totalAmount;
+  final double currentChargeableAmount;
   final List taxBreakdown;
   final List addonBreakdown;
+  final List promotionBreakdown;
 
   const _PriceDetailsPopup({
     required this.currencyCode,
@@ -527,8 +529,10 @@ class _PriceDetailsPopup extends StatelessWidget {
     required this.taxedAmount,
     required this.latterPayableAmount,
     required this.totalAmount,
+    required this.currentChargeableAmount,
     required this.taxBreakdown,
     required this.addonBreakdown,
+    required this.promotionBreakdown,
   });
 
   double _d(dynamic v) => (v as num?)?.toDouble() ?? 0;
@@ -536,7 +540,7 @@ class _PriceDetailsPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 300,
+      width: 320,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -609,13 +613,9 @@ class _PriceDetailsPopup extends StatelessWidget {
                     valueColor: const Color(0xFF4A5568),
                   ),
                   ...addonBreakdown.map((a) {
-                    final qty = _d(a['quantity']);
-                    final amt = _d(a['totalAmount']) > 0
-                        ? _d(a['totalAmount'])
-                        : _d(a['amount']) * (qty > 0 ? qty : 1);
                     return _subRow(
                       a['name'] ?? '',
-                      '$currencyCode ${amt.toStringAsFixed(2)}',
+                      '$currencyCode ${_d(a['amount']).toStringAsFixed(2)}',
                     );
                   }),
                 ],
@@ -631,6 +631,27 @@ class _PriceDetailsPopup extends StatelessWidget {
                     '$currencyCode ${_d(t['taxedAmount']).toStringAsFixed(2)}',
                   ),
                 ),
+                if (promotionBreakdown.isNotEmpty) ...[
+                  _row(
+                    'Promotions & Fees',
+                    '',
+                    valueColor: const Color(0xFF4A5568),
+                  ),
+                  ...promotionBreakdown.map((p) {
+                    final name = p['name'] ?? '';
+                    final amount = _d(p['discountAmount']);
+                    final isPayLater = p['restrictionType'] == 'payLater';
+                    return _subRow(
+                      name,
+                      isPayLater
+                          ? '+$currencyCode ${amount.toStringAsFixed(2)}'
+                          : '-$currencyCode ${amount.toStringAsFixed(2)}',
+                      valueColor: isPayLater
+                          ? const Color(0xFF4A5568)
+                          : Colors.green.shade700,
+                    );
+                  }),
+                ],
                 if (latterPayableAmount > 0)
                   _row(
                     'Tourism Fee',
@@ -645,7 +666,7 @@ class _PriceDetailsPopup extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Total',
+                      'Current Payable',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -653,11 +674,31 @@ class _PriceDetailsPopup extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '$currencyCode ${totalAmount.toStringAsFixed(2)}',
+                      '$currencyCode ${currentChargeableAmount.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: AppColor.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Total (before fees)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF8A94A6),
+                      ),
+                    ),
+                    Text(
+                      '$currencyCode ${totalAmount.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF8A94A6),
                       ),
                     ),
                   ],
@@ -704,20 +745,21 @@ class _PriceDetailsPopup extends StatelessWidget {
                 ),
             ],
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: valueColor,
+          if (value.isNotEmpty)
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: valueColor,
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _subRow(String label, String value) {
+  Widget _subRow(String label, String value, {Color valueColor = const Color(0xFF8A94A6)}) {
     return Padding(
       padding: const EdgeInsets.only(left: 12, bottom: 6),
       child: Row(
@@ -746,9 +788,9 @@ class _PriceDetailsPopup extends StatelessWidget {
           ),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Color(0xFF8A94A6),
+              color: valueColor,
               fontWeight: FontWeight.w600,
             ),
           ),
