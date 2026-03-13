@@ -52,9 +52,22 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onNavTap(int index) {
+String _getPropertyCode() {
+    final hotelCtrl = Get.find<HotelController>();
+    return hotelCtrl.getConfig()?['code'] as String? ??
+           hotelCtrl.getSelectedHotel()?['code'] as String? ??
+           '';
+  }
+
+void _onNavTap(int index) {
     if (index != _currentIndex && index < _navItems.length) {
-      Get.offNamed(_navItems[index].route);
+      final route = _navItems[index].route;
+      if (route == '/bookingdetails') {
+        final propertyCode = _getPropertyCode();
+        Get.offNamed(route, arguments: {'propertyCode': propertyCode});
+      } else {
+        Get.offNamed(route);
+      }
     }
   }
 

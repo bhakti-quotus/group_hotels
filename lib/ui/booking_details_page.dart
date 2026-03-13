@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:get/get.dart';
 import 'package:group/group/controllers/api_controller.dart';
+import 'package:group/group/controllers/hotel_controller.dart';
 import 'package:group/group/utils/app_routes.dart';
+import 'package:group/group/common/bottom_navitem/bottom_navitem_list.dart';
+import 'package:group/ui/bottom_navbar/bottom_navbar.dart';
 import 'package:group/ui/booking_page/modify_booking_page.dart';
 import 'package:group/ui/booking_page/cancel_booking_page.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +22,7 @@ class BookingDetailsPage extends StatefulWidget {
 }
 
 class _BookingDetailsPageState extends State<BookingDetailsPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final ApiController _apiController = Get.find<ApiController>();
   final TextEditingController _searchController = TextEditingController();
 
@@ -32,9 +35,35 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
 
+  // Bottom nav for search state
+  List<BottomNavItem> _navItems = [];
+  Map<String, dynamic> _config = {};
+  int _navCurrentIndex = 2; // My Bookings
+  Color _primaryColor = AppColor.primary;
+
+  Future<void> _loadNavForDetails() async {
+    final items = await BottomNavItemManager.getNavItems(config: _config);
+    if (mounted) {
+      setState(() {
+        _navItems = items;
+      });
+    }
+  }
+
+  void _onNavTapDetails(int index) {
+    Get.offAllNamed(AppRoutes.home);
+  }
+
   @override
   void initState() {
     super.initState();
+    final hotelCtrl = Get.find<HotelController>();
+    _config = hotelCtrl.getConfig() ?? {};
+    final branding = _config['branding'] as Map<String, dynamic>? ?? {};
+    _primaryColor = branding['primaryColor'] != null
+        ? Color(int.parse(branding['primaryColor'].replaceFirst('#', '0xff')))
+        : AppColor.primary;
+
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -44,6 +73,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
       begin: const Offset(0, 0.06),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+
+    _loadNavForDetails();
 
     final code = widget.bookingCode ?? '';
     final prop = widget.propertyCode ?? '';
@@ -69,7 +100,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     String? propertyCode,
   }) async {
     final code = bookingCode ?? _searchController.text.trim();
-    final prop = propertyCode ?? widget.propertyCode ?? '';
+    String prop = propertyCode ?? widget.propertyCode ?? '';
+    if (prop.isEmpty) {
+      // Fallback: load from config
+      prop = (_config['code'] as String?) ?? '';
+    }
 
     if (code.isEmpty) return;
 
@@ -180,7 +215,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
       backgroundColor: const Color(0xFFF4F6FA),
       appBar: _buildAppBar(),
       body: !_hasSearched ? _buildSearchState() : _buildResultState(),
-      bottomNavigationBar: _buildBottomActionBar(),
+      bottomNavigationBar: !_hasSearched 
+        ? (_navItems.isEmpty ? null : BottomNavbar(
+            currentIndex: _navCurrentIndex,
+            onTap: _onNavTapDetails,
+            items: _navItems,
+            primaryColor: _primaryColor,
+          ))
+        : _buildBottomActionBar(),
     );
   }
 
