@@ -12,7 +12,7 @@ import 'dart:io';
 import 'price_breakdown_widget.dart';
 
 class PaymentPage extends StatefulWidget {
-  final Map<String, dynamic> priceData;
+  final Map<String, dynamic> priceData; // This comes from get-price API via BookingPage
   final Map<String, dynamic> paymentData;
   final Map<String, dynamic> bookingDetails;
   final String propertyId;
@@ -58,6 +58,12 @@ class _PaymentPageState extends State<PaymentPage>
       curve: Curves.easeOut,
     );
     _fadeController.forward();
+    
+    // Print the price data received from BookingPage for debugging
+    print('=== PAYMENT PAGE: PRICE DATA FROM API ===');
+    print('Price Data: ${json.encode(widget.priceData)}');
+    print('=========================================');
+    
     _fetchPaymentDetails();
   }
 
@@ -245,7 +251,7 @@ class _PaymentPageState extends State<PaymentPage>
                     const SizedBox(height: 10),
                     _buildGuestDetailsCard(),
                     const SizedBox(height: 10),
-                    _buildPriceSummaryCard(),
+                    _buildPriceSummaryCard(), // This now uses the API price data
                     const SizedBox(height: 10),
                     _buildPaymentOptionsCard(),
                     if (_selectedPaymentMethod == 'upi' ||
@@ -877,6 +883,7 @@ class _PaymentPageState extends State<PaymentPage>
   }
 
   // ─── Price Summary ────────────────────────────────────────────────────────────
+  // This now uses the priceData passed from BookingPage (which comes from get-price API)
 
   Widget _buildPriceSummaryCard() {
     return _buildRoyalCard(
@@ -904,7 +911,7 @@ class _PaymentPageState extends State<PaymentPage>
       ),
       child: PriceBreakdownWidget(
         key: _priceWidgetKey,
-        priceData: widget.priceData,
+        priceData: widget.priceData, // This is the API response data
         infoIconKey: _priceInfoIconKey,
       ),
     );
@@ -1234,6 +1241,8 @@ class _PaymentPageState extends State<PaymentPage>
   // ─── Payment Detail Widgets ───────────────────────────────────────────────────
 
   Widget _buildPayAtHotelDetails(Map<String, dynamic> data) {
+    final currentPayable = widget.priceData['currentChargeableAmount'] ?? 0;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1246,6 +1255,34 @@ class _PaymentPageState extends State<PaymentPage>
               'Accepted: cash, debit & credit cards.',
           color: AppColor.primary,
         ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColor.primary.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Amount to pay at hotel:',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColor.primary,
+                ),
+              ),
+              Text(
+                '${widget.priceData['currencyCode'] ?? 'USD'} ${currentPayable.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: AppColor.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -1253,7 +1290,7 @@ class _PaymentPageState extends State<PaymentPage>
   Widget _buildEnhancedUpiDetails(Map<String, dynamic> data) {
     final upiId = data['upiId'] ?? '';
     final name = data['accountHolder'] ?? '';
-    final amount = (widget.priceData['totalAmount'] ?? 0).toString();
+    final amount = (widget.priceData['currentChargeableAmount'] ?? 0).toString();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1262,7 +1299,7 @@ class _PaymentPageState extends State<PaymentPage>
         const SizedBox(height: 10),
         _elegantDetailRow('UPI ID', upiId, showCopy: true),
         _elegantDetailRow('Payee Name', name),
-        _elegantDetailRow('Amount', '₹$amount'),
+        _elegantDetailRow('Amount', '${widget.priceData['currencyCode'] ?? 'INR'} $amount'),
         const SizedBox(height: 14),
         // QR
         Center(
@@ -1314,7 +1351,7 @@ class _PaymentPageState extends State<PaymentPage>
     final accountNumber = data['accountNumber'] ?? '';
     final ifscCode = data['ifscCode'] ?? '';
     final bankName = data['bankName'] ?? '';
-    final amount = (widget.priceData['totalAmount'] ?? 0).toString();
+    final amount = (widget.priceData['currentChargeableAmount'] ?? 0).toString();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1328,7 +1365,7 @@ class _PaymentPageState extends State<PaymentPage>
         if (ifscCode.isNotEmpty)
           _elegantDetailRow('IFSC Code', ifscCode, showCopy: true),
         if (bankName.isNotEmpty) _elegantDetailRow('Bank', bankName),
-        _elegantDetailRow('Amount', '₹$amount'),
+        _elegantDetailRow('Amount', '${widget.priceData['currencyCode'] ?? 'INR'} $amount'),
         const SizedBox(height: 12),
         _infoNotice(
           icon: Icons.info_outline_rounded,
@@ -1880,7 +1917,7 @@ class _PaymentPageState extends State<PaymentPage>
     }
   }
 
-  // ── Replace _completeBooking() in payment_page.dart ──────
+  // ── Complete Booking ──────────────────────────────────────────────────────────
   void _completeBooking() async {
     if (!_isCompleteBookingEnabled || _isProcessingBooking) return;
 
@@ -1891,6 +1928,7 @@ class _PaymentPageState extends State<PaymentPage>
         'data': {
           'bankDetails': _fetchedPaymentData,
           'bookingDetails': widget.bookingDetails,
+          'priceData': widget.priceData, // Include the API price data
           'guestDetails': widget.bookingDetails['guestDetails'],
           'paymentMethod': _selectedPaymentMethod,
           'paymentScreenshot': _paymentScreenshot != null
@@ -1920,16 +1958,16 @@ class _PaymentPageState extends State<PaymentPage>
         );
       } else {
         setState(() => _isProcessingBooking = false);
-        showErrorDialog(context, 'Booking failed');
+        showErrorDialog(context, 'Booking failed: ${result['error']}');
       }
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() => _isProcessingBooking = false);
-      showErrorDialog(context, 'Booking failed');
+      showErrorDialog(context, 'Booking failed: $e');
     }
   }
 
-  // ── Replace _showBookingSuccessDialog() in payment_page.dart ──
+  // ── Booking Success Dialog ────────────────────────────────────────────────────
   void _showBookingSuccessDialog({
     required String bookingCode,
     required String propertyCode,
@@ -2003,9 +2041,7 @@ class _PaymentPageState extends State<PaymentPage>
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    //if (mounted) setState(() => _isProcessingBooking = false);
                     Navigator.pop(context);
-                    // ✅ Pass bookingCode and propertyCode so the page can fetch details
                     Get.offAllNamed(
                       '/bookingdetails',
                       arguments: {
