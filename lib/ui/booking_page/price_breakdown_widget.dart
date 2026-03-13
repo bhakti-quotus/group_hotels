@@ -110,13 +110,14 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
     final d = widget.priceData;
     final currency = d['currencyCode'] ?? 'USD';
     final amountBeforeTax = _d(d['amountBeforeTax']);
-    final totalAmount = _d(d['totalAmount']);
+    final totalAmount = _d(d['currentChargeableAmount']);
     final taxedAmount = _d(d['taxedAmount']);
     final latterPayableAmount = _d(d['latterpayableAmount']);
     final totalAddonAmt = _d(d['totalAddonAmount']);
     final taxBreakdown = d['taxBrakeDown'] as List? ?? [];
     final addonBreakdown = d['addonBrakeDown'] as List? ?? [];
     final dailyBreakdown = d['dailyPriceBrakeDown'] as List? ?? [];
+    final loyalityDiscount = d['loyalityDiscount'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +126,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
         _buildLineItem(
           label: 'Base Amount',
           sublabel: 'Before taxes & fees',
-          value: '$currency ${amountBeforeTax.toStringAsFixed(2)}',
+          value: '$currency ${(amountBeforeTax-loyalityDiscount).toStringAsFixed(2)}',
         ),
         const _DashedDivider(),
 
@@ -186,9 +187,9 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
                 .map<Widget>(
                   (day) => _buildDayItem(
                     date: day['date'] ?? '',
-                    base: _d(day['baseChargesAmount']),
-                    total: _d(day['totalAmount']),
-                    currency: currency,
+                    base: _d(day['baseChargesAmount'])- loyalityDiscount,
+                    total: _d(day['totalAmount']) - loyalityDiscount,
+                    currency: currency, 
                   ),
                 )
                 .toList(),
@@ -210,7 +211,7 @@ class PriceBreakdownWidgetState extends State<PriceBreakdownWidget> {
         const SizedBox(height: 12),
 
         // ── Grand Total ────────────────────────────────────────────────────
-        _buildGrandTotal(currency, totalAmount),
+        _buildGrandTotal(currency, totalAmount-loyalityDiscount),
       ],
     );
   }

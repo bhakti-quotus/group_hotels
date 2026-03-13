@@ -633,114 +633,221 @@ class _PaymentPageState extends State<PaymentPage>
     final email = widget.bookingDetails['email'] ?? '';
     final phone = widget.bookingDetails['phone'] ?? '';
 
+    // Separate adults and children
+    final adults = guestDetails.where((g) => (g['type']?.toString().toLowerCase() ?? '') == 'adult').toList();
+    final children = guestDetails.where((g) => (g['type']?.toString().toLowerCase() ?? '') == 'child').toList();
+
     return _buildRoyalCard(
       sectionTitle: 'GUEST DETAILS',
       sectionIcon: Icons.person_outline_rounded,
       child: Column(
         children: [
-          // Guest name rows
-          ...guestDetails.asMap().entries.map((entry) {
-            final i = entry.key;
-            final guest = entry.value as Map<String, dynamic>;
-            final firstName = guest['firstName'] ?? '';
-            final lastName = guest['lastName'] ?? '';
-            final dob = guest['dateOfBirth'] ?? '';
-            final fullName = '$firstName $lastName'.trim();
+          // Adults section
+          if (adults.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                'ADULTS (${adults.length})',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColor.primary.withOpacity(0.6),
+                ),
+              ),
+            ),
+            ...adults.asMap().entries.map((entry) {
+              final i = entry.key;
+              final guest = entry.value as Map<String, dynamic>;
+              final firstName = guest['firstName'] ?? '';
+              final lastName = guest['lastName'] ?? '';
+              final dob = guest['dateOfBirth'] ?? '';
+              final fullName = '$firstName $lastName'.trim();
 
-            return Container(
-              margin: EdgeInsets.only(
-                bottom: i < guestDetails.length - 1 ? 10 : 0,
-              ),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColor.primary.withOpacity(0.03),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColor.primary.withOpacity(0.1)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: AppColor.secondary.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        fullName.isNotEmpty ? fullName[0].toUpperCase() : '?',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: AppColor.secondary,
-                        ),
+              return Container(
+                margin: EdgeInsets.only(bottom: i < adults.length - 1 ? 8 : 0),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColor.primary.withOpacity(0.03),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColor.primary.withOpacity(0.1)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: AppColor.primary.withOpacity(0.1),
+                        shape: BoxShape.circle,
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          fullName.isNotEmpty ? fullName : 'Guest ${i + 1}',
+                      child: Center(
+                        child: Text(
+                          fullName.isNotEmpty ? fullName[0].toUpperCase() : '?',
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
                             color: AppColor.primary,
                           ),
                         ),
-                        if (dob.isNotEmpty)
-                          Text(
-                            'DOB: ${_formatDate(dob)}',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppColor.primary.withOpacity(0.5),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColor.primary.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      'ADULT',
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        color: AppColor.primary.withOpacity(0.6),
-                        letterSpacing: 1,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            fullName.isNotEmpty ? fullName : 'Adult Guest ${i + 1}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColor.primary,
+                            ),
+                          ),
+                          if (dob.isNotEmpty)
+                            Text(
+                              'DOB: ${_formatDate(dob)}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColor.primary.withOpacity(0.5),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColor.primary.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'ADULT',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: AppColor.primary,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
 
-          // Contact info
+          // Children section (below adults)
+          if (children.isNotEmpty) ...[
+            if (adults.isNotEmpty) const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                'CHILDREN (${children.length})',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColor.secondary.withOpacity(0.8),
+                ),
+              ),
+            ),
+            ...children.asMap().entries.map((entry) {
+              final i = entry.key;
+              final guest = entry.value as Map<String, dynamic>;
+              final firstName = guest['firstName'] ?? '';
+              final lastName = guest['lastName'] ?? '';
+              final dob = guest['dateOfBirth'] ?? '';
+              final fullName = '$firstName $lastName'.trim();
+
+              return Container(
+                margin: EdgeInsets.only(bottom: i < children.length - 1 ? 8 : 0),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColor.secondary.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColor.secondary.withOpacity(0.15)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: AppColor.secondary.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          fullName.isNotEmpty ? fullName[0].toUpperCase() : '?',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: AppColor.secondary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            fullName.isNotEmpty ? fullName : 'Child Guest ${i + 1}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColor.primary,
+                            ),
+                          ),
+                          if (dob.isNotEmpty)
+                            Text(
+                              'DOB: ${_formatDate(dob)}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColor.primary.withOpacity(0.5),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColor.secondary.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'CHILD',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: AppColor.secondary,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+
+          // Contact info (at bottom)
           if (email.isNotEmpty || phone.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            if (guestDetails.isNotEmpty) const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColor.secondary.withOpacity(0.05),
+                color: Colors.grey.withOpacity(0.04),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColor.secondary.withOpacity(0.15)),
+                border: Border.all(color: AppColor.primary.withOpacity(0.1)),
               ),
               child: Column(
                 children: [
                   if (email.isNotEmpty)
                     _contactRow(icon: Icons.mail_outline_rounded, value: email),
-                  if (email.isNotEmpty && phone.isNotEmpty)
-                    const SizedBox(height: 6),
+                  if (email.isNotEmpty && phone.isNotEmpty) const SizedBox(height: 6),
                   if (phone.isNotEmpty)
                     _contactRow(icon: Icons.phone_outlined, value: phone),
                 ],

@@ -3,6 +3,8 @@ import 'package:group/group/common/theme/theme.dart';
 import 'package:get/get.dart';
 import 'package:group/group/controllers/api_controller.dart';
 import 'package:group/group/utils/app_routes.dart';
+import 'package:group/ui/booking_page/modify_booking_page.dart';
+import 'package:group/ui/booking_page/cancel_booking_page.dart';
 import 'package:intl/intl.dart';
 
 class BookingDetailsPage extends StatefulWidget {
@@ -43,10 +45,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
 
-    // AppRoutes extracts bookingCode + propertyCode from Get.arguments and
-    // passes them as constructor params. If both are present (came from
-    // PaymentPage after a successful booking), skip the search screen and
-    // fetch details immediately.
     final code = widget.bookingCode ?? '';
     final prop = widget.propertyCode ?? '';
 
@@ -55,7 +53,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
       _hasSearched = true;
       _loadBookingDetails(bookingCode: code, propertyCode: prop);
     } else {
-      // Direct / standalone visit — show the search screen.
       _animController.forward();
     }
   }
@@ -169,12 +166,21 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     }
   }
 
+  bool get _showActionButtons {
+    if (_bookingData == null) return false;
+    final status = _bookingData!['bookingStatus'] as String?;
+    if (status?.toLowerCase() == 'cancelled') return false;
+    if (status?.toLowerCase() == 'checked_out') return false;
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6FA),
       appBar: _buildAppBar(),
       body: !_hasSearched ? _buildSearchState() : _buildResultState(),
+      bottomNavigationBar: _buildBottomActionBar(),
     );
   }
 
@@ -228,6 +234,157 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  // ─── BOTTOM ACTION BAR ─────────────────────────────────────────────────────
+
+  Widget? _buildBottomActionBar() {
+    if (!_showActionButtons) return null;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // Modify Button
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Get.to(
+                      ModifyBookingPage(),
+                      arguments: {'bookingData': _bookingData},
+                    )?.then((result) {
+                      // Refresh booking details after modification
+                      if (result != null && result['success'] == true) {
+                        // Reload booking details from API to get updated data
+                        final code = widget.bookingCode ?? _searchController.text.trim();
+                        final prop = widget.propertyCode ?? '';
+                        if (code.isNotEmpty && prop.isNotEmpty) {
+                          _loadBookingDetails(bookingCode: code, propertyCode: prop);
+                        }
+                      }
+                    });
+                  },
+                  icon: const Icon(Icons.edit_rounded, size: 18),
+                  label: const Text(
+                    'Modify Booking',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColor.primary,
+                    side: BorderSide(color: AppColor.primary, width: 1.5),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Cancel Button
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _showCancelBookingDialog,
+                  icon: const Icon(Icons.cancel_rounded, size: 18),
+                  label: const Text(
+                    'Cancel Booking',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFC62828),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCancelBookingDialog() {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange[700], size: 28),
+            const SizedBox(width: 8),
+            const Text('Cancel Booking?'),
+          ],
+        ),
+        content: const Text(
+          'Are you sure you want to cancel this booking? This action cannot be undone and may incur cancellation fees.',
+          style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'Keep Booking',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              // Navigate to Cancel Booking Page
+              Get.to(
+                CancelBookingPage(),
+                arguments: {'bookingData': _bookingData},
+              )?.then((result) {
+                // Refresh booking details after cancellation
+                if (result != null && result['success'] == true) {
+                  final code = widget.bookingCode ?? _searchController.text.trim();
+                  final prop = widget.propertyCode ?? '';
+                  if (code.isNotEmpty && prop.isNotEmpty) {
+                    _loadBookingDetails(bookingCode: code, propertyCode: prop);
+                  }
+                }
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFC62828),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Yes, Cancel',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ─── SEARCH STATE ─────────────────────────────────────────────────────────
 
   Widget _buildSearchState() {
@@ -239,7 +396,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Icon hero
               Container(
                 width: 96,
                 height: 96,
@@ -274,7 +430,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 ),
               ),
               const SizedBox(height: 36),
-              // Search field
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -348,15 +503,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 ),
               ),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Not sure where to find your code?\nCheck your confirmation email.',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+              Text(
+                'Not sure where to find your code?\nCheck your confirmation email.',
+                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -471,43 +621,23 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Hero Status Banner ──────────────────────────────────
               _buildHeroBanner(booking),
               const SizedBox(height: 16),
 
-              // ── Hotel & Room ────────────────────────────────────────
               _buildCard(
                 icon: Icons.hotel_rounded,
                 title: 'Hotel & Room',
                 child: Column(
                   children: [
-                    _infoTile(
-                      'Hotel',
-                      booking['hotelName'] ?? '—',
-                      icon: Icons.business_rounded,
-                    ),
-                    _infoTile(
-                      'Room Type',
-                      booking['roomTypeCode'] ?? '—',
-                      icon: Icons.bed_rounded,
-                    ),
-                    _infoTile(
-                      'Rate Plan',
-                      booking['ratePlanCode'] ?? '—',
-                      icon: Icons.local_offer_rounded,
-                    ),
-                    _infoTile(
-                      'Property Code',
-                      booking['propertyCode'] ?? '—',
-                      icon: Icons.pin_drop_rounded,
-                      isLast: true,
-                    ),
+                    _infoTile('Hotel', booking['hotelName'] ?? '—', icon: Icons.business_rounded),
+                    _infoTile('Room Type', booking['roomTypeCode'] ?? '—', icon: Icons.bed_rounded),
+                    _infoTile('Rate Plan', booking['ratePlanCode'] ?? '—', icon: Icons.local_offer_rounded),
+                    _infoTile('Property Code', booking['propertyCode'] ?? '—', icon: Icons.pin_drop_rounded, isLast: true),
                   ],
                 ),
               ),
               const SizedBox(height: 14),
 
-              // ── Stay Details ────────────────────────────────────────
               _buildCard(
                 icon: Icons.calendar_month_rounded,
                 title: 'Stay Details',
@@ -517,17 +647,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        _statChip(
-                          Icons.nights_stay_rounded,
-                          '${finalPrice['numberOfNights'] ?? 1}',
-                          'Night(s)',
-                        ),
+                        _statChip(Icons.nights_stay_rounded, '${finalPrice['numberOfNights'] ?? 1}', 'Night(s)'),
                         const SizedBox(width: 12),
-                        _statChip(
-                          Icons.people_rounded,
-                          '${guests.length}',
-                          'Guest(s)',
-                        ),
+                        _statChip(Icons.people_rounded, '${guests.length}', 'Guest(s)'),
                       ],
                     ),
                   ],
@@ -535,37 +657,32 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               ),
               const SizedBox(height: 14),
 
-              // ── Guests ──────────────────────────────────────────────
-              if (primaryGuest != null || guests.isNotEmpty)
+              if (primaryGuest != null || guests.isNotEmpty) ...[
                 _buildCard(
                   icon: Icons.people_alt_rounded,
                   title: 'Guest Information',
                   child: _buildGuestSection(primaryGuest, guests),
                 ),
-              if (primaryGuest != null || guests.isNotEmpty)
                 const SizedBox(height: 14),
+              ],
 
-              // ── Add-ons ─────────────────────────────────────────────
-              if (addOns.isNotEmpty)
+              if (addOns.isNotEmpty) ...[
                 _buildCard(
                   icon: Icons.add_circle_outline_rounded,
                   title: 'Add-ons',
                   child: _buildAddOns(addOns),
                 ),
-              if (addOns.isNotEmpty) const SizedBox(height: 14),
+                const SizedBox(height: 14),
+              ],
 
-              // ── Price Breakdown ─────────────────────────────────────
               _buildCard(
                 icon: Icons.receipt_long_rounded,
                 title: 'Price Breakdown',
-                child: _buildPriceSection(
-                  finalPrice,
-                  booking,
-                  dailyBreakdown,
-                  taxBreakdown,
-                  promoBreakdown,
-                ),
+                child: _buildPriceSection(finalPrice, booking, dailyBreakdown, taxBreakdown, promoBreakdown),
               ),
+
+              // Extra bottom padding when action bar is visible
+              if (_showActionButtons) const SizedBox(height: 8),
             ],
           ),
         ),
@@ -613,10 +730,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.18),
                   borderRadius: BorderRadius.circular(20),
@@ -643,18 +757,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           const SizedBox(height: 10),
           Row(
             children: [
-              Icon(
-                Icons.access_time_rounded,
-                size: 13,
-                color: Colors.white.withOpacity(0.65),
-              ),
+              Icon(Icons.access_time_rounded, size: 13, color: Colors.white.withOpacity(0.65)),
               const SizedBox(width: 5),
               Text(
                 'Booked on ${_formatDateTime(booking['bookedAt'])}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white.withOpacity(0.75),
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.75)),
               ),
             ],
           ),
@@ -662,18 +769,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(
-                  Icons.location_on_rounded,
-                  size: 13,
-                  color: Colors.white.withOpacity(0.65),
-                ),
+                Icon(Icons.location_on_rounded, size: 13, color: Colors.white.withOpacity(0.65)),
                 const SizedBox(width: 5),
                 Text(
                   booking['hotelName'],
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withOpacity(0.75),
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.75)),
                 ),
               ],
             ),
@@ -685,10 +785,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
 
   // ── Stay Dates ─────────────────────────────────────────────────────────────
 
-  Widget _buildStayDates(
-    Map<String, dynamic> booking,
-    Map<String, dynamic> finalPrice,
-  ) {
+  Widget _buildStayDates(Map<String, dynamic> booking, Map<String, dynamic> finalPrice) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -704,21 +801,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               children: [
                 Text(
                   'CHECK-IN',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.primary.withOpacity(0.6),
-                    letterSpacing: 1,
-                  ),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColor.primary.withOpacity(0.6), letterSpacing: 1),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   _formatDate(booking['checkInDate']),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.primary,
-                  ),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColor.primary),
                 ),
               ],
             ),
@@ -726,29 +814,15 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColor.primary,
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(color: AppColor.primary, borderRadius: BorderRadius.circular(20)),
                 child: Text(
                   '${finalPrice['numberOfNights'] ?? 1}N',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(height: 4),
-              Icon(
-                Icons.arrow_forward_rounded,
-                size: 16,
-                color: AppColor.primary.withOpacity(0.4),
-              ),
+              Icon(Icons.arrow_forward_rounded, size: 16, color: AppColor.primary.withOpacity(0.4)),
             ],
           ),
           Expanded(
@@ -757,21 +831,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               children: [
                 Text(
                   'CHECK-OUT',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.primary.withOpacity(0.6),
-                    letterSpacing: 1,
-                  ),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColor.primary.withOpacity(0.6), letterSpacing: 1),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   _formatDate(booking['checkOutDate']),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.primary,
-                  ),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColor.primary),
                 ),
               ],
             ),
@@ -796,18 +861,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: AppColor.primary,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                ),
+                Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColor.primary)),
+                Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
               ],
             ),
           ],
@@ -835,13 +890,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                   radius: 22,
                   backgroundColor: AppColor.primary.withOpacity(0.12),
                   child: Text(
-                    '${primary['firstName']?[0] ?? ''}${primary['lastName']?[0] ?? ''}'
-                        .toUpperCase(),
-                    style: TextStyle(
-                      color: AppColor.primary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                    ),
+                    '${primary['firstName']?[0] ?? ''}${primary['lastName']?[0] ?? ''}'.toUpperCase(),
+                    style: TextStyle(color: AppColor.primary, fontWeight: FontWeight.w800, fontSize: 14),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -850,49 +900,22 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${primary['firstName'] ?? ''} ${primary['lastName'] ?? ''}'
-                            .trim(),
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        '${primary['firstName'] ?? ''} ${primary['lastName'] ?? ''}'.trim(),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                       ),
                       if (primary['email'] != null)
-                        Text(
-                          primary['email'],
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
+                        Text(primary['email'], style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                       if (primary['phoneNumber'] != null)
-                        Text(
-                          primary['phoneNumber'],
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
+                        Text(primary['phoneNumber'], style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColor.primary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: AppColor.primary, borderRadius: BorderRadius.circular(8)),
                   child: const Text(
                     'PRIMARY',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 0.5),
                   ),
                 ),
               ],
@@ -901,18 +924,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
         ],
         if (guests.length > 1) ...[
           const SizedBox(height: 12),
-          Text(
-            'All Guests',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
-            ),
-          ),
+          Text('All Guests', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700])),
           const SizedBox(height: 8),
           ...guests.map((g) {
-            final name = '${g['firstName'] ?? ''} ${g['lastName'] ?? ''}'
-                .trim();
+            final name = '${g['firstName'] ?? ''} ${g['lastName'] ?? ''}'.trim();
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -923,23 +938,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.person_outline_rounded,
-                    size: 16,
-                    color: AppColor.primary,
-                  ),
+                  Icon(Icons.person_outline_rounded, size: 16, color: AppColor.primary),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      name.isNotEmpty ? name : 'Guest',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ),
+                  Expanded(child: Text(name.isNotEmpty ? name : 'Guest', style: const TextStyle(fontSize: 14))),
                   if (g['dateOfBirth'] != null)
-                    Text(
-                      _formatDate(g['dateOfBirth']),
-                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                    ),
+                    Text(_formatDate(g['dateOfBirth']), style: TextStyle(fontSize: 12, color: Colors.grey[500])),
                 ],
               ),
             );
@@ -971,45 +974,25 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                   color: AppColor.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  Icons.card_giftcard_rounded,
-                  color: AppColor.primary,
-                  size: 22,
-                ),
+                child: Icon(Icons.card_giftcard_rounded, color: AppColor.primary, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      addon['name'] ?? 'Add-on',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      _formatDate(addon['date']),
-                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                    ),
+                    Text(addon['name'] ?? 'Add-on', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    Text(_formatDate(addon['date']), style: TextStyle(fontSize: 12, color: Colors.grey[500])),
                   ],
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    '×${addon['quantity']}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                  ),
+                  Text('×${addon['quantity']}', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
                   Text(
                     '${addon['currencyCode'] ?? 'USD'} ${addon['unitPrice']}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: AppColor.primary,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColor.primary),
                   ),
                 ],
               ),
@@ -1032,7 +1015,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Daily breakdown
         if (dailyBreakdown.isNotEmpty) ...[
           _sectionLabel('Daily Charges'),
           const SizedBox(height: 8),
@@ -1040,20 +1022,15 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           const SizedBox(height: 8),
         ],
 
-        // Taxes
         if (taxBreakdown.isNotEmpty) ...[
           _sectionLabel('Taxes & Fees'),
           const SizedBox(height: 8),
           ...taxBreakdown.map(
-            (t) => _priceRow(
-              t['name'] ?? 'Tax',
-              '${t['currencyCode'] ?? 'USD'} ${(t['taxedAmount'] ?? 0.0).toStringAsFixed(2)}',
-            ),
+            (t) => _priceRow(t['name'] ?? 'Tax', '${t['currencyCode'] ?? 'USD'} ${(t['taxedAmount'] ?? 0.0).toStringAsFixed(2)}'),
           ),
           const SizedBox(height: 8),
         ],
 
-        // Promotions
         if (promoBreakdown.isNotEmpty) ...[
           _sectionLabel('Promotions Applied'),
           const SizedBox(height: 8),
@@ -1068,25 +1045,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.local_offer_rounded,
-                    size: 15,
-                    color: Colors.green[700],
-                  ),
+                  Icon(Icons.local_offer_rounded, size: 15, color: Colors.green[700]),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      p['name'] ?? 'Promotion',
-                      style: TextStyle(fontSize: 13, color: Colors.green[800]),
-                    ),
-                  ),
+                  Expanded(child: Text(p['name'] ?? 'Promotion', style: TextStyle(fontSize: 13, color: Colors.green[800]))),
                   Text(
                     '-${p['currencyCode'] ?? 'USD'} ${(p['discountAmount'] ?? 0.0).toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.green[700],
-                    ),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.green[700]),
                   ),
                 ],
               ),
@@ -1095,7 +1059,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           const SizedBox(height: 8),
         ],
 
-        // Totals summary
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -1105,21 +1068,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           ),
           child: Column(
             children: [
-              _priceRow(
-                'Subtotal',
-                '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['amountBeforeTax'] ?? 0).toStringAsFixed(2)}',
-              ),
+              _priceRow('Subtotal', '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['amountBeforeTax'] ?? 0).toStringAsFixed(2)}'),
               const SizedBox(height: 6),
-              _priceRow(
-                'Taxes & Fees',
-                '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['taxedAmount'] ?? 0).toStringAsFixed(2)}',
-              ),
+              _priceRow('Taxes & Fees', '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['taxedAmount'] ?? 0).toStringAsFixed(2)}'),
               if ((finalPrice['totalAddonAmount'] ?? 0) > 0) ...[
                 const SizedBox(height: 6),
-                _priceRow(
-                  'Add-ons',
-                  '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['totalAddonAmount'] ?? 0).toStringAsFixed(2)}',
-                ),
+                _priceRow('Add-ons', '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['totalAddonAmount'] ?? 0).toStringAsFixed(2)}'),
               ],
               if ((finalPrice['totalPromotionAmount'] ?? 0) > 0) ...[
                 const SizedBox(height: 6),
@@ -1136,17 +1090,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Total Amount',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                  ),
+                  const Text('Total Amount', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                   Text(
                     '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['totalAmount'] ?? 0).toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: AppColor.primary,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColor.primary),
                   ),
                 ],
               ),
@@ -1156,7 +1103,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
 
         const SizedBox(height: 14),
 
-        // Payment info
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
@@ -1165,12 +1111,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           ),
           child: Column(
             children: [
-              _infoTile(
-                'Payment Method',
-                booking['paymentMethod']?.replaceAll('_', ' ').toUpperCase() ??
-                    'N/A',
-                icon: Icons.credit_card_rounded,
-              ),
+              _infoTile('Payment Method', booking['paymentMethod']?.replaceAll('_', ' ').toUpperCase() ?? 'N/A', icon: Icons.credit_card_rounded),
               _infoTile(
                 'Paid Amount',
                 '${booking['currencyCode'] ?? 'USD'} ${(booking['paidAmount'] ?? 0).toStringAsFixed(2)}',
@@ -1181,9 +1122,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 'Extra to Pay',
                 '${booking['currencyCode'] ?? 'USD'} ${(booking['extraAmountToPay'] ?? 0).toStringAsFixed(2)}',
                 icon: Icons.pending_outlined,
-                valueColor: (booking['extraAmountToPay'] ?? 0) > 0
-                    ? Colors.orange[700]
-                    : Colors.green[700],
+                valueColor: (booking['extraAmountToPay'] ?? 0) > 0 ? Colors.orange[700] : Colors.green[700],
                 isLast: (booking['refundAmount'] ?? 0) <= 0,
               ),
               if ((booking['refundAmount'] ?? 0) > 0)
@@ -1215,20 +1154,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                day['date'] ?? '',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              Text(day['date'] ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
               Text(
                 '${day['currencyCode'] ?? 'USD'} ${(day['totalAmount'] ?? 0.0).toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: AppColor.primary,
-                  fontSize: 14,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w700, color: AppColor.primary, fontSize: 14),
               ),
             ],
           ),
@@ -1236,14 +1165,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Base Rate',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-              ),
-              Text(
-                '${day['currencyCode'] ?? 'USD'} ${(day['baseRate'] ?? 0.0).toStringAsFixed(2)}',
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-              ),
+              Text('Base Rate', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+              Text('${day['currencyCode'] ?? 'USD'} ${(day['baseRate'] ?? 0.0).toStringAsFixed(2)}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
             ],
           ),
           if ((day['additionalChargesAmount'] ?? 0) > 0) ...[
@@ -1251,14 +1174,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Additional',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                ),
-                Text(
-                  '${day['currencyCode'] ?? 'USD'} ${(day['additionalChargesAmount'] ?? 0.0).toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
+                Text('Additional', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                Text('${day['currencyCode'] ?? 'USD'} ${(day['additionalChargesAmount'] ?? 0.0).toStringAsFixed(2)}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
               ],
             ),
           ],
@@ -1269,21 +1186,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
 
   // ── Shared helpers ─────────────────────────────────────────────────────────
 
-  Widget _buildCard({
-    required IconData icon,
-    required String title,
-    required Widget child,
-  }) {
+  Widget _buildCard({required IconData icon, required String title, required Widget child}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 3)),
         ],
       ),
       child: Column(
@@ -1295,21 +1204,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               children: [
                 Container(
                   padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: AppColor.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  decoration: BoxDecoration(color: AppColor.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
                   child: Icon(icon, size: 16, color: AppColor.primary),
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.primary,
-                  ),
-                ),
+                Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColor.primary)),
               ],
             ),
           ),
@@ -1322,13 +1221,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
-  Widget _infoTile(
-    String label,
-    String value, {
-    IconData? icon,
-    Color? valueColor,
-    bool isLast = false,
-  }) {
+  Widget _infoTile(String label, String value, {IconData? icon, Color? valueColor, bool isLast = false}) {
     return Column(
       children: [
         Padding(
@@ -1341,27 +1234,19 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               ],
               SizedBox(
                 width: 110,
-                child: Text(
-                  label,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                ),
+                child: Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
               ),
               Expanded(
                 child: Text(
                   value,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: valueColor ?? const Color(0xFF1A1A2E),
-                  ),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: valueColor ?? const Color(0xFF1A1A2E)),
                   textAlign: TextAlign.right,
                 ),
               ),
             ],
           ),
         ),
-        if (!isLast)
-          Divider(height: 1, thickness: 0.5, color: Colors.grey[200]),
+        if (!isLast) Divider(height: 1, thickness: 0.5, color: Colors.grey[200]),
       ],
     );
   }
@@ -1373,12 +1258,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
         Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[700])),
         Text(
           value,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: valueColor ?? const Color(0xFF1A1A2E),
-          ),
-        ),
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: valueColor ?? const Color(0xFF1A1A2E)),        ),
       ],
     );
   }
@@ -1386,23 +1266,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   Widget _sectionLabel(String text) {
     return Row(
       children: [
-        Container(
-          width: 3,
-          height: 14,
-          decoration: BoxDecoration(
-            color: AppColor.primary,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
+        Container(width: 3, height: 14, decoration: BoxDecoration(color: AppColor.primary, borderRadius: BorderRadius.circular(2))),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: Colors.grey[700],
-          ),
-        ),
+        Text(text, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.grey[700])),
       ],
     );
   }

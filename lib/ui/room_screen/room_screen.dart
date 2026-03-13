@@ -10,6 +10,7 @@ import 'gallery_widget.dart';
 import 'rooms_list_widget.dart';
 import 'search_widget.dart'; // ← import your SearchWidget
 
+/// Main screen that displays rooms, amenities, and gallery for the selected hotel.
 class RoomScreen extends StatefulWidget {
   const RoomScreen({Key? key}) : super(key: key);
 
@@ -122,13 +123,13 @@ class _RoomScreenState extends State<RoomScreen> {
 
     if (searchController.hasSearchPayload()) {
       payload = searchController.getSearchPayload();
-      payload["PropertyCode"] = propertyCode;
+      payload["propertyCode"] = propertyCode;
     } else {
       final searchPayloadFromConfig =
           data['searchPayload'] as Map<String, dynamic>?;
       if (searchPayloadFromConfig != null) {
         payload = Map<String, dynamic>.from(searchPayloadFromConfig);
-        payload["PropertyCode"] = propertyCode;
+        payload["propertyCode"] = propertyCode;
       } else {
         setState(() => _errorMessage = 'no_search_payload');
         return;

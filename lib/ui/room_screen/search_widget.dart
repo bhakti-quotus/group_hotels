@@ -58,7 +58,7 @@ class _SearchWidgetState extends State<SearchWidget>
   DateTime checkIn = DateTime.now().add(const Duration(days: 1));
   DateTime checkOut = DateTime.now().add(const Duration(days: 2));
   int rooms = 1;
-  List<Map<String, int>> roomGuests = [];
+  List<Map<String, dynamic>> roomGuests = [];
   String propertyCode = '';
   String? hotelLogoUrl;
   String hotelName = '';
@@ -71,16 +71,16 @@ class _SearchWidgetState extends State<SearchWidget>
   late Animation<double> _panelFade;
 
   // ── Derived ────────────────────────────────────────────────────────────────
-  int get totalAdults => roomGuests.fold(0, (s, r) => s + r['adults']!);
-  int get totalChildren => roomGuests.fold(0, (s, r) => s + r['children']!);
+  int get totalChildren => roomGuests.fold<int>(0, (s, r) => s + (r['children'] as int));
+  int get totalAdults => roomGuests.fold<int>(0, (s, r) => s + (r['adults'] as int));
   int get totalGuests => totalAdults + totalChildren;
-  int get remainingSlots => (3 * rooms) - totalGuests;
+  int get remainingSlots => (4 * rooms) - totalGuests;
   int get totalNights => checkOut.difference(checkIn).inDays;
 
   @override
   void initState() {
     super.initState();
-    roomGuests = List.generate(rooms, (_) => {'adults': 1, 'children': 0});
+    _initializeRoomGuests();
     _loadConfig();
     _loadFromController();
 
@@ -94,6 +94,14 @@ class _SearchWidgetState extends State<SearchWidget>
       vsync: this,
       duration: const Duration(milliseconds: 2600),
     )..repeat();
+  }
+
+  void _initializeRoomGuests() {
+    roomGuests = List.generate(rooms, (_) => {
+      'adults': 1, 
+      'children': 0,
+      'childAges': <int>[] // Initialize empty ages list
+    });
   }
 
   @override
@@ -136,15 +144,27 @@ class _SearchWidgetState extends State<SearchWidget>
         checkIn = DateTime.parse(p['startDate']);
         checkOut = DateTime.parse(p['endDate']);
         final g = p['guests'] as Map<String, dynamic>;
-        rooms = g['rooms'] as int;
-        roomGuests = (g['roomsArray'] as List)
-            .map(
-              (r) => {
-                'adults': r['adults'] as int,
-                'children': r['children'] as int,
-              },
-            )
-            .toList();
+        rooms = g['rooms'] as int? ?? 1;
+        
+        // Handle roomsArray if it exists with child ages
+        if (g['roomsArray'] != null) {
+          roomGuests = (g['roomsArray'] as List)
+              .map(
+                (r) => {
+                  'adults': r['adults'] as int,
+                  'children': r['children'] as int,
+                  'childAges': List<int>.from(r['childAges'] ?? []),
+                },
+              )
+              .toList();
+        } else {
+          // Initialize with default values
+          roomGuests = List.generate(rooms, (_) => {
+            'adults': 1, 
+            'children': 0,
+            'childAges': <int>[]
+          });
+        }
       });
     }
   }
@@ -157,7 +177,7 @@ class _SearchWidgetState extends State<SearchWidget>
         roomGuests.addAll(
           List.generate(
             n - roomGuests.length,
-            (_) => {'adults': 1, 'children': 0},
+            (_) => {'adults': 1, 'children': 0, 'childAges': <int>[]},
           ),
         );
       } else if (n < roomGuests.length) {
@@ -167,28 +187,63 @@ class _SearchWidgetState extends State<SearchWidget>
   }
 
   void updateAdults(int i, int v) {
-    if (v + roomGuests[i]['children']! <= 3 && v >= 1)
+    if (v + roomGuests[i]['children']! <= 4 && v >= 1) {
       setState(() => roomGuests[i]['adults'] = v);
+    }
   }
 
   void updateChildren(int i, int v) {
-    if (roomGuests[i]['adults']! + v <= 3 && v >= 0)
-      setState(() => roomGuests[i]['children'] = v);
+    final currentAdults = roomGuests[i]['adults'] as int;
+    final currentChildren = roomGuests[i]['children'] as int;
+    final currentAges = List<int>.from(roomGuests[i]['childAges'] ?? []);
+    
+    if (currentAdults + v <= 4 && v >= 0) {
+      setState(() {
+        roomGuests[i]['children'] = v;
+        
+        // Adjust child ages list
+        if (v > currentChildren) {
+          // Adding children - initialize with default age 0
+          final childrenToAdd = v - currentChildren;
+          roomGuests[i]['childAges'] = [...currentAges, ...List.generate(childrenToAdd, (_) => 0)];
+        } else if (v < currentChildren) {
+          // Removing children - truncate the list
+          roomGuests[i]['childAges'] = currentAges.sublist(0, v);
+        }
+      });
+    }
+  }
+
+  void updateChildAge(int roomIndex, int childIndex, int age) {
+    if (age >= 0 && age <= 15) {
+      setState(() {
+        final ages = List<int>.from(roomGuests[roomIndex]['childAges'] ?? []);
+        if (childIndex < ages.length) {
+          ages[childIndex] = age;
+          roomGuests[roomIndex]['childAges'] = ages;
+        }
+      });
+    }
   }
 
   // ── Payload ────────────────────────────────────────────────────────────────
   Map<String, dynamic> get _payload => {
-    "PropertyCode": propertyCode,
+    "propertyCode": propertyCode,
     "startDate": checkIn.toIso8601String().split('T')[0],
     "endDate": checkOut.toIso8601String().split('T')[0],
     "guests": {
       "adults": totalAdults,
       "children": totalChildren,
       "rooms": rooms,
-      "roomsArray": roomGuests
-          .map((r) => {"adults": r['adults'], "children": r['children']})
-          .toList(),
+      "roomsArray": roomGuests.map((room) => {
+        "adults": room['adults'],
+        "children": room['children'],
+        "childAges": room['childAges'] ?? [],
+      }).toList(),
     },
+    "location": "",
+    "numberOfRooms": rooms,
+    "promocode": "",
   };
 
   // ── Date picker ────────────────────────────────────────────────────────────
@@ -442,11 +497,6 @@ class _SearchWidgetState extends State<SearchWidget>
     return Container(
       width: 90,
       height: 20,
-      // decoration: BoxDecoration(
-      //   borderRadius: BorderRadius.circular(10),
-      //   border: Border.all(color: _T.border, width: 1.2),
-      //   color: _T.surface,
-      // ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(9),
         child: (hotelLogoUrl != null && hotelLogoUrl!.isNotEmpty)
@@ -775,32 +825,7 @@ class _SearchWidgetState extends State<SearchWidget>
           _panelDivider(),
 
           if (rooms == 1) ...[
-            _buildCounter(
-              'ADULTS',
-              roomGuests[0]['adults']!,
-              Icons.person_outline_rounded,
-              () => updateAdults(0, roomGuests[0]['adults']! - 1),
-              () => updateAdults(0, roomGuests[0]['adults']! + 1),
-              minusEnabled: roomGuests[0]['adults']! > 1,
-              addEnabled:
-                  roomGuests[0]['adults']! + roomGuests[0]['children']! < 3,
-            ),
-            _panelDivider(),
-            _buildCounter(
-              'CHILDREN  0–17',
-              roomGuests[0]['children']!,
-              Icons.child_care_rounded,
-              () => updateChildren(
-                0,
-                roomGuests[0]['children']! > 0
-                    ? roomGuests[0]['children']! - 1
-                    : 0,
-              ),
-              () => updateChildren(0, roomGuests[0]['children']! + 1),
-              minusEnabled: roomGuests[0]['children']! > 0,
-              addEnabled:
-                  roomGuests[0]['adults']! + roomGuests[0]['children']! < 3,
-            ),
+            _buildGuestConfiguration(0),
           ] else
             ...List.generate(
               rooms,
@@ -830,36 +855,7 @@ class _SearchWidgetState extends State<SearchWidget>
                     ],
                   ),
                   const SizedBox(height: 10),
-                  _buildCounter(
-                    'ADULTS',
-                    roomGuests[idx]['adults']!,
-                    Icons.person_outline_rounded,
-                    () => updateAdults(idx, roomGuests[idx]['adults']! - 1),
-                    () => updateAdults(idx, roomGuests[idx]['adults']! + 1),
-                    minusEnabled: roomGuests[idx]['adults']! > 1,
-                    addEnabled:
-                        roomGuests[idx]['adults']! +
-                            roomGuests[idx]['children']! <
-                        3,
-                  ),
-                  _panelDivider(),
-                  _buildCounter(
-                    'CHILDREN  0–17',
-                    roomGuests[idx]['children']!,
-                    Icons.child_care_rounded,
-                    () => updateChildren(
-                      idx,
-                      roomGuests[idx]['children']! > 0
-                          ? roomGuests[idx]['children']! - 1
-                          : 0,
-                    ),
-                    () => updateChildren(idx, roomGuests[idx]['children']! + 1),
-                    minusEnabled: roomGuests[idx]['children']! > 0,
-                    addEnabled:
-                        roomGuests[idx]['adults']! +
-                            roomGuests[idx]['children']! <
-                        3,
-                  ),
+                  _buildGuestConfiguration(idx),
                   if (idx < rooms - 1)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -875,7 +871,22 @@ class _SearchWidgetState extends State<SearchWidget>
               Icon(Icons.info_outline_rounded, size: 12, color: _T.goldDim),
               const SizedBox(width: 7),
               Text(
-                'Maximum 3 guests per room  ·  $remainingSlots slot${remainingSlots == 1 ? '' : 's'} available',
+                'Maximum 4 guests per room · Children ages 0-15',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: _T.textMuted,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Row(
+            children: [
+              Icon(Icons.info_outline_rounded, size: 12, color: _T.goldDim),
+              const SizedBox(width: 7),
+              Text(
+                '$remainingSlots slot${remainingSlots == 1 ? '' : 's'} available',
                 style: TextStyle(
                   fontSize: 10,
                   color: _T.textMuted,
@@ -886,6 +897,146 @@ class _SearchWidgetState extends State<SearchWidget>
           ),
         ],
       ),
+    );
+  }
+
+  // ── Guest configuration for a single room ──────────────────────────────────
+  Widget _buildGuestConfiguration(int roomIndex) {
+    final room = roomGuests[roomIndex];
+    final adults = room['adults'] as int;
+    final children = room['children'] as int;
+    final childAges = List<int>.from(room['childAges'] ?? []);
+
+    return Column(
+      children: [
+        _buildCounter(
+          'ADULTS',
+          adults,
+          Icons.person_outline_rounded,
+          () => updateAdults(roomIndex, adults - 1),
+          () => updateAdults(roomIndex, adults + 1),
+          minusEnabled: adults > 1,
+          addEnabled: adults + children < 4,
+        ),
+        _panelDivider(),
+        _buildCounter(
+          'CHILDREN (0-15)',
+          children,
+          Icons.child_care_rounded,
+          () => updateChildren(roomIndex, children - 1),
+          () => updateChildren(roomIndex, children + 1),
+          minusEnabled: children > 0,
+          addEnabled: adults + children < 4,
+        ),
+        
+        // Child age selectors
+        if (children > 0) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: _T.border.withOpacity(0.5)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.cake_outlined, size: 14, color: _T.goldDim),
+                    const SizedBox(width: 6),
+                    Text(
+                      'CHILD AGES',
+                      style: TextStyle(
+                        fontSize: 9,
+                        letterSpacing: 1.5,
+                        color: _T.goldDim,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                ...List.generate(children, (childIndex) {
+                  final age = childIndex < childAges.length ? childAges[childIndex] : 0;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: _T.gold.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${childIndex + 1}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: _T.goldDim,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Child ${childIndex + 1} age',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: _T.textSub,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 80,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: _T.border),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<int>(
+                              value: age,
+                              isDense: true,
+                              icon: Icon(Icons.arrow_drop_down, color: _T.goldDim),
+                              items: List.generate(16, (i) => i).map((age) {
+                                return DropdownMenuItem<int>(
+                                  value: age,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 12),
+                                    child: Text(
+                                      age == 0 ? '0 (Infant)' : '$age years',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: _T.textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (newAge) {
+                                if (newAge != null) {
+                                  updateChildAge(roomIndex, childIndex, newAge);
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 

@@ -6,10 +6,14 @@ void showErrorDialog(
   BuildContext context,
   String message, {
   VoidCallback? onPressed,
+  bool barrierDismissible = false,
+  Color? iconColor,
+  String? title,
+  Color? buttonColor,
 }) {
   showDialog(
     context: context,
-    barrierDismissible: false,
+    barrierDismissible: barrierDismissible,
     builder: (BuildContext context) {
       return Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -23,13 +27,13 @@ void showErrorDialog(
                 height: 80,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: Colors.red.shade50,
+                  color: (iconColor ?? Colors.red).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.error_outline,
                   size: 50,
-                  color: Colors.red.shade400,
+                  color: iconColor ?? Colors.red.shade400,
                 ),
               ),
               const SizedBox(height: 20),
@@ -68,7 +72,7 @@ void showErrorDialog(
                         Navigator.of(context).pop();
                       },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade400,
+                    backgroundColor: buttonColor ?? Colors.red.shade400,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -94,10 +98,15 @@ void showSuccessDialog(
   BuildContext context,
   String message, {
   VoidCallback? onPressed,
+  bool barrierDismissible = false,
+  Color? iconColor,
+  String? title,
+  Color? buttonColor,
+  IconData? icon,
 }) {
   showDialog(
     context: context,
-    barrierDismissible: false,
+    barrierDismissible: barrierDismissible,
     builder: (BuildContext context) {
       return Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -106,26 +115,26 @@ void showSuccessDialog(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Success Icon with Animation
+              // Success Icon
               Container(
                 height: 80,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: AppColor.primary.withOpacity(0.1),
+                  color: (iconColor ?? Colors.green).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  Icons.check_circle_outline,
+                  icon ?? Icons.check_circle_outline,
                   size: 50,
-                  color: AppColor.primary,
+                  color: iconColor ?? Colors.green.shade400,
                 ),
               ),
               const SizedBox(height: 20),
 
               // Title
-              const Text(
-                'Success!',
-                style: TextStyle(
+              Text(
+                title ?? 'Success',
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -156,7 +165,7 @@ void showSuccessDialog(
                         Navigator.of(context).pop();
                       },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.primary,
+                    backgroundColor: buttonColor ?? Colors.green.shade400,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -164,7 +173,7 @@ void showSuccessDialog(
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Continue',
+                    'OK',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),

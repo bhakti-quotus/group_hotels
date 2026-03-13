@@ -60,7 +60,6 @@ class _AboutScreenState extends State<AboutScreen>
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _entranceCtrl.dispose();
     super.dispose();
