@@ -11,8 +11,7 @@ class AddonsScreen extends StatefulWidget {
 }
 
 class _AddonsScreenState extends State<AddonsScreen> {
-  final Map<String, int> _quantities = {};
-
+  final Map<String, int> _dateQuantities = {};
   // ── Parse arguments ───────────────────────────────────────
 
   late final List<dynamic> _addons;
@@ -21,6 +20,8 @@ class _AddonsScreenState extends State<AddonsScreen> {
   late final Map<String, Map<String, dynamic>> _groupedAddons;
   late final int _nightsCount;
   late final String _currency;
+  late final String _checkIn;
+  late final String _checkOut;
 
   @override
   void initState() {
@@ -38,9 +39,27 @@ class _AddonsScreenState extends State<AddonsScreen> {
     _currency = _groupedAddons.isNotEmpty
         ? _groupedAddons.values.first['currencyCode'] as String
         : 'USD';
+
+    _checkIn = args['startDate'] as String? ?? '';
+    _checkOut = args['endDate'] as String? ?? '';
+    print('CheckIn: $_checkIn | CheckOut: $_checkOut');
   }
 
   Map<String, Map<String, dynamic>> _buildGroupedAddons(List<dynamic> addons) {
+    final args = Get.arguments as Map<String, dynamic>;
+    final endDate = args['endDate'] as String? ?? '';
+
+    // ── Compute the last valid night (endDate - 1 day) ──
+    DateTime? lastValidNight;
+    if (endDate.isNotEmpty) {
+      try {
+        lastValidNight = DateTime.parse(
+          endDate,
+        ).subtract(const Duration(days: 1));
+      } catch (_) {}
+    }
+    // ────────────────────────────────────────────────────
+
     final Map<String, Map<String, dynamic>> grouped = {};
     for (var addon in addons) {
       if (addon == null) continue;
@@ -50,6 +69,25 @@ class _AddonsScreenState extends State<AddonsScreen> {
       if (addonData == null) continue;
       final addonId = addonData['id'];
       if (addonId == null) continue;
+
+      final addonDate = addonMap['date']?.toString() ?? '';
+
+      // ── Skip any date AFTER the last valid night ──
+      // ── Skip any date AFTER the last valid night ──
+      if (lastValidNight != null && addonDate.isNotEmpty) {
+        try {
+          final d = DateTime.parse(addonDate);
+          // Compare date only, ignore time component
+          final dDateOnly = DateTime(d.year, d.month, d.day);
+          final lastDateOnly = DateTime(
+            lastValidNight!.year,
+            lastValidNight!.month,
+            lastValidNight!.day,
+          );
+          if (dDateOnly.isAfter(lastDateOnly)) continue;
+        } catch (_) {}
+      }
+      // ─────────────────────────────────────────────
 
       if (!grouped.containsKey(addonId)) {
         final imgs = addonData['images'] as List? ?? [];
@@ -71,15 +109,20 @@ class _AddonsScreenState extends State<AddonsScreen> {
       } else {
         final existing = grouped[addonId]!;
         final dates = List<String>.from(existing['dates']);
-        dates.add(addonMap['date']?.toString() ?? '');
+        dates.add(addonDate);
         existing['dates'] = dates;
         existing['totalNights'] = dates.length;
       }
     }
     return grouped;
   }
-
   // ── Helpers ───────────────────────────────────────────────
+
+  int _totalQtyForAddon(String id) {
+    return _dateQuantities.entries
+        .where((e) => e.key.startsWith('$id::'))
+        .fold(0, (sum, e) => sum + e.value);
+  }
 
   String _rhythmText(String r) {
     switch (r) {
@@ -96,11 +139,16 @@ class _AddonsScreenState extends State<AddonsScreen> {
 
   List<Map<String, dynamic>> _selected() {
     final List<Map<String, dynamic>> s = [];
-    _quantities.forEach((id, qty) {
-      if (qty > 0 && _groupedAddons[id] != null) {
-        final a = Map<String, dynamic>.from(_groupedAddons[id]!);
-        a['quantity'] = qty;
-        s.add(a);
+    _groupedAddons.forEach((id, addon) {
+      final dates = (addon['dates'] as List?)?.cast<String>() ?? [];
+      for (final date in dates) {
+        final qty = _dateQuantities['$id::$date'] ?? 0;
+        if (qty > 0) {
+          final entry = Map<String, dynamic>.from(addon);
+          entry['quantity'] = qty;
+          entry['selectedDate'] = date;
+          s.add(entry);
+        }
       }
     });
     return s;
@@ -136,8 +184,7 @@ class _AddonsScreenState extends State<AddonsScreen> {
                       itemBuilder: (_, i) {
                         final addon = _groupedAddons.values.elementAt(i);
                         final id = addon['id'].toString();
-                        final qty = _quantities[id] ?? 0;
-                        return _buildAddonCard(addon, id, qty);
+                        return _buildAddonCard(addon, id);
                       },
                     ),
             ),
@@ -240,13 +287,14 @@ class _AddonsScreenState extends State<AddonsScreen> {
 
   // ── Addon Card ────────────────────────────────────────────
 
-  Widget _buildAddonCard(Map<String, dynamic> addon, String id, int qty) {
-    final isSelected = qty > 0;
+  Widget _buildAddonCard(Map<String, dynamic> addon, String id) {
+    final isSelected = _totalQtyForAddon(id) > 0;
     final image = addon['image'].toString();
     final description = addon['description'] as String? ?? '';
     final rhythm = _rhythmText(addon['postingRhythm'] as String? ?? '');
     final category = addon['category'] as String? ?? '';
     final variant = addon['variant'] as String? ?? '';
+    final addonDates = (addon['dates'] as List?)?.cast<String>() ?? [];
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -408,69 +456,199 @@ class _AddonsScreenState extends State<AddonsScreen> {
             ),
 
           // Divider + stepper row
-          Container(
-            height: 1,
-            color: isSelected
-                ? AppColor.primary.withOpacity(0.1)
-                : Colors.grey[100],
-          ),
+          Container(height: 1, color: Colors.grey[100]),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Total for selection
-                if (qty > 0)
-                  Text(
-                    'Subtotal: $_currency ${(addon['price'] as num) * qty}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColor.primary,
-                    ),
-                  )
-                else
-                  Text(
-                    'Add to your stay',
-                    style: TextStyle(fontSize: 12, color: AppColor.textLight),
-                  ),
-
-                // Quantity stepper
-                Row(
-                  children: [
-                    _stepperBtn(
-                      icon: Icons.remove_rounded,
-                      enabled: qty > 0,
-                      onTap: () => setState(() => _quantities[id] = qty - 1),
-                    ),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      width: 36,
-                      alignment: Alignment.center,
-                      child: Text(
-                        '$qty',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: qty > 0 ? AppColor.primary : AppColor.text,
-                        ),
-                      ),
-                    ),
-                    _stepperBtn(
-                      icon: Icons.add_rounded,
-                      enabled: true,
-                      onTap: () => setState(() => _quantities[id] = qty + 1),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+            child: addonDates.length > 1
+                ? _buildPerDateSteppers(addon, id)
+                : _buildSingleStepper(addon, id),
           ),
         ],
       ),
     );
   }
 
+  // ── Single Stepper (for one-time add-ons) ───────────────────────
+  Widget _buildSingleStepper(Map<String, dynamic> addon, String id) {
+    // single night — use the first date as key
+    final date =
+        ((addon['dates'] as List?)?.cast<String>() ?? []).firstOrNull ?? id;
+    final key = '$id::$date';
+    final qty = _dateQuantities[key] ?? 0;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        qty > 0
+            ? Text(
+                'Subtotal: $_currency ${(addon['price'] as num) * qty}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColor.primary,
+                ),
+              )
+            : Text(
+                'Add to your stay',
+                style: TextStyle(fontSize: 12, color: AppColor.textLight),
+              ),
+        Row(
+          children: [
+            _stepperBtn(
+              icon: Icons.remove_rounded,
+              enabled: qty > 0,
+              onTap: () => setState(() => _dateQuantities[key] = qty - 1),
+            ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              width: 36,
+              alignment: Alignment.center,
+              child: Text(
+                '$qty',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: qty > 0 ? AppColor.primary : AppColor.text,
+                ),
+              ),
+            ),
+            _stepperBtn(
+              icon: Icons.add_rounded,
+              enabled: true,
+              onTap: () => setState(() => _dateQuantities[key] = qty + 1),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ── Per-date Steppers (for add-ons that can be added per night) ───────────────────────
+
+  Widget _buildPerDateSteppers(Map<String, dynamic> addon, String id) {
+    final dates = (addon['dates'] as List?)?.cast<String>() ?? [];
+    final price = addon['price'] as num;
+    final totalQty = _totalQtyForAddon(id);
+    final totalNightPrice = totalQty * price;
+
+    String _fmt(String raw) {
+      try {
+        final d = DateTime.parse(raw);
+        const months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        return '${d.day} ${months[d.month - 1]}, ${days[d.weekday - 1]}';
+      } catch (_) {
+        return raw;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Select add-ons per nights',
+          style: TextStyle(fontSize: 11, color: AppColor.textLight),
+        ),
+        const SizedBox(height: 8),
+        ...dates.map((date) {
+          final key = '$id::$date';
+          final qty = _dateQuantities[key] ?? 0;
+          final active = qty > 0;
+          return Container(
+            margin: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: active
+                  ? AppColor.primary.withOpacity(0.07)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _fmt(date),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                    color: active ? AppColor.primary : AppColor.text,
+                  ),
+                ),
+                Row(
+                  children: [
+                    _stepperBtn(
+                      icon: Icons.remove_rounded,
+                      enabled: qty > 0,
+                      onTap: () =>
+                          setState(() => _dateQuantities[key] = qty - 1),
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 32,
+                      alignment: Alignment.center,
+                      child: Text(
+                        '$qty',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: active ? AppColor.primary : AppColor.text,
+                        ),
+                      ),
+                    ),
+                    _stepperBtn(
+                      icon: Icons.add_rounded,
+                      enabled: true,
+                      onTap: () =>
+                          setState(() => _dateQuantities[key] = qty + 1),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+        if (totalQty > 0) ...[
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColor.primary.withOpacity(0.07),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '$totalQty night${totalQty > 1 ? 's' : ''} selected',
+                  style: TextStyle(fontSize: 12, color: AppColor.primary),
+                ),
+                Text(
+                  'Subtotal: $_currency $totalNightPrice',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColor.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
   // ── Stepper Button ────────────────────────────────────────
 
   Widget _stepperBtn({

@@ -820,6 +820,8 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               () => const AddonsScreen(),
               arguments: {
                 'addons': addonsData,
+                'startDate': startDate, // ✅ add this
+                'endDate': endDate, // ✅ add this
                 'onAdd': (List<Map<String, dynamic>> sel) => _proceedToBooking(
                   room: room,
                   ratePlan: ratePlan,
