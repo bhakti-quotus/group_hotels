@@ -19,6 +19,11 @@ class RoomsListWidget extends StatefulWidget {
   final VoidCallback? onRefresh;
   final Color primaryColor;
   final String propertyId;
+  
+  // Add these new parameters for loyalty data
+  final Map<String, dynamic>? propertyDetails;
+  final Map<String, dynamic>? propertyVideos;
+  final Map<String, dynamic>? loyaltyConfig;
 
   const RoomsListWidget({
     Key? key,
@@ -32,6 +37,11 @@ class RoomsListWidget extends StatefulWidget {
     this.onRefresh,
     required this.primaryColor,
     this.propertyId = '',
+    
+    // Add these
+    this.propertyDetails,
+    this.propertyVideos,
+    this.loyaltyConfig,
   }) : super(key: key);
 
   @override
@@ -105,7 +115,9 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader(),
+            const SizedBox(height: 12),
             const SizedBox(height: 18),
+
             if (widget.errorMessage != null)
               _buildErrorState()
             else if (widget.rooms.isEmpty)
@@ -133,6 +145,10 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                             propertyCode: widget.propertyCode,
                             hotelName: widget.hotelName,
                             propertyId: widget.propertyId,
+                            // Pass loyalty data to room card
+                            propertyDetails: widget.propertyDetails,
+                            propertyVideos: widget.propertyVideos,
+                            loyaltyConfig: widget.loyaltyConfig,
                           ),
                         )
                         .toList(),
@@ -406,6 +422,11 @@ class _RoyalRoomCard extends StatefulWidget {
   final String propertyCode;
   final String hotelName;
   final String propertyId;
+  
+  // Add these parameters
+  final Map<String, dynamic>? propertyDetails;
+  final Map<String, dynamic>? propertyVideos;
+  final Map<String, dynamic>? loyaltyConfig;
 
   const _RoyalRoomCard({
     required this.room,
@@ -414,6 +435,11 @@ class _RoyalRoomCard extends StatefulWidget {
     required this.propertyCode,
     required this.hotelName,
     required this.propertyId,
+    
+    // Add these
+    this.propertyDetails,
+    this.propertyVideos,
+    this.loyaltyConfig,
   });
 
   @override
@@ -546,16 +572,11 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
-                      // if (amenities.isNotEmpty) ...[
-                      //   const SizedBox(height: 16),
-                      //   _AmenitiesStrip(amenities: amenities),
-                      // ],
-                      // const SizedBox(height: 20),
                     ],
                   ),
                 ),
 
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 // ── Gradient divider ──
                 Container(
                   height: 1,
@@ -579,6 +600,10 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
                   propertyCode: widget.propertyCode,
                   hotelName: widget.hotelName,
                   propertyId: widget.propertyId,
+                  // Pass loyalty data to button
+                  propertyDetails: widget.propertyDetails,
+                  propertyVideos: widget.propertyVideos,
+                  loyaltyConfig: widget.loyaltyConfig,
                 ),
               ],
             ),
@@ -705,7 +730,6 @@ class _RoyalImageCarouselState extends State<_RoyalImageCarousel> {
             ),
           ),
 
-          // Rest of your UI (badge, counter, dots) remains the same
           // Bottom vignette
           Positioned(
             bottom: 0,
@@ -833,67 +857,6 @@ class _MetaChip extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-//  Amenities Strip
-// ─────────────────────────────────────────────
-class _AmenitiesStrip extends StatelessWidget {
-  final List amenities;
-
-  const _AmenitiesStrip({required this.amenities});
-
-  IconData _icon(String name) {
-    final s = name.toLowerCase();
-    if (s.contains('wifi')) return Icons.wifi_rounded;
-    if (s.contains('ac') || s.contains('air')) return Icons.ac_unit_rounded;
-    if (s.contains('tv')) return Icons.tv_rounded;
-    if (s.contains('breakfast')) return Icons.free_breakfast_rounded;
-    if (s.contains('parking')) return Icons.local_parking_rounded;
-    if (s.contains('pool')) return Icons.pool_rounded;
-    if (s.contains('gym')) return Icons.fitness_center_rounded;
-    if (s.contains('spa')) return Icons.spa_rounded;
-    if (s.contains('bar')) return Icons.local_bar_rounded;
-    if (s.contains('bath') || s.contains('tub')) return Icons.bathtub_rounded;
-    return Icons.check_circle_outline_rounded;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: amenities.take(5).map((a) {
-        final name = a is Map ? (a['name'] ?? a.toString()) : a.toString();
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColor.primary.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: AppColor.primary.withOpacity(0.15),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(_icon(name), size: 13, color: AppColor.secondary),
-              const SizedBox(width: 5),
-              Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 11.5,
-                  color: AppColor.textLight,
-                  letterSpacing: 0.1,
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
 //  View Details Button
 // ─────────────────────────────────────────────
 class _ViewDetailsButton extends StatefulWidget {
@@ -902,6 +865,11 @@ class _ViewDetailsButton extends StatefulWidget {
   final String propertyCode;
   final String hotelName;
   final String propertyId;
+  
+  // Add these parameters
+  final Map<String, dynamic>? propertyDetails;
+  final Map<String, dynamic>? propertyVideos;
+  final Map<String, dynamic>? loyaltyConfig;
 
   const _ViewDetailsButton({
     required this.room,
@@ -909,6 +877,11 @@ class _ViewDetailsButton extends StatefulWidget {
     required this.propertyCode,
     required this.hotelName,
     required this.propertyId,
+    
+    // Add these
+    this.propertyDetails,
+    this.propertyVideos,
+    this.loyaltyConfig,
   });
 
   @override
@@ -919,39 +892,107 @@ class _ViewDetailsButtonState extends State<_ViewDetailsButton> {
   bool _pressed = false;
 
   void _navigate() {
-    try {
-      final searchController = Get.find<search_ctrl.AppSearchController>();
-      final searchPayload = Map<String, dynamic>.from(
-        searchController.searchPayload.value,
-      );
-      final shortPropertyCode =
-          searchPayload['PropertyCode'] as String? ??
-          searchPayload['propertyCode'] as String? ??
-          widget.propertyCode;
+  try {
+    final searchController = Get.find<search_ctrl.AppSearchController>();
+    final searchPayload = Map<String, dynamic>.from(
+      searchController.searchPayload.value,
+    );
+    final shortPropertyCode =
+        searchPayload['PropertyCode'] as String? ??
+        searchPayload['propertyCode'] as String? ??
+        widget.propertyCode;
 
-      Get.toNamed(
-        '/room-details',
-        arguments: {
-          'room': widget.room,
-          'totalGuests': widget.totalGuests,
-          'propertyCode': shortPropertyCode,
-          'hotelName': widget.hotelName,
-          'propertyId': widget.propertyId,
-        },
-      );
-    } catch (_) {
-      Get.toNamed(
-        '/room-details',
-        arguments: {
-          'room': widget.room,
-          'totalGuests': widget.totalGuests,
-          'propertyCode': widget.propertyCode,
-          'hotelName': widget.hotelName,
-          'propertyId': widget.propertyId,
-        },
-      );
+    // Extract loyalty data with proper null safety
+    final loyaltyConfig = widget.loyaltyConfig;
+    final propertyVideos = widget.propertyVideos;
+    final propertyDetails = widget.propertyDetails;
+    
+    final basicLoyaltyProgram = loyaltyConfig?['BasicLoyaltyProgram'];
+    final loyaltyConditions = loyaltyConfig?['loyaltyConditions'] as List?;
+    final loyaltySpecialConditions = loyaltyConfig?['loyaltySpecialConditions'] as List?;
+    
+    // Safely get terms text
+    String? termsText;
+    if (loyaltyConditions != null && loyaltyConditions.isNotEmpty) {
+      final firstCondition = loyaltyConditions[0];
+      if (firstCondition is Map) {
+        termsText = firstCondition['text'] as String?;
+      }
     }
+    
+    // Safely get benefits title and subtitle
+    String? benefitsTitle;
+    String? benefitsSubtitle;
+    if (loyaltySpecialConditions != null && loyaltySpecialConditions.isNotEmpty) {
+      final firstSpecial = loyaltySpecialConditions[0];
+      if (firstSpecial is Map) {
+        benefitsTitle = firstSpecial['title'] as String?;
+        benefitsSubtitle = firstSpecial['subTitle'] as String?;
+      }
+    }
+    
+    // Safely get logo URL
+    String? logoUrl;
+    if (basicLoyaltyProgram != null) {
+      final logoList = basicLoyaltyProgram['logo'] as List?;
+      if (logoList != null && logoList.isNotEmpty) {
+        logoUrl = logoList[0] as String?;
+      }
+    }
+    
+    // Create loyalty data object with proper fallbacks
+    final loyaltyData = {
+      'discountValue': loyaltyConfig?['discountValue'] ?? 10,
+      'termsText': termsText ?? "Member-Only Rates\nEnjoy special discounted prices.",
+      'benefitsTitle': benefitsTitle ?? "VIP Perks",
+      'benefitsSubtitle': benefitsSubtitle ?? "Exclusive benefits for members.",
+      'videoUrl': propertyVideos?['url'],
+      'videoThumbnail': propertyVideos?['thumbnail'],
+      'logoUrl': logoUrl,
+      'propertyName': propertyDetails?['propertyName'] ?? widget.hotelName,
+    };
+    
+    print('Sending loyalty data: $loyaltyData'); // Debug print
+
+    Get.toNamed(
+      '/room-details',
+      arguments: {
+        'room': widget.room,
+        'totalGuests': widget.totalGuests,
+        'propertyCode': shortPropertyCode,
+        'hotelName': widget.hotelName,
+        'propertyId': widget.propertyId,
+        'propertyDetails': propertyDetails,
+        'loyaltyData': loyaltyData,
+      },
+    );
+  } catch (e) {
+    print("Error navigating to room details: $e");
+    
+    // Fallback navigation with default loyalty data
+    Get.toNamed(
+      '/room-details',
+      arguments: {
+        'room': widget.room,
+        'totalGuests': widget.totalGuests,
+        'propertyCode': widget.propertyCode,
+        'hotelName': widget.hotelName,
+        'propertyId': widget.propertyId,
+        'propertyDetails': widget.propertyDetails,
+        'loyaltyData': {
+          'discountValue': 10,
+          'termsText': "Member-Only Rates\nEnjoy special discounted prices.",
+          'benefitsTitle': "VIP Perks",
+          'benefitsSubtitle': "Exclusive benefits for members.",
+          'videoUrl': null,
+          'videoThumbnail': null,
+          'logoUrl': null,
+          'propertyName': widget.hotelName,
+        },
+      },
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -1000,7 +1041,7 @@ class _ViewDetailsButtonState extends State<_ViewDetailsButton> {
                 letterSpacing: 0.8,
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.white),
           ],
         ),

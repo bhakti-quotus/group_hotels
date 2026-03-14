@@ -8,7 +8,8 @@ import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
 import 'amenities_widget.dart';
 import 'gallery_widget.dart';
 import 'rooms_list_widget.dart';
-import 'search_widget.dart'; // ← import your SearchWidget
+import 'search_widget.dart';
+import 'loyality_program_card.dart';
 
 class RoomScreen extends StatefulWidget {
   const RoomScreen({Key? key}) : super(key: key);
@@ -28,6 +29,11 @@ class _RoomScreenState extends State<RoomScreen> {
   String hotelName = '';
   Map<String, dynamic> _lastPayload = {};
   String _loadedPropertyCode = '';
+
+  // Loyalty data
+  Map<String, dynamic>? _propertyDetails;
+  Map<String, dynamic>? _propertyVideos;
+  Map<String, dynamic>? _loyaltyConfig;
 
   @override
   void initState() {
@@ -50,7 +56,7 @@ class _RoomScreenState extends State<RoomScreen> {
       SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(
           statusBarColor: _showGreenStatusBar
-              ? AppColor.primary
+              ? BrandingColors.primary
               : Colors.transparent,
           statusBarIconBrightness: _showGreenStatusBar
               ? Brightness.light
@@ -98,6 +104,22 @@ class _RoomScreenState extends State<RoomScreen> {
 
         hotelName = selectedHotel['name']?.toString() ?? '';
         _loadedPropertyCode = propertyCode;
+
+        // Extract loyalty data from hotel config (local config fallback)
+        _propertyDetails =
+            hotelConfig['propertyDetails'] as Map<String, dynamic>?;
+        _propertyVideos =
+            hotelConfig['propertyVideos'] as Map<String, dynamic>?;
+
+        // Try to extract loyaltyConfig from local config using the same
+        // nested path that the API uses, falling back to a flat key.
+        final localLoyaltyProgram = _propertyDetails?['loyaltyProgramConfig']
+            as Map<String, dynamic>?;
+        final localCreationConfig =
+            localLoyaltyProgram?['CreationLoyaltyConfig']
+                as Map<String, dynamic>?;
+        _loyaltyConfig =
+            localCreationConfig ?? hotelConfig['loyaltyConfig'] as Map<String, dynamic>?;
       });
 
       if (propertyCode.isNotEmpty) {
@@ -148,31 +170,62 @@ class _RoomScreenState extends State<RoomScreen> {
       final result = await apiController.fetchRooms(payload);
 
       if (!mounted) return;
+      print('result');
+      print(result);
 
       setState(() {
         if (result['success']) {
           final apiData = result['data'] as Map<String, dynamic>;
 
+          // ── Rooms ────────────────────────────────────────────────────
           if (apiData['rooms'] != null) {
             data['rooms'] = apiData['rooms'];
           } else {
-            final selectedHotel = Get.find<HotelController>()
-                .getSelectedHotel();
+            final selectedHotel =
+                Get.find<HotelController>().getSelectedHotel();
             data['rooms'] = selectedHotel?['config']?['rooms'] ?? [];
           }
 
+          // ── Property details + loyalty (correct nested path) ─────────
+          //
+          // API shape:
+          //   data.propertyDetails.loyaltyProgramConfig.CreationLoyaltyConfig
+          //   data.propertyDetails.propertyVideos
+          //
           if (apiData['propertyDetails'] != null) {
             data['propertyDetails'] = apiData['propertyDetails'];
-          } else {
-            final selectedHotel = Get.find<HotelController>()
-                .getSelectedHotel();
-            data['propertyDetails'] = {
-              'id': selectedHotel?['config']?['hotelId'] ?? '',
-            };
+            _propertyDetails =
+                apiData['propertyDetails'] as Map<String, dynamic>;
+
+            // ✅ Extract loyaltyConfig from the correct nested path
+            final loyaltyProgramConfig =
+                _propertyDetails?['loyaltyProgramConfig']
+                    as Map<String, dynamic>?;
+            final creationLoyaltyConfig =
+                loyaltyProgramConfig?['CreationLoyaltyConfig']
+                    as Map<String, dynamic>?;
+
+            if (creationLoyaltyConfig != null) {
+              _loyaltyConfig = creationLoyaltyConfig;
+              print('✅ loyaltyConfig loaded: $_loyaltyConfig');
+            } else {
+              print('⚠️ CreationLoyaltyConfig not found in API response');
+            }
+
+            // ✅ Extract propertyVideos from the correct nested path
+            final videos =
+                _propertyDetails?['propertyVideos'] as Map<String, dynamic>?;
+            if (videos != null) {
+              _propertyVideos = videos;
+              print('✅ propertyVideos loaded: $_propertyVideos');
+            } else {
+              print('⚠️ propertyVideos not found in API response');
+            }
           }
 
           final rooms =
-              (data['rooms'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ??
+              (data['rooms'] as List<dynamic>?)
+                  ?.cast<Map<String, dynamic>>() ??
               [];
           _errorMessage = rooms.isEmpty ? 'no_rooms' : null;
         } else {
@@ -287,7 +340,7 @@ class _RoomScreenState extends State<RoomScreen> {
                 icon: const Icon(Icons.refresh),
                 label: Text(
                   'Try Again',
-                  style: TextStyle(color: AppColor.primary),
+                  style: TextStyle(color: BrandingColors.primary),
                 ),
                 style: ElevatedButton.styleFrom(
                   iconColor: AppColor.primary,
@@ -334,7 +387,8 @@ class _RoomScreenState extends State<RoomScreen> {
     } else if (data.isNotEmpty) {
       branding = data['branding'] as Map<String, dynamic>? ?? {};
       amenities =
-          (data['amenities'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ??
+          (data['amenities'] as List<dynamic>?)
+              ?.cast<Map<String, dynamic>>() ??
           [];
     }
 
@@ -375,10 +429,9 @@ class _RoomScreenState extends State<RoomScreen> {
 
           // ── SEARCH WIDGET (pinned at top, outside scroll) ─────────────
           SearchWidget(
-            update: true, // tells widget we're in "update" mode
-            showEditText:
-                true, // shows "UPDATE SEARCH" instead of "SEARCH ROOMS"
-            onModifySearch: _onSearchModified, // re-fetch when user updates
+            update: true,
+            showEditText: true,
+            onModifySearch: _onSearchModified,
           ),
 
           // ── BODY ──────────────────────────────────────────────────────
@@ -391,7 +444,7 @@ class _RoomScreenState extends State<RoomScreen> {
                     controller: _scrollController,
                     child: Column(
                       children: [
-                        // Rooms List
+                        // Rooms List with loyalty data
                         RoomsListWidget(
                           rooms: rooms,
                           totalGuests: totalGuests,
@@ -404,6 +457,11 @@ class _RoomScreenState extends State<RoomScreen> {
                           primaryColor: primaryColor,
                           propertyId:
                               data['propertyDetails']?['id']?.toString() ?? '',
+
+                          // ✅ Pass correctly extracted loyalty data
+                          propertyDetails: _propertyDetails,
+                          propertyVideos: _propertyVideos,
+                          loyaltyConfig: _loyaltyConfig,
                         ),
 
                         // Amenities
