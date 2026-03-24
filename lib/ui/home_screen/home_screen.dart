@@ -31,9 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     // Print the ENTIRE config to see what we're working with
-    print('========== COMPLETE CONFIG ==========');
-    print(jsonEncode(widget.config));
-    print('=====================================');
+   // print('========== COMPLETE CONFIG ==========');
+    //print(jsonEncode(widget.config));
+   // print('=====================================');
 
     loadData();
     _scrollController.addListener(_onScroll);
@@ -73,10 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void loadData() {
-    print('========== LOADING DATA ==========');
+   // print('========== LOADING DATA ==========');
 
     // Print all top-level keys in widget.config
-    print('Top-level keys in widget.config: ${widget.config.keys.toList()}');
+   // print('Top-level keys in widget.config: ${widget.config.keys.toList()}');
 
     // Try to find about data in various possible locations
     Map<String, dynamic>? foundAboutData;
@@ -84,17 +84,17 @@ class _HomeScreenState extends State<HomeScreen> {
     // Location 1: Direct about key
     if (widget.config.containsKey('about')) {
       foundAboutData = widget.config['about'] as Map<String, dynamic>?;
-      print('Found about at top level: ${foundAboutData != null}');
+     // print('Found about at top level: ${foundAboutData != null}');
     }
 
     // Location 2: Inside config key
     if (foundAboutData == null && widget.config.containsKey('config')) {
       final innerConfig = widget.config['config'] as Map<String, dynamic>?;
-      print('Inner config keys: ${innerConfig?.keys.toList()}');
+      //print('Inner config keys: ${innerConfig?.keys.toList()}');
 
       if (innerConfig != null && innerConfig.containsKey('about')) {
         foundAboutData = innerConfig['about'] as Map<String, dynamic>?;
-        print('Found about inside config key: ${foundAboutData != null}');
+       // print('Found about inside config key: ${foundAboutData != null}');
       }
     }
 
@@ -103,20 +103,20 @@ class _HomeScreenState extends State<HomeScreen> {
       final data = widget.config['data'] as Map<String, dynamic>?;
       if (data != null && data.containsKey('about')) {
         foundAboutData = data['about'] as Map<String, dynamic>?;
-        print('Found about inside data key: ${foundAboutData != null}');
+       // print('Found about inside data key: ${foundAboutData != null}');
       }
     }
 
     setState(() {
       if (foundAboutData != null) {
         aboutData = foundAboutData;
-        print('✅ ABOUT DATA LOADED SUCCESSFULLY');
-        print('   Title: ${aboutData['title']}');
-        print(
-          '   Description preview: ${aboutData['description']?.toString().substring(0, 50)}...',
-        );
+        //print('✅ ABOUT DATA LOADED SUCCESSFULLY');
+       // print('   Title: ${aboutData['title']}');
+       // print(
+       //   '   Description preview: ${aboutData['description']?.toString().substring(0, 50)}...',
+       // );
       } else {
-        print('❌ COULD NOT FIND ABOUT DATA ANYWHERE');
+       // print('❌ COULD NOT FIND ABOUT DATA ANYWHERE');
         aboutData = {};
       }
 
@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
 
-    print('==================================');
+   // print('==================================');
   }
 
   Map<String, dynamic>? getSectionByType(String type) {
@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('Building HomeScreen - aboutData isEmpty: ${aboutData.isEmpty}');
+   // print('Building HomeScreen - aboutData isEmpty: ${aboutData.isEmpty}');
 
     final heroBanner = getSectionByType('heroBanner');
     final highlights = getSectionByType('highlights');

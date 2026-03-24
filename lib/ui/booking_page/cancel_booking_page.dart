@@ -85,9 +85,9 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
         'bookingSource': _bookingData!['bookingSource'] ?? '',
       };
 
-      print('=== CANCEL BOOKING PAYLOAD ===');
-      print('Reservation ID: $reservationId');
-      print('Payload: $payload');
+     // print('=== CANCEL BOOKING PAYLOAD ===');
+     // print('Reservation ID: $reservationId');
+    //  print('Payload: $payload');
 
       final result = await _apiController.cancelBooking(
         reservationId: reservationId,

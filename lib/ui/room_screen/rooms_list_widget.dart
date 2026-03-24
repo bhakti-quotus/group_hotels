@@ -126,8 +126,8 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
               Builder(
                 builder: (context) {
                   final validRooms = widget.rooms.where((room) {
-                    final hasValidRate = room['has_valid_rate'] == true;
-                    final roomPrice = room['room_price'] as List? ?? [];
+                    final hasValidRate = room['hasValidRate'] == true;
+                    final roomPrice = room['roomPrice'] as List? ?? [];
                     return hasValidRate && roomPrice.isNotEmpty;
                   }).toList();
 
@@ -473,6 +473,8 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
   @override
   Widget build(BuildContext context) {
     final room = widget.room;
+    //debugPrint('roomdata from api ${room}');
+    print('Room JSON: ${widget.room}');
     final images = room['images'] as List? ?? [];
     final roomName = room['room_name'] ?? room['name'] ?? 'Luxury Suite';
     final roomType = room['room_type'] ?? room['type'] ?? '';
@@ -952,7 +954,7 @@ class _ViewDetailsButtonState extends State<_ViewDetailsButton> {
       'propertyName': propertyDetails?['propertyName'] ?? widget.hotelName,
     };
     
-    print('Sending loyalty data: $loyaltyData'); // Debug print
+   // print('Sending loyalty data: $loyaltyData'); // Debug print
 
     Get.toNamed(
       '/room-details',
@@ -967,7 +969,7 @@ class _ViewDetailsButtonState extends State<_ViewDetailsButton> {
       },
     );
   } catch (e) {
-    print("Error navigating to room details: $e");
+   // print("Error navigating to room details: $e");
     
     // Fallback navigation with default loyalty data
     Get.toNamed(

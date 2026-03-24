@@ -78,7 +78,7 @@ class AppSearchController extends GetxController {
   }
 
   void updateSearchPayload(Map<String, dynamic> payload) {
-    print("AppSearchController: Updating search payload with: $payload");
+   // print("AppSearchController: Updating search payload with: $payload");
 
     // Create a deep copy to ensure reactivity
     final Map<String, dynamic> newPayload = Map<String, dynamic>.from(payload);
@@ -159,9 +159,9 @@ class AppSearchController extends GetxController {
 
     searchPayload.value = newPayload;
     searchPayload.refresh(); // Force UI update
-    print(
-      "AppSearchController: Updated search payload: ${searchPayload.value}",
-    );
+   // print(
+   //   "AppSearchController: Updated search payload: ${searchPayload.value}",
+   // );
   }
 
   // Check if search payload has valid data

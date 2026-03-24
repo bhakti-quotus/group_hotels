@@ -12,7 +12,7 @@ import 'dart:convert';
 import '../booking_page/booking_page_new.dart';
 import 'package:group/group/controllers/api_controller.dart';
 import 'dart:async';
-import 'loyality_program_card.dart';
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PERSISTENT DISCOUNT SESSION
@@ -1039,7 +1039,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               ],
               flexibleSpace: FlexibleSpaceBar(
                 stretchModes: const [StretchMode.zoomBackground],
-                background: _buildHeroImageArea(args, room),
+                background: _buildHeroImageArea(),
               ),
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(0),

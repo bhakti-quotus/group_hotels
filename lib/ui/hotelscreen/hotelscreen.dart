@@ -1032,7 +1032,7 @@ class _HotelCardState extends State<_HotelCard>
     // ✅ Use the proper multi-fallback resolver
     final heroImage = _resolveHeroImage(hotelConfig, hotelBranding, rooms);
 
-    debugPrint('🏨 Card[$hotelName] heroImage=$heroImage');
+    //debugPrint('🏨 Card[$hotelName] heroImage=$heroImage');
 
     return GestureDetector(
       onTapDown: (_) => _pressCtrl.reverse(),

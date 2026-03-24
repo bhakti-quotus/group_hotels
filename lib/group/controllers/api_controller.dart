@@ -46,7 +46,7 @@ class ApiController extends GetxController {
   Future<Map<String, dynamic>> fetchRooms(Map<String, dynamic> payload) async {
     await _ensureConfigLoaded();
     // print('api url for fetch room $_baseUrl/booking-engine/fetch-rooms');
-    print('fetchroom method called');
+   // print('fetchroom method called');
     try {
       final response = await http
           .post(
@@ -58,9 +58,9 @@ class ApiController extends GetxController {
           )
           .timeout(const Duration(seconds: 10));
 
-print('payload for fetch room: $payload');
+//print('payload for fetch room: $payload');
       final decoded = json.decode(response.body);
-      print('fetch room response: $decoded');
+      //print('fetch room response: $decoded');
 
       if (response.statusCode == 200 && decoded['success'] == true) {
         return {
@@ -89,14 +89,14 @@ print('payload for fetch room: $payload');
 
     try {
       // Print the payload being sent
-      print('========== GET PRICE PAYLOAD ==========');
-      print(
-        'URL: https://bookings.revchilltech.com/api/v1/booking-engine/pricing/get-price',
-      );
-      print('Payload: ${json.encode(payload)}');
-      print('Formatted Payload:');
+     // print('========== GET PRICE PAYLOAD ==========');
+      //print(
+      //  'URL: https://bookings.revchilltech.com/api/v1/booking-engine/pricing/get-price',
+      //);
+     // print('Payload: ${json.encode(payload)}');
+     // print('Formatted Payload:');
       _prettyPrintJson(payload);
-      print('=======================================');
+     // print('=======================================');
       final response = await http
           .post(
             Uri.parse(
@@ -109,12 +109,12 @@ print('payload for fetch room: $payload');
 
       final decoded = json.decode(response.body);
       // Print the response
-      print('========== GET PRICE RESPONSE ==========');
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-      print('Formatted Response:');
+     // print('========== GET PRICE RESPONSE ==========');
+     // print('Status Code: ${response.statusCode}');
+     // print('Response Body: ${response.body}');
+     // print('Formatted Response:');
       _prettyPrintJson(decoded);
-      print('========================================');
+     // print('========================================');
 
       if (response.statusCode == 200 && decoded['success'] == true) {
         return {'success': true, 'data': decoded['data']};
@@ -133,10 +133,10 @@ print('payload for fetch room: $payload');
   void _prettyPrintJson(Map<String, dynamic> json) {
     try {
       String prettyString = const JsonEncoder.withIndent('  ').convert(json);
-      print(prettyString);
+     // print(prettyString);
     } catch (e) {
-      print('Error formatting JSON: $e');
-      print(json);
+     // print('Error formatting JSON: $e');
+     // print(json);
     }
   }
 
@@ -146,7 +146,7 @@ print('payload for fetch room: $payload');
     await _ensureConfigLoaded();
 
     try {
-      print("propertyId from controller : $propertyId");
+     // print("propertyId from controller : $propertyId");
       final response = await http
           .get(
             Uri.parse(
@@ -157,7 +157,7 @@ print('payload for fetch room: $payload');
           .timeout(const Duration(seconds: 10));
 
       final decoded = json.decode(response.body);
-      print(decoded);
+     // print(decoded);
 
       if (response.statusCode == 200 && decoded['success'] == true) {
         return {'success': true, 'data': decoded['data']};
@@ -180,8 +180,8 @@ print('payload for fetch room: $payload');
     await _ensureConfigLoaded();
 
     try {
-      print('=== COMPLETE BOOKING DEBUG ===');
-      print('Payload being sent: ${json.encode(payload)}');
+     // print('=== COMPLETE BOOKING DEBUG ===');
+     // print('Payload being sent: ${json.encode(payload)}');
 
       final response = await http
           .post(
@@ -193,20 +193,20 @@ print('payload for fetch room: $payload');
           )
           .timeout(const Duration(seconds: 15));
 
-      print('Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      //print('Status code: ${response.statusCode}');
+      //print('Response body: ${response.body}');
 
       final decoded = json.decode(response.body);
 
       if ((response.statusCode == 200 || response.statusCode == 201) &&
           decoded['success'] == true) {
         try {
-          print('Saving to Hive...');
+         // print('Saving to Hive...');
           await hiveService.saveBooking(decoded);
-          print('Hive save successful');
+         // print('Hive save successful');
           return {'success': true, 'data': decoded['data']};
         } catch (hiveError) {
-          print('Hive save failed: $hiveError');
+         // print('Hive save failed: $hiveError');
           // Still return success since API call worked
           return {'success': true, 'data': decoded['data']};
         }
@@ -217,7 +217,7 @@ print('payload for fetch room: $payload');
         'error': decoded['message'] ?? 'Failed to complete booking',
       };
     } catch (e) {
-      print('Exception in completeBooking: $e');
+     // print('Exception in completeBooking: $e');
       return {'success': false, 'error': 'Error: $e'};
     }
   }
@@ -235,13 +235,13 @@ print('payload for fetch room: $payload');
       final requestBody = json.encode(payload);
 
       // Print the request body being sent
-      print('=== REQUEST ===');
-      print(
-        'URL: $_pmsUrl/pms/front-office/reservations/check-in/$reservationCode',
-      );
-      print('Method: POST');
-      print('Headers: {\'Content-Type\': \'application/json\'}');
-      print('Request Body: $requestBody');
+     // print('=== REQUEST ===');
+     // print(
+     //   'URL: $_pmsUrl/pms/front-office/reservations/check-in/$reservationCode',
+     // );
+     // print('Method: POST');
+     // print('Headers: {\'Content-Type\': \'application/json\'}');
+     // print('Request Body: $requestBody');
 
       final uri = Uri.parse(
         '$_pmsUrl/pms/front-office/reservations/check-in/$reservationCode',
@@ -256,11 +256,11 @@ print('payload for fetch room: $payload');
           .timeout(const Duration(seconds: 15));
 
       // Print the response received
-      print('\n=== RESPONSE ===');
-      print('Status Code: ${response.statusCode}');
-      print('Response Headers: ${response.headers}');
-      print('Response Body: ${response.body}');
-      print('================\n');
+     // print('\n=== RESPONSE ===');
+     // print('Status Code: ${response.statusCode}');
+     // print('Response Headers: ${response.headers}');
+     // print('Response Body: ${response.body}');
+     // print('================\n');
 
       final decoded = json.decode(response.body);
 
@@ -278,9 +278,9 @@ print('payload for fetch room: $payload');
         'message': decoded['message'] ?? 'Failed to complete check-in',
       };
     } catch (e) {
-      print('\n=== ERROR ===');
-      print('Error: $e');
-      print('=============\n');
+     // print('\n=== ERROR ===');
+     // print('Error: $e');
+     // print('=============\n');
       return {'success': false, 'message': 'Error: $e'};
     }
   }
@@ -336,8 +336,8 @@ print('payload for fetch room: $payload');
                   final data = json.decode(dataStr) as Map<String, dynamic>;
                   onEvent(currentEvent, data);
                 } catch (e) {
-                  print('Error parsing SSE data: $e');
-                  print('Raw data: $dataStr');
+                 // print('Error parsing SSE data: $e');
+                 // print('Raw data: $dataStr');
                 }
               }
             },
@@ -410,13 +410,13 @@ print('payload for fetch room: $payload');
         'https://bookings.revchilltech.com/api/v1/addon/addon-datewise/available',
       ).replace(queryParameters: queryParams);
 
-      print('Addon API URL: $uri');
+     // print('Addon API URL: $uri');
 
       final response = await http
           .get(uri, headers: {'Content-Type': 'application/json'})
           .timeout(const Duration(seconds: 10));
 
-      print('Addon API Response: ${response.statusCode} - ${response.body}');
+     // print('Addon API Response: ${response.statusCode} - ${response.body}');
 
       final decoded = json.decode(response.body);
 
@@ -446,15 +446,15 @@ print('payload for fetch room: $payload');
         'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations/$bookingCode',
       ).replace(queryParameters: {'propertyCode': propertyCode});
 
-      print('Fetching booking details from: $uri');
+     // print('Fetching booking details from: $uri');
 
       final response = await http
           .get(uri, headers: {'Content-Type': 'application/json'})
           .timeout(const Duration(seconds: 10));
 
-      print(
-        'Booking details response: ${response.statusCode} - ${response.body}',
-      );
+      //print(
+      //  'Booking details response: ${response.statusCode} - ${response.body}',
+     // );
 
       final decoded = json.decode(response.body);
 
@@ -467,7 +467,7 @@ print('payload for fetch room: $payload');
         'error': decoded['message'] ?? 'Failed to fetch booking details',
       };
     } catch (e) {
-      print('Error fetching booking details: $e');
+      //print('Error fetching booking details: $e');
       return {'success': false, 'error': 'Error: $e'};
     }
   }
@@ -481,9 +481,9 @@ print('payload for fetch room: $payload');
     await _ensureConfigLoaded();
 
     try {
-      print('=== UPDATE BOOKING DEBUG ===');
-      print('Booking Code: $bookingCode');
-      print('Payload being sent: ${json.encode(payload)}');
+     // print('=== UPDATE BOOKING DEBUG ===');
+     // print('Booking Code: $bookingCode');
+     // print('Payload being sent: ${json.encode(payload)}');
 
       final response = await http
           .patch(
@@ -495,8 +495,8 @@ print('payload for fetch room: $payload');
           )
           .timeout(const Duration(seconds: 15));
 
-      print('Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
+     // print('Status code: ${response.statusCode}');
+     // print('Response body: ${response.body}');
 
       final decoded = json.decode(response.body);
 
@@ -510,7 +510,7 @@ print('payload for fetch room: $payload');
         'error': decoded['message'] ?? 'Failed to update booking',
       };
     } catch (e) {
-      print('Exception in updateBooking: $e');
+      //print('Exception in updateBooking: $e');
       return {'success': false, 'error': 'Error: $e'};
     }
   }
@@ -524,9 +524,9 @@ print('payload for fetch room: $payload');
     await _ensureConfigLoaded();
 
     try {
-      print('=== CANCEL BOOKING DEBUG ===');
-      print('Reservation ID: $reservationId');
-      print('Payload being sent: ${json.encode(payload)}');
+     // print('=== CANCEL BOOKING DEBUG ===');
+     // print('Reservation ID: $reservationId');
+    //  print('Payload being sent: ${json.encode(payload)}');
 
       final response = await http
           .put(
@@ -538,8 +538,8 @@ print('payload for fetch room: $payload');
           )
           .timeout(const Duration(seconds: 15));
 
-      print('Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
+     // print('Status code: ${response.statusCode}');
+     // print('Response body: ${response.body}');
 
       final decoded = json.decode(response.body);
 
@@ -553,7 +553,7 @@ print('payload for fetch room: $payload');
         'error': decoded['message'] ?? 'Failed to cancel booking',
       };
     } catch (e) {
-      print('Exception in cancelBooking: $e');
+     // print('Exception in cancelBooking: $e');
       return {'success': false, 'error': 'Error: $e'};
     }
   }

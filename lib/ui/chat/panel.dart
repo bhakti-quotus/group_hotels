@@ -149,7 +149,7 @@ class _ChatPanelState extends State<ChatPanel> {
             if (data['success'] == true) {
               final responseData = data['data'] as Map<String, dynamic>;
               if (responseData['action'] == "SHOW_ROOMS") {
-                print("Search criteria: ${responseData['payload']}");
+               // print("Search criteria: ${responseData['payload']}");
                 searchController.updateSearchPayload(responseData['payload']);
                 Future.delayed(const Duration(milliseconds: 200), () {
                   chatCtrl.closeChat();

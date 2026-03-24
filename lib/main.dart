@@ -22,7 +22,7 @@ void main() async {
     Hive.registerAdapter(GuestAdapter());
     Hive.registerAdapter(ChatMessageAdapter());
 
-    print('Hive adapters registered globally');
+   // print('Hive adapters registered globally');
 
     // Hive first — most foundational
     final hiveService = HiveService();
@@ -36,7 +36,7 @@ void main() async {
     Get.put(ApiController(), permanent: true);
     runApp(const MyApp());
   } catch (e) {
-    print('Failed to initialize app: $e');
+    //print('Failed to initialize app: $e');
     runApp(
       MaterialApp(
         home: Scaffold(body: Center(child: Text('Init failed: $e'))),

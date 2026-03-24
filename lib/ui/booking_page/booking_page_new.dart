@@ -225,7 +225,7 @@ for (int i = 0; i < widget.adults; i++) {
   void _prettyPrintJson(dynamic json) {
     try {
       String prettyString = const JsonEncoder.withIndent('  ').convert(json);
-      print(prettyString);
+     // print(prettyString);
     } catch (e) {
       print('Error formatting JSON: $e');
       print(json);

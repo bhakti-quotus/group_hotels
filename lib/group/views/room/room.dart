@@ -44,7 +44,7 @@ class _RoomState extends State<Room> {
       if (args['config'] != null) {
         hotelController.setSelectedHotel(args);
         BrandingColors.loadFromConfig(args['config']); // ✅ ADD
-        print("Room: hotel set from Get.arguments: ${args['name']}");
+       // print("Room: hotel set from Get.arguments: ${args['name']}");
         return;
       }
       final hotelFromArgs = args['hotel'] as Map<String, dynamic>?;

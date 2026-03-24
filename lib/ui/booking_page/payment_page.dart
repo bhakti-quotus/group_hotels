@@ -60,9 +60,9 @@ class _PaymentPageState extends State<PaymentPage>
     _fadeController.forward();
     
     // Print the price data received from BookingPage for debugging
-    print('=== PAYMENT PAGE: PRICE DATA FROM API ===');
-    print('Price Data: ${json.encode(widget.priceData)}');
-    print('=========================================');
+   // print('=== PAYMENT PAGE: PRICE DATA FROM API ===');
+   // print('Price Data: ${json.encode(widget.priceData)}');
+   // print('=========================================');
     
     _fetchPaymentDetails();
   }

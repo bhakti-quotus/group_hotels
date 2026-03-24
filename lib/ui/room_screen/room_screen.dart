@@ -171,8 +171,8 @@ class _RoomScreenState extends State<RoomScreen> {
       final result = await apiController.fetchRooms(payload);
 
       if (!mounted) return;
-      print('result');
-      print(result);
+     // print('result');
+     // print(result);
 
       setState(() {
         if (result['success']) {
@@ -208,9 +208,9 @@ class _RoomScreenState extends State<RoomScreen> {
 
             if (creationLoyaltyConfig != null) {
               _loyaltyConfig = creationLoyaltyConfig;
-              print('✅ loyaltyConfig loaded: $_loyaltyConfig');
+              //print('✅ loyaltyConfig loaded: $_loyaltyConfig');
             } else {
-              print('⚠️ CreationLoyaltyConfig not found in API response');
+              //print('⚠️ CreationLoyaltyConfig not found in API response');
             }
 
             // ✅ Extract propertyVideos from the correct nested path
@@ -218,9 +218,9 @@ class _RoomScreenState extends State<RoomScreen> {
                 _propertyDetails?['propertyVideos'] as Map<String, dynamic>?;
             if (videos != null) {
               _propertyVideos = videos;
-              print('✅ propertyVideos loaded: $_propertyVideos');
+             // print('✅ propertyVideos loaded: $_propertyVideos');
             } else {
-              print('⚠️ propertyVideos not found in API response');
+             // print('⚠️ propertyVideos not found in API response');
             }
           }
 
@@ -243,7 +243,7 @@ class _RoomScreenState extends State<RoomScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print("Error fetching rooms: $e");
+      //print("Error fetching rooms: $e");
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -375,6 +375,7 @@ class _RoomScreenState extends State<RoomScreen> {
     }
 
     final selectedHotel = hotelController.getSelectedHotel();
+
     Map<String, dynamic> branding = {};
     List<Map<String, dynamic>> amenities = [];
 
@@ -413,7 +414,7 @@ class _RoomScreenState extends State<RoomScreen> {
         }
       }
     } catch (e) {
-      print("Error getting total guests: $e");
+      //print("Error getting total guests: $e");
     }
 
     return Scaffold(

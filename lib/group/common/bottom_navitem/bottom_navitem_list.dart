@@ -94,7 +94,7 @@ class BottomNavItemManager {
         );
       }).toList();
     } catch (e) {
-      print('Error loading navigation items: $e');
+      //print('Error loading navigation items: $e');
       return [];
     }
   }
