@@ -114,8 +114,8 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
               Builder(
                 builder: (context) {
                   final validRooms = widget.rooms.where((room) {
-                    final hasValidRate = room['has_valid_rate'] == true;
-                    final roomPrice = room['room_price'] as List? ?? [];
+                    final hasValidRate = room['hasValidRate'] == true;
+                    final roomPrice = room['roomPrice'] as List? ?? [];
                     return hasValidRate && roomPrice.isNotEmpty;
                   }).toList();
 
@@ -448,14 +448,14 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
   Widget build(BuildContext context) {
     final room = widget.room;
     final images = room['images'] as List? ?? [];
-    final roomName = room['room_name'] ?? room['name'] ?? 'Luxury Suite';
-    final roomType = room['room_type'] ?? room['type'] ?? '';
-    final roomSize = room['room_size'] ?? 0;
-    final roomUnit = room['room_unit'] ?? 'sq ft';
-    final roomView = room['room_view'] ?? '';
-    final maxOccupancy = room['max_occupancy'] ?? room['maxOccupancy'] ?? 0;
-    final description = room['description'] ?? '';
-    final amenities = room['amenities'] as List? ?? [];
+final roomName = room['roomName'] ?? room['room_name'] ?? room['name'] ?? 'Luxury Suite';
+final roomType = room['roomType'] ?? room['room_type'] ?? '';
+final roomSize = room['roomSize'] ?? room['room_size'] ?? 0;
+final roomUnit = room['roomUnit'] ?? room['room_unit'] ?? 'sq ft';
+final roomView = room['roomView'] ?? room['room_view'] ?? '';
+final maxOccupancy = room['maxOccupancy'] ?? room['max_occupancy'] ?? 0;
+final description = room['description'] ?? '';
+final amenities = room['amenities'] as List? ?? [];
 
     return AnimatedBuilder(
       animation: _scaleAnim,

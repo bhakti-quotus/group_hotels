@@ -820,8 +820,8 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               () => const AddonsScreen(),
               arguments: {
                 'addons': addonsData,
-                'startDate': startDate, // ✅ add this
-                'endDate': endDate, // ✅ add this
+                'startDate': startDate,
+                'endDate': endDate,
                 'onAdd': (List<Map<String, dynamic>> sel) => _proceedToBooking(
                   room: room,
                   ratePlan: ratePlan,
@@ -955,12 +955,14 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         sp['endDate'] as String? ??
         now.add(const Duration(days: 2)).toIso8601String().split('T')[0];
 
-    final roomName = room['room_name'] ?? room['name'] ?? '';
-    final roomSize = room['room_size'] ?? 0;
-    final roomUnit = room['room_unit'] ?? 'sq ft';
-    final roomView = room['room_view'] ?? '';
-    final maxOccupancy = room['max_occupancy'] ?? room['maxOccupancy'] ?? 0;
+    // ✅ FIXED: Use camelCase keys for all room data
+    final roomName = room['roomName'] ?? room['room_name'] ?? room['name'] ?? '';
+    final roomSize = room['roomSize'] ?? room['room_size'] ?? 0;
+    final roomUnit = room['roomUnit'] ?? room['room_unit'] ?? 'sq ft';
+    final roomView = room['roomView'] ?? room['room_view'] ?? '';
+    final maxOccupancy = room['maxOccupancy'] ?? room['max_occupancy'] ?? 0;
     final description = room['description'] ?? '';
+    final roomPrice = room['roomPrice'] as List? ?? []; // ✅ FIXED: roomPrice not room_price
 
     images = [];
     final rawImages = room['images'];
@@ -974,7 +976,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     }
 
     final amenities = room['amenities'] as List? ?? [];
-    final roomPrice = room['room_price'] as List? ?? [];
     final groupedPlans = _groupRatePlans(roomPrice);
 
     DateTime? checkIn, checkOut;
@@ -1667,6 +1668,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
       spacing: 10,
       runSpacing: 10,
       children: amenities.map((a) {
+        // ✅ Handle both Map and String formats
         final name = a is Map
             ? (a['amenityName'] ?? a['name'] ?? '')
             : a.toString();
