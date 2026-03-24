@@ -5,6 +5,7 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class LoyaltyProgramCard extends StatefulWidget {
   final int discountValue;
@@ -17,16 +18,9 @@ class LoyaltyProgramCard extends StatefulWidget {
   final String? propertyName;
   final String? propertyId;
 
-  /// Called with (email, percentage) when sign-up / check-in succeeds.
   final void Function(String email, int percentage)? onJoinSuccess;
-
-  /// Called when the user taps "Logout" inside the card.
   final VoidCallback? onLogout;
-
-  /// Pass `true` if the parent already has an active discount session.
   final bool isJoined;
-
-  /// Discount % already applied (shown in the badge when [isJoined] is true).
   final int joinedDiscountPercentage;
 
   const LoyaltyProgramCard({
@@ -51,7 +45,6 @@ class LoyaltyProgramCard extends StatefulWidget {
 }
 
 class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
-  // ── Video player state ────────────────────────────────────────────
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
   bool _videoInitialized = false;
@@ -60,8 +53,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
   bool _videoStarted = false;
 
   bool _isLoading = false;
-
-  // Local mirror of join state (synced from widget props)
   bool get _isProgramJoined => widget.isJoined;
 
   @override
@@ -79,7 +70,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     super.dispose();
   }
 
-  // ── Video initialisation ──────────────────────────────────────────
   Future<void> _initVideo() async {
     if (_videoInitializing || _videoInitialized) return;
     if (widget.videoUrl == null || widget.videoUrl!.isEmpty) return;
@@ -111,7 +101,10 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
           backgroundColor: Colors.white24,
           bufferedColor: theme.AppColor.primary.withOpacity(0.4),
         ),
-        errorBuilder: (ctx, errorMsg) => _buildVideoError(),
+        errorBuilder: (ctx, errorMsg) {
+          debugPrint('Chewie error: $errorMsg');
+          return _buildVideoError();
+        },
       );
 
       if (mounted) {
@@ -131,7 +124,18 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     }
   }
 
-  // ── Signup flow ───────────────────────────────────────────────────
+  void _openVideoInBrowser() async {
+    if (widget.videoUrl != null) {
+      final Uri url = Uri.parse(widget.videoUrl!);
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open video')),
+        );
+      }
+    }
+  }
 
   void _openJoinFlow() {
     if (_isProgramJoined) return;
@@ -158,7 +162,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Header ──
                   Row(
                     children: [
                       Container(
@@ -200,14 +203,12 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                   ),
                   const SizedBox(height: 20),
 
-                  // ── Fields ──
                   _buildFormField(
                     controller: nameCtrl,
                     label: 'Full Name',
                     hint: 'Enter your name',
                     icon: Icons.person_outline_rounded,
-                    validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Required' : null,
+                    validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
                   ),
                   const SizedBox(height: 14),
                   _buildFormField(
@@ -237,7 +238,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                   ),
                   const SizedBox(height: 24),
 
-                  // ── Buttons ──
                   Row(
                     children: [
                       Expanded(
@@ -271,12 +271,9 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                                   final email = emailCtrl.text.trim();
                                   final name = nameCtrl.text.trim();
                                   final mobile = mobileCtrl.text.trim();
-                                  final propertyId =
-                                      widget.propertyId ?? '';
+                                  final propertyId = widget.propertyId ?? '';
 
-                                  // Step 1 — check existing member
-                                  final checkResult =
-                                      await _callCheckDiscount(
+                                  final checkResult = await _callCheckDiscount(
                                     email: email,
                                     propertyId: propertyId,
                                   );
@@ -287,13 +284,11 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                                     Navigator.pop(dlgCtx);
                                     _handleSuccess(
                                       email: email,
-                                      percentage:
-                                          checkResult['percentage'] as int,
+                                      percentage: checkResult['percentage'] as int,
                                     );
                                     return;
                                   }
 
-                                  // Step 2 — register
                                   final regResult = await _callRegister(
                                     email: email,
                                     propertyId: propertyId,
@@ -308,8 +303,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                                   if (regResult['eligible'] == true) {
                                     _handleSuccess(
                                       email: email,
-                                      percentage:
-                                          regResult['percentage'] as int,
+                                      percentage: regResult['percentage'] as int,
                                     );
                                   } else {
                                     _showErrorSnack(
@@ -320,8 +314,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.AppColor.primary,
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -362,20 +355,17 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle_rounded,
-                color: Colors.white, size: 18),
+            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
             const SizedBox(width: 10),
             Text(
               '$percentage% member discount applied!',
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, color: Colors.white),
+              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
             ),
           ],
         ),
         backgroundColor: Colors.green[700],
         behavior: SnackBarBehavior.floating,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 3),
       ),
@@ -387,26 +377,21 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.error_outline_rounded,
-                color: Colors.white, size: 18),
+            const Icon(Icons.error_outline_rounded, color: Colors.white, size: 18),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(message,
-                  style: const TextStyle(color: Colors.white)),
+              child: Text(message, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
         backgroundColor: Colors.red[700],
         behavior: SnackBarBehavior.floating,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 3),
       ),
     );
   }
-
-  // ── API helpers ───────────────────────────────────────────────────
 
   Future<Map<String, dynamic>> _callCheckDiscount({
     required String email,
@@ -428,16 +413,14 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         final msg = (data['message'] as String? ?? '').toLowerCase();
 
         if (msg.contains('already registered')) {
-          final pct =
-              (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
+          final pct = (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
           return {'eligible': true, 'percentage': pct};
         }
 
         if (data['success'] == true && data['data'] != null) {
           final d = data['data'];
           if (d['isLoyaltyMember'] == true) {
-            final pct =
-                (d['discount']?['value'] as num?)?.toInt() ?? 10;
+            final pct = (d['discount']?['value'] as num?)?.toInt() ?? 10;
             return {'eligible': true, 'percentage': pct};
           }
         }
@@ -475,15 +458,13 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         final msg = (data['message'] as String? ?? '').toLowerCase();
 
         if (msg.contains('already registered')) {
-          final pct =
-              (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
+          final pct = (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
           return {'eligible': true, 'percentage': pct};
         }
 
         if (data['success'] == true) {
           final d = data['data'];
-          final pct =
-              (d?['discount']?['value'] as num?)?.toInt() ?? 10;
+          final pct = (d?['discount']?['value'] as num?)?.toInt() ?? 10;
           return {'eligible': true, 'percentage': pct};
         }
 
@@ -498,7 +479,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     }
   }
 
-  // ── Build ─────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -544,8 +524,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                   _sectionLabel(Icons.star_outline_rounded, 'Special Benefits',
                       const Color(0xFFB8860B)),
                   const SizedBox(height: 8),
-                  _benefitsList(
-                      widget.benefitsTitle, widget.benefitsSubtitle),
+                  _benefitsList(widget.benefitsTitle, widget.benefitsSubtitle),
                   const SizedBox(height: 14),
                 ],
 
@@ -559,82 +538,41 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     );
   }
 
-  // ── Video section ─────────────────────────────────────────────────
   Widget _buildVideoSection() {
-    final hasUrl =
-        widget.videoUrl != null && widget.videoUrl!.isNotEmpty;
+    final hasUrl = widget.videoUrl != null && widget.videoUrl!.isNotEmpty;
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-      child: SizedBox(
-        height: 200,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (!hasUrl)
-              _buildThumbnail()
-            else if (_videoInitializing)
-              Stack(
-                fit: StackFit.expand,
-                children: [
-                  _buildThumbnail(),
-                  const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
-                ],
-              )
-            else if (_videoError)
-              _buildVideoError()
-            else if (_videoInitialized && _chewieController != null)
-              Chewie(controller: _chewieController!)
-            else
-              _buildThumbnail(),
+    return GestureDetector(
+      onTap: hasUrl ? _openVideoInBrowser : null,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+        child: SizedBox(
+          height: 200,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (_videoInitialized && _chewieController != null)
+                Chewie(controller: _chewieController!)
+              else
+                _buildThumbnail(),
 
-            if (!_videoInitialized || !_videoStarted) ...[
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 80,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.65),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              if (hasUrl && !_videoInitializing && !_videoError)
+              if (!_videoStarted && hasUrl && !_videoInitializing)
                 Center(
-                  child: GestureDetector(
-                    onTap: () async {
-                      if (!_videoInitialized) await _initVideo();
-                      if (_videoInitialized && _chewieController != null) {
-                        _chewieController!.play();
-                        setState(() => _videoStarted = true);
-                      }
-                    },
-                    child: Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.55),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.8),
-                          width: 2,
-                        ),
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.55),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.8),
+                        width: 2,
                       ),
-                      child: const Icon(Icons.play_arrow_rounded,
-                          color: Colors.white, size: 32),
                     ),
+                    child: const Icon(Icons.play_arrow_rounded,
+                        color: Colors.white, size: 32),
                   ),
                 ),
+
               Positioned(
                 bottom: 14,
                 left: 14,
@@ -654,15 +592,14 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                 ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildThumbnail() {
-    if (widget.videoThumbnail != null &&
-        widget.videoThumbnail!.isNotEmpty) {
+    if (widget.videoThumbnail != null && widget.videoThumbnail!.isNotEmpty) {
       return Image.network(
         widget.videoThumbnail!,
         fit: BoxFit.cover,
@@ -678,8 +615,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     return Container(
       color: Colors.grey[200],
       child: Center(
-        child: Icon(Icons.videocam_outlined,
-            size: 48, color: Colors.grey[400]),
+        child: Icon(Icons.videocam_outlined, size: 48, color: Colors.grey[400]),
       ),
     );
   }
@@ -690,8 +626,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline_rounded,
-              size: 40, color: Colors.grey[500]),
+          Icon(Icons.error_outline_rounded, size: 40, color: Colors.grey[500]),
           const SizedBox(height: 8),
           Text('Video unavailable',
               style: TextStyle(color: Colors.grey[600], fontSize: 13)),
@@ -711,19 +646,16 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
               _initVideo();
             },
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: theme.AppColor.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: theme.AppColor.primary.withOpacity(0.3)),
+                border: Border.all(color: theme.AppColor.primary.withOpacity(0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.refresh_rounded,
-                      size: 16, color: theme.AppColor.primary),
+                  Icon(Icons.refresh_rounded, size: 16, color: theme.AppColor.primary),
                   const SizedBox(width: 6),
                   Text('Retry',
                       style: TextStyle(
@@ -739,7 +671,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     );
   }
 
-  // ── Header ────────────────────────────────────────────────────────
   Widget _buildHeader() {
     return Row(
       children: [
@@ -750,8 +681,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
             margin: const EdgeInsets.only(right: 10),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border:
-                  Border.all(color: Colors.grey[200]!, width: 1.5),
+              border: Border.all(color: Colors.grey[200]!, width: 1.5),
               image: DecorationImage(
                 image: NetworkImage(widget.logoUrl!),
                 fit: BoxFit.cover,
@@ -771,19 +701,14 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                 ),
               ),
               Text('Loyalty Program',
-                  style:
-                      TextStyle(fontSize: 12, color: Colors.grey[500])),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[500])),
             ],
           ),
         ),
-        // Badge: show discount % if joined, otherwise configured value
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: _isProgramJoined
-                ? Colors.green
-                : theme.AppColor.secondary,
+            color: _isProgramJoined ? Colors.green : theme.AppColor.secondary,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -801,7 +726,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     );
   }
 
-  // ── Section helpers ───────────────────────────────────────────────
   Widget _sectionLabel(IconData icon, String label, Color color) {
     return Row(
       children: [
@@ -845,13 +769,11 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.check_circle_outline,
-            size: 15, color: Color(0xFF2E7D32)),
+        const Icon(Icons.check_circle_outline, size: 15, color: Color(0xFF2E7D32)),
         const SizedBox(width: 6),
         Expanded(
           child: Text(text,
-              style: TextStyle(
-                  fontSize: 13, color: Colors.grey[700], height: 1.5)),
+              style: TextStyle(fontSize: 13, color: Colors.grey[700], height: 1.5)),
         ),
       ],
     );
@@ -864,30 +786,22 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.star_outline_rounded,
-                size: 15, color: Color(0xFFB8860B)),
+            const Icon(Icons.star_outline_rounded, size: 15, color: Color(0xFFB8860B)),
             const SizedBox(width: 6),
             Expanded(
               child: Text(title,
-                  style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[700],
-                      height: 1.5)),
+                  style: TextStyle(fontSize: 13, color: Colors.grey[700], height: 1.5)),
             ),
           ],
         ),
         if (subtitle.isNotEmpty) ...[
           const SizedBox(height: 8),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
-              color:
-                  theme.AppColor.secondary.withOpacity(0.07),
+              color: theme.AppColor.secondary.withOpacity(0.07),
               borderRadius: BorderRadius.circular(13),
-              border: Border.all(
-                  color:
-                      theme.AppColor.secondary.withOpacity(0.25)),
+              border: Border.all(color: theme.AppColor.secondary.withOpacity(0.25)),
             ),
             child: Text(subtitle,
                 style: TextStyle(
@@ -900,20 +814,17 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     );
   }
 
-  // ── Bottom row ────────────────────────────────────────────────────
   Widget _buildBottomRow() {
     return Column(
       children: [
         Row(
           children: [
-            // Switch — tapping it opens join dialog (or does nothing if joined)
             Transform.scale(
               scale: 0.8,
               child: Switch(
                 value: _isProgramJoined,
                 onChanged: (value) {
                   if (value && !_isProgramJoined) _openJoinFlow();
-                  // Logout is handled by the explicit button below
                 },
                 activeColor: Colors.green,
                 activeTrackColor: Colors.green.withOpacity(0.5),
@@ -922,18 +833,14 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
               ),
             ),
 
-            // Join / Joined button
             GestureDetector(
               onTap: () {
                 if (!_isProgramJoined) _openJoinFlow();
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: _isProgramJoined
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.grey[100],
+                  color: _isProgramJoined ? Colors.green.withOpacity(0.1) : Colors.grey[100],
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: _isProgramJoined
@@ -945,13 +852,9 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      _isProgramJoined
-                          ? Icons.check_circle
-                          : Icons.add_circle_outline,
+                      _isProgramJoined ? Icons.check_circle : Icons.add_circle_outline,
                       size: 16,
-                      color: _isProgramJoined
-                          ? Colors.green
-                          : theme.AppColor.secondary,
+                      color: _isProgramJoined ? Colors.green : theme.AppColor.secondary,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -959,9 +862,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: _isProgramJoined
-                            ? Colors.green
-                            : theme.AppColor.secondary,
+                        color: _isProgramJoined ? Colors.green : theme.AppColor.secondary,
                       ),
                     ),
                   ],
@@ -971,24 +872,20 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
 
             const Spacer(),
 
-            // Logout button — only shown when joined
             if (_isProgramJoined)
               GestureDetector(
                 onTap: widget.onLogout,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                        color: Colors.orange.withOpacity(0.4)),
+                    border: Border.all(color: Colors.orange.withOpacity(0.4)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
-                      Icon(Icons.logout_rounded,
-                          size: 15, color: Colors.orange),
+                      Icon(Icons.logout_rounded, size: 15, color: Colors.orange),
                       SizedBox(width: 5),
                       Text(
                         'Logout',
@@ -1002,15 +899,13 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                   ),
                 ),
               )
-            else if (widget.logoUrl != null &&
-                widget.logoUrl!.isNotEmpty)
+            else if (widget.logoUrl != null && widget.logoUrl!.isNotEmpty)
               Container(
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  border:
-                      Border.all(color: Colors.grey[200]!, width: 1.5),
+                  border: Border.all(color: Colors.grey[200]!, width: 1.5),
                   image: DecorationImage(
                     image: NetworkImage(widget.logoUrl!),
                     fit: BoxFit.cover,
@@ -1020,7 +915,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
           ],
         ),
 
-        // "Identify yourself" link — hidden when joined
         if (!_isProgramJoined)
           Row(
             children: [
@@ -1029,8 +923,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                 child: RichText(
                   text: TextSpan(
                     text: 'Are you registered? ',
-                    style: TextStyle(
-                        fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     children: [
                       TextSpan(
                         text: 'Identify yourself',
@@ -1048,22 +941,18 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
             ],
           ),
 
-        // Member info strip — shown when joined
         if (_isProgramJoined) ...[
           const SizedBox(height: 6),
           Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.green.withOpacity(0.07),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                  color: Colors.green.withOpacity(0.25)),
+              border: Border.all(color: Colors.green.withOpacity(0.25)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.verified_rounded,
-                    size: 14, color: Colors.green),
+                const Icon(Icons.verified_rounded, size: 14, color: Colors.green),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -1083,7 +972,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     );
   }
 
-  // ── Form field ────────────────────────────────────────────────────
   Widget _buildFormField({
     required TextEditingController controller,
     required String label,
@@ -1098,11 +986,9 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle:
-            TextStyle(color: theme.AppColor.primary, fontSize: 13),
+        labelStyle: TextStyle(color: theme.AppColor.primary, fontSize: 13),
         hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-        prefixIcon:
-            Icon(icon, color: theme.AppColor.secondary, size: 20),
+        prefixIcon: Icon(icon, color: theme.AppColor.secondary, size: 20),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey[300]!),
@@ -1113,13 +999,11 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide:
-              BorderSide(color: theme.AppColor.primary, width: 1.5),
+          borderSide: BorderSide(color: theme.AppColor.primary, width: 1.5),
         ),
         filled: true,
         fillColor: Colors.grey[50],
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 14, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       ),
       validator: validator,
     );

@@ -12,10 +12,10 @@
      {
       "id": "199bca6e-548d-4f7e-b5d2-a5c674bd7c3e",
       "code": "BQQYBF",
-      "name": "Royal Continental Hotel",
-      "slug": "royal-continental-hotel                                    ",
+      "name": "Body Holiday",
+      "slug": "body-holiday",
       "type": "STANDALONE",
-      "apkName": "Royal Continental Hotel",
+      "apkName": "Body Holiday",
       "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
       "createdAt": "2025-12-24T10:28:14.699Z",
       "updatedAt": "2025-12-24T10:48:21.121Z",
@@ -28,12 +28,12 @@
         "createdAt": "2025-12-24T10:28:22.672Z",
         "updatedAt": "2026-01-08T06:00:26.700Z",
         "branding": {
-          "logo": "http://res.cloudinary.com/dttazo51h/image/upload/v1770792032/SwiftRooms-Images/j35tviz01xqupjojviiy.png",
-          "primaryColor": "#0D5399",
-          "secondaryColor": "#d67816",
+          "logo": "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/logonx.png",
+          "primaryColor": "#27408D",
+          "secondaryColor": "#EB2022",
           "backgroundColor": "#FFFFFF",
           "fontFamily": "Inter",
-          "splashImage": "http://res.cloudinary.com/dttazo51h/image/upload/v1770792032/SwiftRooms-Images/j35tviz01xqupjojviiy.png"
+          "splashImage": "https://www.thebodyholiday.com/wp-content/uploads/2023/02/SunSwept_TBH_Pent_View_Hero2.jpg"
         },
         "navigation": {
           "type": "bottom",
@@ -90,8 +90,8 @@
                   "label": "Book Now",
                   "route": "/rooms"
                 },
-                "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhY44_vOtS2mELTR3igjPvcXJUuMSqJapuDyJ2GXr76VQ6wOPdp5XNnfYXyxj6CSvQsQDjtFLhd5WskoN-ghF8WP1SfjuOlRXUpu70F7apjZj_vTL-hdC_J0YHCuAgZLohNaWcCYwwah5qV/s1600/Royal+Continental+Hotel+Dubai_20170325_059.JPG",
-                "title": "Welcome to Royal Continental Hotels",
+                "image": "https://www.thebodyholiday.com/wp-content/uploads/2023/02/SunSwept_TBH_Pent_View_Hero2.jpg",
+                "title": "Welcome to BodyHoliday Saint Lucia",
                 "subtitle": "Experience Luxury"
               },
               "type": "heroBanner"
@@ -135,9 +135,10 @@
             {
               "data": {
                 "images": [
-                  "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGhvdGVsfGVufDB8fDB8fHww",
-                  "https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjd8fGhvdGVsfGVufDB8fDB8fHww",
-                  "https://images.unsplash.com/photo-1506059612708-99d6c258160e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjZ8fGhvdGVsfGVufDB8fDB8fHww"
+                  "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/accommodations.jpg",
+            "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/food-drinks.jpg",
+            "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/ex-activities.jpg",
+            "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/well-health.jpg"
                 ]
               },
               "type": "galleryPreview"
@@ -206,13 +207,13 @@
           ]
         },
         "about": {
-          "title": "Built on Trust & Comfort",
-          "description": "Royal Continental Hotel Dubai (specifically in Deira City Centre) is a 4-star, modern property near Dubai International Airport and the Metro, known for being a clean, comfortable, and well-located choice for both business and leisure travelers. Key features include spacious rooms, a rooftop pool, a 24-hour halal restaurant, and a spa. ",
+          "title": "The World’s Leading Wellness Resort Located on its Secluded Beach in Saint Lucia",
+          "description": "At BodyHoliday, we provide an all-inclusive, personalized experience of wellness and discovery where you will enjoy a transformational journey designed as an antidote to the pressures of modern-day life. Located on a pristine crescent beach surrounded by lush tropical gardens, we are the only resort to combine the pleasures of an active beach vacation with a nearly endless array of activities, body treatments, and opportunities to explore, discover, and gain insights that last a lifetime. Your BodyHoliday includes everything you could desire and nothing that distracts from the promise we make to our guests. “Give us your body for a week, and we’ll give you back your mind.”",
           "images": [
-            "https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTB8fGhvdGVsfGVufDB8fDB8fHww",
-            "https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTF8fGhvdGVsfGVufDB8fDB8fHww",
-            "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTh8fGhvdGVsfGVufDB8fDB8fHww",
-            "https://images.unsplash.com/photo-1722763529109-2bcb289a47c3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODd8fGhvdGVsfGVufDB8fDB8fHww"
+            "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/accommodations.jpg",
+            "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/food-drinks.jpg",
+            "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/ex-activities.jpg",
+            "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/well-health.jpg"
           ]
         },
         "policies": {
@@ -511,13 +512,6 @@
           "route": "/hotels",
           "visible": true
         },
-         {
-              "id": "my_bookings",
-              "icon": "booking",
-              "label": "My Bookings",
-              "route": "/bookingdetails",
-              "visible": true
-            },
         {
           "id": "about",
           "icon": "info",

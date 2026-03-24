@@ -12,7 +12,7 @@ import 'dart:convert';
 import '../booking_page/booking_page_new.dart';
 import 'package:group/group/controllers/api_controller.dart';
 import 'dart:async';
-
+import './loyality_program_card.dart'; // Add this import
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PERSISTENT DISCOUNT SESSION
@@ -20,7 +20,7 @@ import 'dart:async';
 // Cleared only when the user explicitly taps "Logout".
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _DiscountSession {
+class DiscountSession {
   static String? guestEmail;
   static bool discountApplied = false;
   static int discountPercentage = 0;
@@ -146,9 +146,12 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
   final Set<String> _expandedCombos = {};
 
   // Convenience getters that read from the static session
-  bool get _discountApplied => _DiscountSession.discountApplied;
-  int get _discountPercentage => _DiscountSession.discountPercentage;
-  String? get _guestEmail => _DiscountSession.guestEmail;
+  bool get _discountApplied => DiscountSession.discountApplied;
+  int get _discountPercentage => DiscountSession.discountPercentage;
+  String? get _guestEmail => DiscountSession.guestEmail;
+
+  // Loyalty data from API
+  Map<String, dynamic>? _loyaltyData;
 
   @override
   void initState() {
@@ -169,6 +172,23 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         setState(() => _isAppBarCollapsed = collapsed);
       }
     });
+
+    // Extract loyalty data from arguments
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _extractLoyaltyData();
+    });
+  }
+
+  void _extractLoyaltyData() {
+    final args = Get.arguments;
+    if (args != null && args is Map<String, dynamic>) {
+      final loyaltyData = args['loyaltyData'] as Map<String, dynamic>?;
+      if (loyaltyData != null) {
+        setState(() {
+          _loyaltyData = loyaltyData;
+        });
+      }
+    }
   }
 
   @override
@@ -190,7 +210,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
 
   /// No API call — just wipes the static session and rebuilds.
   void _handleLogout() {
-    _DiscountSession.clear();
+    DiscountSession.clear();
     if (mounted) setState(() {});
   }
 
@@ -369,23 +389,20 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     setState(() => _expandedPolicyIndex = index);
   }
 
-  // ─── DISCOUNT FLOW ───────────────────────────────────────────────────────────
+  // ─── UNIFIED DISCOUNT FLOW ───────────────────────────────────────────────────
   //
-  // Single form collects email + name + phone upfront.
-  // On submit:
-  //   1. POST {email, propertyId}  — check if already a member
-  //      • eligible  → apply discount, done.
-  //   2. If not a member → auto POST {email, propertyId, metadata:{name,mobile}}
-  //      • register & apply discount, done.
+  // This method is called from:
+  // 1. The rate plan card's "Member Rate Available" banner
+  // 2. The LoyaltyProgramCard's join button
   //
-  // No second dialog, no extra taps. Everything happens behind one spinner.
-  // Session persists until user taps Logout (no API call on logout).
+  // It shows a single form to collect user details and handles both
+  // registration and discount application in one flow.
 
-  void _openMemberRateFlow({
+  void _openDiscountRegistration({
     required String propertyId,
-    required String planCurrency,
+    required String propertyName,
   }) {
-    // Already signed in — discount is shown on screen with logout button; nothing to do
+    // Already signed in — discount is already applied
     if (_discountApplied) return;
 
     final emailCtrl = TextEditingController();
@@ -531,22 +548,20 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                                   );
 
                                   if (checkResult['eligible'] == true) {
-                                    // Already a member — close dialog, reset flag, apply
-                                    if (mounted)
-                                      setState(
-                                        () => _isLoadingDiscount = false,
-                                      );
+                                    // Already a member — close dialog, apply discount
+                                    if (mounted) {
+                                      setState(() => _isLoadingDiscount = false);
+                                    }
                                     if (!mounted) return;
                                     Navigator.pop(dlgCtx);
                                     _applyDiscount(
                                       email: email,
-                                      percentage:
-                                          checkResult['percentage'] as int,
+                                      percentage: checkResult['percentage'] as int,
                                     );
                                     return;
                                   }
 
-                                  // Step 2 — not a member, auto-register silently
+                                  // Step 2 — not a member, register
                                   final regResult = await _callRegister(
                                     email: email,
                                     propertyId: propertyId,
@@ -554,22 +569,20 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                                     mobileNumber: mobile,
                                   );
 
-                                  if (mounted)
+                                  if (mounted) {
                                     setState(() => _isLoadingDiscount = false);
+                                  }
                                   if (!mounted) return;
                                   Navigator.pop(dlgCtx);
 
                                   if (regResult['eligible'] == true) {
                                     _applyDiscount(
                                       email: email,
-                                      percentage:
-                                          regResult['percentage'] as int,
+                                      percentage: regResult['percentage'] as int,
                                     );
                                   } else {
                                     if (mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
+                                      ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Row(
                                             children: [
@@ -581,8 +594,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                                               const SizedBox(width: 10),
                                               Expanded(
                                                 child: Text(
-                                                  regResult['message']
-                                                          as String? ??
+                                                  regResult['message'] as String? ??
                                                       'Something went wrong. Try again.',
                                                   style: const TextStyle(
                                                     color: Colors.white,
@@ -594,9 +606,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                                           backgroundColor: Colors.red[700],
                                           behavior: SnackBarBehavior.floating,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
                                           margin: const EdgeInsets.all(16),
                                           duration: const Duration(seconds: 3),
@@ -734,7 +744,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
 
   /// Saves to static session, closes any open loaders, rebuilds screen silently.
   void _applyDiscount({required String email, required int percentage}) {
-    _DiscountSession.apply(email: email, percentage: percentage);
+    DiscountSession.apply(email: email, percentage: percentage);
 
     // Close any GetX loading dialog that may still be open
     if (Get.isDialogOpen ?? false) Get.back();
@@ -820,6 +830,8 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               () => const AddonsScreen(),
               arguments: {
                 'addons': addonsData,
+                'startDate': startDate,
+                'endDate': endDate,
                 'onAdd': (List<Map<String, dynamic>> sel) => _proceedToBooking(
                   room: room,
                   ratePlan: ratePlan,
@@ -923,6 +935,40 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     );
   }
 
+  // ─── Loyalty Card Builder ────────────────────────────────────────────────────
+
+  Widget _buildLoyaltyCard({
+    required String propertyId,
+    required String propertyName,
+  }) {
+    if (_loyaltyData == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+      child: LoyaltyProgramCard(
+        discountValue: _loyaltyData!['discountValue'] ?? 10,
+        termsText: _loyaltyData!['termsText'] ??
+            "Member-Only Rates\nEnjoy special discounted prices you won't find anywhere else.",
+        benefitsTitle: _loyaltyData!['benefitsTitle'] ?? "VIP Perks",
+        benefitsSubtitle: _loyaltyData!['benefitsSubtitle'] ??
+            "✅ Exclusive discounted room rates\n✅ Early check-in & late check-out\n✅ Dining & spa discounts\n✅ Priority reservations",
+        videoUrl: _loyaltyData!['videoUrl'],
+        videoThumbnail: _loyaltyData!['videoThumbnail'],
+        logoUrl: _loyaltyData!['logoUrl'],
+        propertyName: _loyaltyData!['propertyName'] ?? propertyName,
+        propertyId: propertyId,
+        isJoined: _discountApplied,
+        joinedDiscountPercentage: _discountPercentage,
+        onJoinSuccess: (email, percentage) {
+          _applyDiscount(email: email, percentage: percentage);
+        },
+        onLogout: () {
+          _handleLogout();
+        },
+      ),
+    );
+  }
+
   // ─── BUILD ───────────────────────────────────────────────────────────────────
 
   @override
@@ -953,12 +999,14 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         sp['endDate'] as String? ??
         now.add(const Duration(days: 2)).toIso8601String().split('T')[0];
 
-    final roomName = room['room_name'] ?? room['name'] ?? '';
-    final roomSize = room['room_size'] ?? 0;
-    final roomUnit = room['room_unit'] ?? 'sq ft';
-    final roomView = room['room_view'] ?? '';
-    final maxOccupancy = room['max_occupancy'] ?? room['maxOccupancy'] ?? 0;
+    // Use camelCase keys for all room data
+    final roomName = room['roomName'] ?? room['room_name'] ?? room['name'] ?? '';
+    final roomSize = room['roomSize'] ?? room['room_size'] ?? 0;
+    final roomUnit = room['roomUnit'] ?? room['room_unit'] ?? 'sq ft';
+    final roomView = room['roomView'] ?? room['room_view'] ?? '';
+    final maxOccupancy = room['maxOccupancy'] ?? room['max_occupancy'] ?? 0;
     final description = room['description'] ?? '';
+    final roomPrice = room['roomPrice'] as List? ?? [];
 
     images = [];
     final rawImages = room['images'];
@@ -972,7 +1020,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     }
 
     final amenities = room['amenities'] as List? ?? [];
-    final roomPrice = room['room_price'] as List? ?? [];
     final groupedPlans = _groupRatePlans(roomPrice);
 
     DateTime? checkIn, checkOut;
@@ -1061,6 +1108,11 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // ✅ Loyalty Program Card
+                    _buildLoyaltyCard(
+                      propertyId: propertyId,
+                      propertyName: hotelName,
+                    ),
                     _buildTitleBlock(
                       roomName,
                       hotelName,
@@ -1117,7 +1169,8 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                           }).toList(),
                         ),
                       ),
-                    const SizedBox(height: 120),
+                    
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -1345,6 +1398,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                       ),
                       const SizedBox(height: 8),
                     ],
+                    
                     Text(
                       roomName,
                       style: TextStyle(
@@ -2130,12 +2184,11 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
 
           // ── BOTTOM BANNER ──────────────────────────────────
           // Not signed in → "Member Rate Available" CTA (full banner)
-          // Signed in     → only a slim logout button; entire text block removed
           if (!_discountApplied)
             GestureDetector(
-              onTap: () => _openMemberRateFlow(
+              onTap: () => _openDiscountRegistration(
                 propertyId: propertyId,
-                planCurrency: plan.currencyCode,
+                propertyName: hotelName,
               ),
               child: Container(
                 padding: const EdgeInsets.symmetric(

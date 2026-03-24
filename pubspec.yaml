@@ -29,6 +29,9 @@ dependencies:
   cached_network_image: ^3.4.1
   video_player: ^2.10.1
   chewie: ^1.7.5
+  webview_flutter: ^4.4.0
+  webview_flutter_android: ^3.12.0
+  webview_flutter_wkwebview: ^3.9.0
 
 
 dev_dependencies:
