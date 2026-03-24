@@ -935,12 +935,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     if (room == null)
       return _buildErrorScaffold('Room information not available');
 
-    // Extract loyalty data from arguments (passed from RoomsListWidget)
-    final loyaltyData = args['loyaltyData'] as Map<String, dynamic>?;
-print('loyaltyData: $loyaltyData'); // Better print with value
-    final propertyDetails =
-        args['propertyDetails'] as Map<String, dynamic>? ?? {};
-
     final totalGuests = args['totalGuests'] as int? ?? 1;
     final propertyCode = args['propertyCode'] as String? ?? '';
     final hotelName = args['hotelName'] as String? ?? '';
@@ -1067,39 +1061,6 @@ print('loyaltyData: $loyaltyData'); // Better print with value
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                   if (loyaltyData != null) ...[
-  const SizedBox(height: 15),
-  Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 10),
-    child: LoyaltyProgramCard(
-      discountValue: loyaltyData['discountValue'] ?? 10,
-      termsText:
-          loyaltyData['termsText'] ??
-          "Member-Only Rates\nEnjoy special discounted prices.",
-      benefitsTitle:
-          loyaltyData['benefitsTitle'] ?? "VIP Perks",
-      benefitsSubtitle:
-          loyaltyData['benefitsSubtitle'] ??
-          "Exclusive benefits for members.",
-      videoUrl: loyaltyData['videoUrl'],
-      videoThumbnail: loyaltyData['videoThumbnail'],
-      logoUrl: loyaltyData['logoUrl'],
-      propertyName: loyaltyData['propertyName'] ?? hotelName,
-      propertyId: propertyId, // ← NEW
- 
-      // ── Session sync ──────────────────────────────────────
-      isJoined: _discountApplied,                           // ← NEW
-      joinedDiscountPercentage: _discountPercentage,        // ← NEW
- 
-      // ── Callbacks ─────────────────────────────────────────
-      onJoinSuccess: (email, percentage) {                  // ← NEW
-        _applyDiscount(email: email, percentage: percentage);
-      },
-      onLogout: _handleLogout,                              // ← NEW
-    ),
-  ),
-  const SizedBox(height: 15),
-],
                     _buildTitleBlock(
                       roomName,
                       hotelName,
@@ -1122,8 +1083,6 @@ print('loyaltyData: $loyaltyData'); // Better print with value
                       adults,
                       children,
                     ),
-
-                    // ─── ADD LOYALTY CARD HERE ───────────────────────────
                     if (description.isNotEmpty)
                       _buildSection(
                         'About This Room',
@@ -1197,138 +1156,129 @@ print('loyaltyData: $loyaltyData'); // Better print with value
 
   // ─── Hero ────────────────────────────────────────────────────────────────────
 
-  Widget _buildHeroImageArea(
-    Map<String, dynamic> args,
-    Map<String, dynamic> room,
-  ) {
-    return Expanded(
-      flex: 2,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (images.isNotEmpty)
-            PageView.builder(
-              controller: _pageController,
-              itemCount: images.length,
-              onPageChanged: (i) => setState(() => _currentImageIndex = i),
-              itemBuilder: (_, i) => Image.network(
-                images[i],
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: AppColor.primary.withOpacity(0.3),
-                  child: Icon(
-                    Icons.hotel_rounded,
-                    size: 80,
-                    color: Colors.white.withOpacity(0.3),
-                  ),
+  Widget _buildHeroImageArea() {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (images.isNotEmpty)
+          PageView.builder(
+            controller: _pageController,
+            itemCount: images.length,
+            onPageChanged: (i) => setState(() => _currentImageIndex = i),
+            itemBuilder: (_, i) => Image.network(
+              images[i],
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                color: AppColor.primary.withOpacity(0.3),
+                child: Icon(
+                  Icons.hotel_rounded,
+                  size: 80,
+                  color: Colors.white.withOpacity(0.3),
                 ),
               ),
-            )
-          else
-            Container(
-              color: AppColor.primary,
-              child: Icon(
-                Icons.hotel_rounded,
-                size: 80,
-                color: Colors.white.withOpacity(0.2),
-              ),
             ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withOpacity(0.25),
-                  Colors.transparent,
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.7),
-                ],
-                stops: const [0, 0.25, 0.55, 1],
+          )
+        else
+          Container(
+            color: AppColor.primary,
+            child: Icon(
+              Icons.hotel_rounded,
+              size: 80,
+              color: Colors.white.withOpacity(0.2),
+            ),
+          ),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withOpacity(0.25),
+                Colors.transparent,
+                Colors.transparent,
+                Colors.black.withOpacity(0.7),
+              ],
+              stops: const [0, 0.25, 0.55, 1],
+            ),
+          ),
+        ),
+        if (images.length > 1)
+          Positioned(
+            bottom: 24,
+            left: 0,
+            right: 0,
+            child: SizedBox(
+              height: 60,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: images.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (_, i) {
+                  final active = i == _currentImageIndex;
+                  return GestureDetector(
+                    onTap: () => _pageController.animateToPage(
+                      i,
+                      duration: const Duration(milliseconds: 350),
+                      curve: Curves.easeInOut,
+                    ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: active ? 68 : 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: active
+                              ? Colors.white
+                              : Colors.white.withOpacity(0.3),
+                          width: active ? 2.5 : 1.5,
+                        ),
+                        boxShadow: active
+                            ? [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 8,
+                                ),
+                              ]
+                            : [],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          images[i],
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              Container(color: Colors.grey[300]),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
-          if (images.length > 1)
-            Positioned(
-              bottom: 24,
-              left: 0,
-              right: 0,
-              child: SizedBox(
-                height: 60,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: images.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
-                  itemBuilder: (_, i) {
-                    final active = i == _currentImageIndex;
-                    return GestureDetector(
-                      onTap: () => _pageController.animateToPage(
-                        i,
-                        duration: const Duration(milliseconds: 350),
-                        curve: Curves.easeInOut,
-                      ),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: active ? 68 : 56,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: active
-                                ? Colors.white
-                                : Colors.white.withOpacity(0.3),
-                            width: active ? 2.5 : 1.5,
-                          ),
-                          boxShadow: active
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.3),
-                                    blurRadius: 8,
-                                  ),
-                                ]
-                              : [],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            images[i],
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                Container(color: Colors.grey[300]),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+        if (images.length > 1)
+          Positioned(
+            top: 80,
+            right: 10,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${_currentImageIndex + 1} / ${images.length}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
                 ),
               ),
             ),
-          if (images.length > 1)
-            Positioned(
-              top: 80,
-              right: 10,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${_currentImageIndex + 1} / ${images.length}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 
