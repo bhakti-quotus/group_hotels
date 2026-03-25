@@ -28,6 +28,7 @@ class HeroBanner extends StatefulWidget {
 class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
   late VideoPlayerController _videoController;
   bool _videoInitialized = false;
+  bool _videoError = false;
 
   late AnimationController _textController;
   late Animation<double> _textOpacity;
@@ -46,20 +47,35 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _initVideo();
+    _initAnimations();
+  }
 
-    // ── Video ─────────────────────────────────────────────────────────────
-    _videoController = VideoPlayerController.networkUrl(Uri.parse(_videoUrl))
-      ..initialize().then((_) {
-        if (!mounted) return;
-        setState(() => _videoInitialized = true);
-        _videoController
-          ..setLooping(true)
-          ..setVolume(0)
-          ..play();
-      });
+  // ── Video initializer (separate method for clarity) ──────────────────────
+  Future<void> _initVideo() async {
+    try {
+      _videoController = VideoPlayerController.networkUrl(
+        Uri.parse(_videoUrl),
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+      );
 
-    // ── Staggered entrance animations ────────────────────────────────────
+      await _videoController.initialize();
 
+      if (!mounted) return;
+
+      await _videoController.setLooping(true);
+      await _videoController.setVolume(0.0);
+      await _videoController.play();
+
+      setState(() => _videoInitialized = true);
+    } catch (e) {
+      debugPrint('Video init error: $e');
+      if (mounted) setState(() => _videoError = true);
+    }
+  }
+
+  // ── Animations ────────────────────────────────────────────────────────────
+  void _initAnimations() {
     // 1. Subtitle eyebrow
     _subtitleController = AnimationController(
       vsync: this,
@@ -137,6 +153,30 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
     return map[iconName.toLowerCase()] ?? Icons.star_outline_rounded;
   }
 
+  // ── Video widget ──────────────────────────────────────────────────────────
+  Widget _buildVideo() {
+    // Error fallback
+    if (_videoError) {
+      return Container(color: Colors.black);
+    }
+
+    // Loading state — show black while buffering
+    if (!_videoInitialized) {
+      return Container(color: Colors.black);
+    }
+
+    return SizedBox.expand(
+      child: FittedBox(
+        fit: BoxFit.cover,
+        child: SizedBox(
+          width: _videoController.value.size.width,
+          height: _videoController.value.size.height,
+          child: VideoPlayer(_videoController),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final topPad = MediaQuery.of(context).padding.top;
@@ -146,21 +186,10 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // ── Video ───────────────────────────────────────────────────────
-          _videoInitialized
-              ? SizedBox.expand(
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      width: _videoController.value.size.width,
-                      height: _videoController.value.size.height,
-                      child: VideoPlayer(_videoController),
-                    ),
-                  ),
-                )
-              : Container(color: Colors.black),
+          // ── Video ─────────────────────────────────────────────────────────
+          _buildVideo(),
 
-          // ── Deep cinematic gradient ─────────────────────────────────────
+          // ── Deep cinematic gradient ───────────────────────────────────────
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -177,7 +206,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
             ),
           ),
 
-          // ── Horizontal vignette ─────────────────────────────────────────
+          // ── Horizontal vignette ───────────────────────────────────────────
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -194,7 +223,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
             ),
           ),
 
-          // ── Curved bottom clip ──────────────────────────────────────────
+          // ── Curved bottom clip ────────────────────────────────────────────
           Positioned(
             bottom: 0,
             left: 0,
@@ -205,7 +234,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
             ),
           ),
 
-          // ── Top bar ─────────────────────────────────────────────────────
+          // ── Top bar ───────────────────────────────────────────────────────
           Positioned(
             top: topPad + 18,
             left: 24,
@@ -275,7 +304,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
             ),
           ),
 
-          // ── Bottom content ───────────────────────────────────────────────
+          // ── Bottom content ────────────────────────────────────────────────
           Positioned(
             bottom: 64,
             left: 26,
@@ -284,16 +313,12 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Eyebrow — flanked by thin lines for luxury feel
+                // Eyebrow
                 FadeTransition(
                   opacity: _subtitleOpacity,
                   child: Row(
                     children: [
-                      Container(
-                        width: 28,
-                        height: 1,
-                        color: AppColor.secondary,
-                      ),
+                      Container(width: 28, height: 1, color: AppColor.secondary),
                       const SizedBox(width: 10),
                       Text(
                         (widget.bannerData['subtitle'] ?? '')
@@ -318,7 +343,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
 
                 const SizedBox(height: 14),
 
-                // Title — large & confident
+                // Title
                 SlideTransition(
                   position: _textSlide,
                   child: FadeTransition(
@@ -346,15 +371,14 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Highlights — horizontally scrollable row
+                        // Highlights
                         if (widget.highlights != null &&
                             widget.highlights!.isNotEmpty)
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             physics: const BouncingScrollPhysics(),
                             child: Row(
-                              children:
-                                  widget.highlights!.take(5).map((h) {
+                              children: widget.highlights!.take(5).map((h) {
                                 final label = h['label'] as String? ?? '';
                                 final iconName = h['icon'] as String? ?? '';
                                 return Padding(
@@ -366,11 +390,9 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(
-                                          _resolveIcon(iconName),
-                                          size: 12,
-                                          color: AppColor.secondary,
-                                        ),
+                                        Icon(_resolveIcon(iconName),
+                                            size: 12,
+                                            color: AppColor.secondary),
                                         const SizedBox(width: 6),
                                         Text(
                                           label,
@@ -394,7 +416,6 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                         // CTA row
                         Row(
                           children: [
-                            // Primary
                             GestureDetector(
                               onTap: () => Get.toNamed(
                                 widget.bannerData['cta']?['route'] ?? '/',
@@ -407,8 +428,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                                   borderRadius: BorderRadius.circular(32),
                                   boxShadow: [
                                     BoxShadow(
-                                      color:
-                                          AppColor.secondary.withOpacity(0.50),
+                                      color: AppColor.secondary.withOpacity(0.50),
                                       blurRadius: 20,
                                       offset: const Offset(0, 6),
                                     ),
@@ -428,11 +448,8 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    const Icon(
-                                      Icons.arrow_forward_rounded,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
+                                    const Icon(Icons.arrow_forward_rounded,
+                                        color: Colors.white, size: 16),
                                   ],
                                 ),
                               ),
@@ -440,7 +457,23 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
 
                             const SizedBox(width: 14),
 
-                            
+                            GestureDetector(
+                              onTap: () {},
+                              child: _GlassContainer(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 22, vertical: 14),
+                                borderRadius: 32,
+                                child: const Text(
+                                  'Explore',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.4,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ],
