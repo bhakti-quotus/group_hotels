@@ -450,7 +450,7 @@
 //                                           // Store the complete hotel data in HotelController
 //                                           final hotelController = Get.find<HotelController>();
 //                                           hotelController.setSelectedHotel(hotel);
-                                          
+
 //                                           // Navigate to home page
 //                                           Get.toNamed(
 //                                             AppRoutes.home,
@@ -553,7 +553,9 @@ class _HotelScreenState extends State<HotelScreen> {
     if (args != null && args is Map<String, dynamic>) {
       final hasChildren = (args['childHotels'] as List?)?.isNotEmpty == true;
       if (hasChildren) {
-        BrandingColors.loadFromConfig(args['config'] ?? args);
+        final rootArgs = args['config'] ?? args;
+        BrandingColors.loadFromConfig(rootArgs);
+        Get.find<HotelController>().setConfig(args, isRoot: true);
         if (mounted)
           setState(() {
             groupData = args;
@@ -576,6 +578,7 @@ class _HotelScreenState extends State<HotelScreen> {
         setState(() {
           groupData = decoded;
         });
+      Get.find<HotelController>().setConfig(decoded, isRoot: true);
     } catch (e) {
       debugPrint('❌ Error loading config.json: $e');
     }

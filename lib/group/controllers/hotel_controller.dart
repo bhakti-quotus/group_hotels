@@ -2,15 +2,37 @@ import 'package:get/get.dart';
 
 class HotelController extends GetxController {
   Rx<Map<String, dynamic>?> currentConfig = Rx<Map<String, dynamic>?>(null);
+  Rx<Map<String, dynamic>?> rootConfig = Rx<Map<String, dynamic>?>(null);
   Rx<Map<String, dynamic>?> selectedHotel = Rx<Map<String, dynamic>?>(null);
 
-  // Store the entire group config
-  void setConfig(Map<String, dynamic> config) {
+  // Store the entire group config (or latest root-level config)
+  void setConfig(Map<String, dynamic> config, {bool isRoot = false}) {
     currentConfig.value = config;
+    if (isRoot || rootConfig.value == null) {
+      rootConfig.value = config;
+    }
   }
 
   Map<String, dynamic>? getConfig() {
     return currentConfig.value;
+  }
+
+  Map<String, dynamic>? getRootConfig() {
+    return rootConfig.value;
+  }
+
+  bool hasChildHotels() {
+    return (currentConfig.value?['childHotels'] as List<dynamic>?)
+            ?.isNotEmpty ==
+        true;
+  }
+
+  bool hasSelectedHotel() {
+    return selectedHotel.value != null;
+  }
+
+  void clearSelectedHotel() {
+    selectedHotel.value = null;
   }
 
   // Store selected child hotel's complete data (including id, name, type, config, etc.)

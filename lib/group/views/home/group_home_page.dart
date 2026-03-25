@@ -35,7 +35,7 @@ class _GroupHomePageState extends State<GroupHomePage> {
     try {
       final String response = await rootBundle.loadString('assets/config.json');
       final decoded = json.decode(response);
-      Get.find<HotelController>().setConfig(decoded);
+      Get.find<HotelController>().setConfig(decoded, isRoot: true);
       final groupConfig = decoded['config'] as Map<String, dynamic>? ?? {};
       BrandingColors.loadFromConfig(groupConfig);
       setState(() {

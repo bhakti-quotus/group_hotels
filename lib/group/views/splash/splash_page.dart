@@ -27,8 +27,8 @@ class _SplashPageState extends State<SplashPage> {
       final String response = await rootBundle.loadString('assets/config.json');
       final decoded = json.decode(response);
       final groupConfig = decoded['config'] as Map<String, dynamic>? ?? {};
-      Get.find<HotelController>().setConfig(decoded);
-     // print('decoded config: $decoded');
+      Get.find<HotelController>().setConfig(decoded, isRoot: true);
+      // print('decoded config: $decoded');
       BrandingColors.loadFromConfig(groupConfig);
     } catch (e) {
       print('Error loading config: $e');

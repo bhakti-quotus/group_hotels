@@ -52,14 +52,14 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-String _getPropertyCode() {
+  String _getPropertyCode() {
     final hotelCtrl = Get.find<HotelController>();
     return hotelCtrl.getConfig()?['code'] as String? ??
-           hotelCtrl.getSelectedHotel()?['code'] as String? ??
-           '';
+        hotelCtrl.getSelectedHotel()?['code'] as String? ??
+        '';
   }
 
-void _onNavTap(int index) {
+  void _onNavTap(int index) {
     if (index != _currentIndex && index < _navItems.length) {
       final route = _navItems[index].route;
       if (route == '/bookingdetails') {
@@ -89,7 +89,27 @@ void _onNavTap(int index) {
         backgroundColor: AppColor.background,
         body: HomeScreen(config: config),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => Get.toNamed(AppRoutes.hotels),
+          onPressed: () {
+            final hotelCtrl = Get.find<HotelController>();
+            final isChildHotel = hotelCtrl.hasSelectedHotel();
+            final hasChildHotels = hotelCtrl.hasChildHotels();
+
+            if (isChildHotel) {
+              // Back to full child list
+              hotelCtrl.clearSelectedHotel();
+              final root = hotelCtrl.getRootConfig();
+              if (root != null) {
+                hotelCtrl.setConfig(root, isRoot: true);
+                Get.offNamed(AppRoutes.groupHotels, arguments: root);
+                return;
+              }
+            }
+
+            final targetRoute = hasChildHotels
+                ? AppRoutes.groupHotels
+                : AppRoutes.hotels;
+            Get.offNamed(targetRoute);
+          },
           backgroundColor: primaryColor,
           child: const Icon(Icons.list, color: Colors.white),
         ),
