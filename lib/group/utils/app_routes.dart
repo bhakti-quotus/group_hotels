@@ -19,9 +19,18 @@ import '../views/home/group_home_page.dart';
 import '../views/about/group_about.dart';
 import '../views/contact/group_contact.dart';
 import '../views/hotels/hotels.dart';
+import '../views/webroom/webroom_routes.dart';
 
 class AppRoutes {
   static const groupHome = '/grouphome';
+  static const webroom = '/webroom';
+  static const webroomChildSplash = '/webroom/child-splash';
+  static const webroomChildMain = '/webroom/child-main';
+  static const webroomChildHome = '/webroom/child-home';
+  static const webroomChildSchedule = '/webroom/child-schedule';
+  static const webroomChildMessages = '/webroom/child-messages';
+  static const webroomChildReservation = '/webroom/child-reservation';
+  static const webroomChildProfile = '/webroom/child-profile';
   static const groupAbout = '/groupabout';
   static const groupContact = '/groupcontact';
   static const groupBookingDetails = '/groupbookingdetails';
@@ -71,6 +80,7 @@ class AppRoutes {
     GetPage(name: cancelBooking, page: () => const CancelBookingPage()),
     GetPage(name: groupBookingDetails, page: () => const BookingDetailsPage()),
     GetPage(name: groupHotels, page: () => const Hotels()),
+    ...WebroomRoutes.pages,
     // ✅ FIX: Read bookingCode and propertyCode from Get.arguments
     GetPage(
       name: BookingDetails,

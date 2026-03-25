@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:get/get.dart';
 import '../../controllers/hotel_controller.dart';
+import '../../utils/app_routes.dart';
 
 class BottomNavItem {
   final IconData icon;
@@ -39,12 +40,17 @@ class BottomNavItemManager {
               ?.cast<Map<String, dynamic>>() ??
           [];
 
+      final rootConfig = Get.find<HotelController>().getRootConfig();
       final isGroup =
-          config != null &&
-          config['childHotels'] != null &&
-          (config['childHotels'] as List?)?.isNotEmpty == true;
+          (config != null &&
+              config['childHotels'] != null &&
+              (config['childHotels'] as List?)?.isNotEmpty == true) ||
+          (rootConfig != null &&
+              (rootConfig['childHotels'] as List?)?.isNotEmpty == true);
 
-      return items.where((item) => item['visible'] == true).map((item) {
+      final mappedItems = items.where((item) => item['visible'] == true).map((
+        item,
+      ) {
         String route = item['route'] as String? ?? '';
         if (isGroup) {
           switch (route) {
@@ -66,6 +72,9 @@ class BottomNavItemManager {
             case '/hotels':
               route = '/grouphotels';
               break;
+            case '/webroom':
+              route = AppRoutes.webroom;
+              break;
           }
         } else {
           switch (route) {
@@ -78,21 +87,37 @@ class BottomNavItemManager {
             case '/groupcontact':
               route = '/contact';
               break;
-
             case '/groupbookingdetails':
               route = '/bookingdetails';
               break;
             case '/grouphotels':
               route = '/hotels';
               break;
+            case AppRoutes.webroom:
+              route = AppRoutes.webroom;
+              break;
           }
         }
+
         return BottomNavItem(
           icon: getIconFromString(item['icon'] as String? ?? ''),
           label: item['label'] as String? ?? '',
           route: route,
         );
       }).toList();
+
+      if (isGroup &&
+          mappedItems.every((item) => item.route != AppRoutes.webroom)) {
+        mappedItems.add(
+          const BottomNavItem(
+            icon: Icons.web,
+            label: 'Webroom',
+            route: AppRoutes.webroom,
+          ),
+        );
+      }
+
+      return mappedItems;
     } catch (e) {
       //print('Error loading navigation items: $e');
       return [];
@@ -121,6 +146,11 @@ class BottomNavItemManager {
       case 'building':
       case 'hotels':
         return Icons.business;
+
+      // ✅ For new webroom item in group navigation
+      case 'web':
+      case 'webroom':
+        return Icons.web;
 
       default:
         return Icons.help;

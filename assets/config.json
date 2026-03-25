@@ -74,6 +74,13 @@
               "visible": true
             },
             {
+              "id": "webroom",
+              "icon": "web",
+              "label": "Webroom",
+              "route": "/webroom",
+              "visible": false
+            },
+            {
               "id": "offers",
               "icon": "local_offer",
               "label": "Offers",
@@ -309,6 +316,13 @@
               "visible": true
             },
             {
+              "id": "webroom",
+              "icon": "web",
+              "label": "Webroom",
+              "route": "/webroom",
+              "visible": false
+            },
+            {
               "id": "offers",
               "icon": "local_offer",
               "label": "Offers",
@@ -517,14 +531,14 @@
           "icon": "info",
           "label": "About",
           "route": "/about",
-          "visible": true
+          "visible": false
         },
         {
           "id": "contact",
           "icon": "call",
           "label": "Contact",
           "route": "/contact",
-          "visible": true
+          "visible": false
         },
         {
           "id": "offers",
