@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:group/group/views/webroom/controller/wellness_controller.dart';
 import 'package:group/group/views/webroom/common/wellness_data.dart';
+import 'package:flutter/services.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Entry point — call Get.to(() => const WellnessPage())
@@ -19,20 +20,26 @@ class WellnessPage extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        leading: const BackButton(color: Colors.black87),
-        title: const Text(
+        leading:  BackButton(color: AppColor.primary),
+        title: Text(
           'Wellness',
           style: TextStyle(
-            color: Colors.black87,
+            color: AppColor.primary,
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 24,
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
+           backgroundColor: const Color(0xFFF5F6FA), // Fixed white background
+        elevation: 0, // Removes shadow
+        scrolledUnderElevation: 0, // Prevents elevation when scrolling
+        surfaceTintColor: Colors.white, // Prevents surface tint
         centerTitle: true,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+        ),
       ),
       body: const _WellnessBody(),
     );
@@ -83,7 +90,7 @@ class _SearchBar extends StatelessWidget {
                 ),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
                 filled: true,
-                fillColor: Colors.grey[100],
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
@@ -105,7 +112,7 @@ class _SearchBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: ctrl.hasActiveFilter
                       ? AppColor.primary.withOpacity(0.1)
-                      : Colors.grey[100],
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Stack(
@@ -155,40 +162,43 @@ class _CategoryChips extends StatelessWidget {
       final chipCategories = ctrl.chipCategories;
       final activeChip = ctrl.activeChip.value;
       return SizedBox(
-        height: 36,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: chipCategories.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
-          itemBuilder: (_, i) {
-            final cat = chipCategories[i];
-            final selected = activeChip == cat;
-            return GestureDetector(
-              onTap: () {
-                ctrl.selectChipCategory(cat);
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: selected ? AppColor.primary : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  cat,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: selected ? Colors.white : Colors.grey[700],
+        height: 40,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: chipCategories.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (_, i) {
+              final cat = chipCategories[i];
+              final selected = activeChip == cat;
+              return GestureDetector(
+                onTap: () {
+                  ctrl.selectChipCategory(cat);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: selected ? AppColor.primary : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    cat,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: selected ? Colors.white : Colors.grey[700],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       );
     });
@@ -429,15 +439,7 @@ class _WellnessCardState extends State<_WellnessCard> {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          item['category'] as String,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColor.primary.withOpacity(0.85),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
+                      
                         Text(
                           [
                             item['subtitle'] as String,
@@ -925,29 +927,43 @@ class _FilterSheet extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close, size: 18),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
-          // Category label
-          const Text(
-            'Category',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54,
-            ),
+          // Category label with icon
+          Row(
+            children: [
+              Icon(Icons.category_outlined, size: 18, color: AppColor.primary),
+              const SizedBox(width: 8),
+              const Text(
+                'Category',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // Category pills
           Obx(() {
             final filterCategory = ctrl.filterCategory.value;
             return Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 10,
+              runSpacing: 10,
               children: wellnessCategories.map((cat) {
                 final sel = filterCategory == cat;
                 return GestureDetector(
@@ -961,24 +977,38 @@ class _FilterSheet extends StatelessWidget {
                     }
                   },
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 18,
-                      vertical: 8,
+                      vertical: 10,
                     ),
                     decoration: BoxDecoration(
                       color: sel ? AppColor.primary : Colors.white,
                       border: Border.all(
-                        color: sel ? AppColor.primary : Colors.grey[300]!,
+                        color: sel 
+                          ? AppColor.primary 
+                          : Colors.grey[300]!,
+                        width: sel ? 1.5 : 1,
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: sel
+                          ? [
+                              BoxShadow(
+                                color: AppColor.primary.withOpacity(0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              )
+                            ]
+                          : null,
                     ),
                     child: Text(
                       cat,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: sel ? Colors.white : Colors.black87,
+                        color: sel ? Colors.white : Colors.grey[700],
+                        letterSpacing: 0.3,
                       ),
                     ),
                   ),
@@ -987,72 +1017,132 @@ class _FilterSheet extends StatelessWidget {
             );
           }),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
-          // Subcategory label
-          const Text(
-            'Subcategory',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54,
-            ),
+          // Subcategory label with icon
+          Row(
+            children: [
+              Icon(Icons.list_alt_outlined, size: 18, color: AppColor.primary),
+              const SizedBox(width: 8),
+              const Text(
+                'Subcategory',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
-          // Subcategory dropdown
+          // Subcategory dropdown only
           Obx(() {
             final subs = ctrl.filterSubcategories;
             final enabled = subs.isNotEmpty;
+            final selectedValue = ctrl.filterSubcategory.value;
 
             return Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+                border: Border.all(
+                  color: selectedValue != null ? AppColor.primary : Colors.grey[300]!,
+                  width: selectedValue != null ? 2 : 1,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: selectedValue != null 
+                  ? [
+                      BoxShadow(
+                        color: AppColor.primary.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      )
+                    ]
+                  : null,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   isExpanded: true,
-                  hint: Text(
-                    enabled ? 'Select subcategory' : 'Select a category first',
-                    style: TextStyle(fontSize: 13, color: Colors.grey[400]),
+                  hint: Row(
+                    children: [
+                      Icon(
+                        Icons.filter_list,
+                        size: 18,
+                        color: enabled ? Colors.grey[500] : Colors.grey[400],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        enabled ? 'Select subcategory' : 'Select a category first',
+                        style: TextStyle(
+                          fontSize: 14, 
+                          color: enabled ? Colors.grey[600] : Colors.grey[400],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
-                  value: ctrl.filterSubcategory.value,
+                  value: selectedValue,
                   items: enabled
-                      ? subs
-                            .map(
-                              (s) => DropdownMenuItem(
-                                value: s,
-                                child: Text(
-                                  s,
-                                  style: const TextStyle(fontSize: 13),
-                                ),
+                      ? [
+                          // Add "All" option
+                          const DropdownMenuItem<String>(
+                            value: null,
+                            child: Row(
+                              children: [
+                               
+                                Text('All subcategories'),
+                              ],
+                            ),
+                          ),
+                          ...subs.map(
+                            (s) => DropdownMenuItem(
+                              value: s,
+                              child: Row(
+                                children: [
+                                 
+                                  Text(
+                                    s,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            )
-                            .toList()
+                            ),
+                          ),
+                        ]
                       : null,
                   onChanged: enabled
                       ? (v) => ctrl.filterSubcategory.value = v
                       : null,
                   icon: Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Colors.grey[500],
+                    Icons.keyboard_arrow_down_rounded,
+                    color: selectedValue != null ? AppColor.primary : Colors.grey[500],
+                    size: 24,
                   ),
+                  dropdownColor: Colors.white,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: selectedValue != null ? FontWeight.w600 : FontWeight.w500,
+                    color: selectedValue != null ? AppColor.primary : Colors.black87,
+                  ),
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             );
           }),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
 
-          // Clear + Apply row
+          // Action buttons
           Row(
             children: [
               Obx(
                 () => ctrl.hasActiveFilter
-                    ? Padding(
-                        padding: const EdgeInsets.only(right: 10),
+                    ? Expanded(
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
@@ -1060,7 +1150,7 @@ class _FilterSheet extends StatelessWidget {
                               vertical: 14,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             side: BorderSide(color: Colors.grey[400]!),
                           ),
@@ -1068,21 +1158,33 @@ class _FilterSheet extends StatelessWidget {
                             ctrl.clearFilter();
                             Navigator.pop(context);
                           },
-                          child: const Text(
-                            'Clear',
-                            style: TextStyle(color: Colors.black54),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.clear, size: 16, color: Colors.grey[600]),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Clear all',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       )
                     : const SizedBox.shrink(),
               ),
+              if (ctrl.hasActiveFilter) const SizedBox(width: 12),
               Expanded(
+                flex: ctrl.hasActiveFilter ? 1 : 2,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppColor.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 0,
                   ),
@@ -1090,13 +1192,20 @@ class _FilterSheet extends StatelessWidget {
                     ctrl.applyFilter();
                     Navigator.pop(context);
                   },
-                  child: const Text(
-                    'APPLY',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.8,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.check, color: Colors.white, size: 18),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'APPLY FILTERS',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

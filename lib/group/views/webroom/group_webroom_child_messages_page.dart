@@ -32,33 +32,20 @@ class GroupWebRoomChildMessagesPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Messages',
-          style: TextStyle(
-            color: Color(0xFF003087), 
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(
-            color: const Color(0xFFF0F1F5), 
-            height: 1,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      backgroundColor: const Color.fromARGB(255, 233, 235, 240),
+     
       body: Column(
         children: [
+           Padding(
+             padding: const EdgeInsets.only(top: 30, bottom: 8),
+             child: Text(
+              'Messages',
+              style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppColor.primary),
+                       ),
+           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: TextField(
@@ -83,109 +70,123 @@ class GroupWebRoomChildMessagesPage extends StatelessWidget {
               ),
             ),
           ),
+
+          Container(
+        height: 24,
+        decoration: const BoxDecoration(
+          color: Colors.white, // matches scaffold background
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(28),
+            topRight: Radius.circular(28),
+          ),
+        ),
+      ),
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: messages.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final item = messages[index];
-                final unreadCount = item['unread'] as int;
-                
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12, 
-                      vertical: 10,
-                    ),
-                    leading: CircleAvatar(
-                      radius: 24,
-                      backgroundColor: const Color(0xFFE9EEF9),
-                      child: Text(
-                        item['name'][0], 
-                        style: const TextStyle(
-                          color: Color(0xFF003087), 
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+            child: Container(
+              color: Colors.white,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                itemCount: messages.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final item = messages[index];
+                  final unreadCount = item['unread'] as int;
+                  
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
                         ),
-                      ),
-                    ),
-                    title: Text(
-                      item['name'] as String, 
-                      style: TextStyle(
-                        fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.w600,
-                        fontSize: 15,
-                        color: unreadCount > 0 ? Colors.black87 : Colors.grey[800],
-                      ),
-                    ),
-                    subtitle: Text(
-                      item['message'] as String, 
-                      style: TextStyle(
-                        color: unreadCount > 0 ? Colors.grey[700] : Colors.grey[500],
-                        fontSize: 13,
-                        fontWeight: unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          item['time'] as String, 
-                          style: TextStyle(
-                            color: unreadCount > 0 ? Colors.grey[700] : Colors.grey[500],
-                            fontSize: 12,
-                            fontWeight: unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
-                          ),
-                        ),
-                        if (unreadCount > 0)
-                          Container(
-                            margin: const EdgeInsets.only(top: 6),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8, 
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE8414A),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '$unreadCount',
-                              style: const TextStyle(
-                                color: Colors.white, 
-                                fontSize: 12, 
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
                       ],
                     ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => GroupWebRoomChildConversationPage(
-                            title: item['name'] as String,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, 
+                        vertical: 10,
+                      ),
+                      leading: CircleAvatar(
+                        radius: 24,
+                        backgroundColor: const Color(0xFFE9EEF9),
+                        child: Text(
+                          item['name'][0], 
+                          style: const TextStyle(
+                            color: Color(0xFF003087), 
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
-                      );
-                    },
-                  ),
-                );
-              },
+                      ),
+                      title: Text(
+                        item['name'] as String, 
+                        style: TextStyle(
+                          fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.w600,
+                          fontSize: 15,
+                          color: unreadCount > 0 ? Colors.black87 : Colors.grey[800],
+                        ),
+                      ),
+                      subtitle: Text(
+                        item['message'] as String, 
+                        style: TextStyle(
+                          color: unreadCount > 0 ? Colors.grey[700] : Colors.grey[500],
+                          fontSize: 13,
+                          fontWeight: unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            item['time'] as String, 
+                            style: TextStyle(
+                              color: unreadCount > 0 ? Colors.grey[700] : Colors.grey[500],
+                              fontSize: 12,
+                              fontWeight: unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
+                            ),
+                          ),
+                          if (unreadCount > 0)
+                            Container(
+                              margin: const EdgeInsets.only(top: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8, 
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8414A),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '$unreadCount',
+                                style: const TextStyle(
+                                  color: Colors.white, 
+                                  fontSize: 12, 
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => GroupWebRoomChildConversationPage(
+                              title: item['name'] as String,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],

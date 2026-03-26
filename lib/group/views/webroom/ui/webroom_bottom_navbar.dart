@@ -55,36 +55,50 @@ class WebRoomBottomNavBar extends StatelessWidget {
     final hotelController = Get.find<HotelController>();
 
     return Obx(
-      () => BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: currentIndex,
-        selectedItemColor: AppColor.primary,
-        unselectedItemColor: Colors.grey[700],
-        onTap: (index) => _handleTabTap(index, context),
-        items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.schedule,
-              color: !hotelController.isRegistered.value
-                  ? Colors.grey[300]
-                  : Colors.grey[700],
+      () => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 0,
+              offset: const Offset(0, -1),
             ),
-            label: 'Schedule',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.message,
-              color: !hotelController.isRegistered.value
-                  ? Colors.grey[300]
-                  : Colors.grey[700],
+          ],
+        ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: currentIndex,
+          selectedItemColor: AppColor.primary,
+          unselectedItemColor: Colors.grey[700],
+          backgroundColor: Colors.white,
+          elevation: 0, // Remove default elevation
+          onTap: (index) => _handleTabTap(index, context),
+          items: [
+            const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.schedule,
+                color: !hotelController.isRegistered.value
+                    ? Colors.grey[300]
+                    : null,
+              ),
+              label: 'Schedule',
             ),
-            label: 'Messages',
-          ),
-          const BottomNavigationBarItem(
-              icon: Icon(Icons.book_online), label: 'Reservation'),
-          const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.message,
+                color: !hotelController.isRegistered.value
+                    ? Colors.grey[300]
+                    : null,
+              ),
+              label: 'Messages',
+            ),
+            const BottomNavigationBarItem(
+                icon: Icon(Icons.book_online), label: 'Reservation'),
+            const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          ],
+        ),
       ),
     );
   }

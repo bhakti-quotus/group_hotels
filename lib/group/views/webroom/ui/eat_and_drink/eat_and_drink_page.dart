@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:group/group/common/theme/theme.dart';
 import 'package:group/group/views/webroom/common/eatanddrink_data.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -36,19 +37,12 @@ class _EatAndDrinkPageState extends State<EatAndDrinkPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5F6FA),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.black87,
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
+        leading:  BackButton(color: AppColor.primary),
+        title:  Text(
           'Eat & Drink',
           style: TextStyle(
-            color: Color(0xFF003087),
-            fontSize: 20,
+            color: AppColor.primary,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -775,11 +769,7 @@ class _RequestTablePageState extends State<_RequestTablePage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Colors.black87, size: 20),
-          onPressed: _goBack,
-        ),
+         leading:  BackButton(color: AppColor.primary),
         title: Text(
           _appBarTitle,
           style: const TextStyle(
