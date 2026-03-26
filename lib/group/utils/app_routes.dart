@@ -25,6 +25,7 @@ class AppRoutes {
   static const groupHome = '/grouphome';
   static const webroom = '/webroom';
   static const webroomChildSplash = '/webroom/child-splash';
+  static const webroomChildLogin = '/webroom/child-login';
   static const webroomChildMain = '/webroom/child-main';
   static const webroomChildHome = '/webroom/child-home';
   static const webroomChildSchedule = '/webroom/child-schedule';

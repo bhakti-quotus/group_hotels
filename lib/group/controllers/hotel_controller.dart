@@ -4,6 +4,7 @@ class HotelController extends GetxController {
   Rx<Map<String, dynamic>?> currentConfig = Rx<Map<String, dynamic>?>(null);
   Rx<Map<String, dynamic>?> rootConfig = Rx<Map<String, dynamic>?>(null);
   Rx<Map<String, dynamic>?> selectedHotel = Rx<Map<String, dynamic>?>(null);
+  RxBool isRegistered = false.obs;
 
   // Store the entire group config (or latest root-level config)
   void setConfig(Map<String, dynamic> config, {bool isRoot = false}) {

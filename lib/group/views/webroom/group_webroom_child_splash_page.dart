@@ -84,12 +84,12 @@ class _GroupWebRoomChildSplashPageState extends State<GroupWebRoomChildSplashPag
     });
 
     // ── Navigation timer ───────────────────────────────────────────────
-    Timer(const Duration(milliseconds: 150000), () {
+    Timer(const Duration(milliseconds: 4000), () {
       final args = Get.arguments;
       if (args != null && args is Map<String, dynamic>) {
-        Get.offNamed(AppRoutes.webroomChildMain, arguments: args);
+        Get.offNamed(AppRoutes.webroomChildLogin, arguments: args);
       } else {
-        Get.offNamed(AppRoutes.groupHome);
+        Get.offNamed(AppRoutes.webroomChildLogin);
       }
     });
   }

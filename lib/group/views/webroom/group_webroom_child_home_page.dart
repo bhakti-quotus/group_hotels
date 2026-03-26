@@ -2,43 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:group/group/controllers/hotel_controller.dart';
+import 'package:group/group/utils/app_routes.dart';
+import 'package:group/group/views/webroom/ui/home/webroom_home.dart';
+import 'ui/webroom_bottom_navbar.dart';
 
 class GroupWebRoomChildHomePage extends StatelessWidget {
   const GroupWebRoomChildHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final hotelController = Get.find<HotelController>();
-    final selectedHotel = hotelController.getSelectedHotel();
-    final hotelName = selectedHotel?['name'] as String? ?? 'Hotel';
-    final hotelLogo = (selectedHotel?['config'] as Map<String, dynamic>?)?['branding']?['logo'] as String?;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            if (hotelLogo != null && hotelLogo.isNotEmpty)
-              Image.network(
-                hotelLogo,
-                width: 28,
-                height: 28,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Icon(Icons.hotel, color: Colors.white),
-              )
-            else
-              const Icon(Icons.hotel, color: Colors.white),
-            const SizedBox(width: 8),
-            Text('Webroom - $hotelName'),
-          ],
-        ),
+      body: const WebroomHome(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Get.offNamed(AppRoutes.webroom),
+        child: const Icon(Icons.arrow_back, size: 20),
         backgroundColor: AppColor.primary,
+        foregroundColor: Colors.white,
+        tooltip: 'Back',
       ),
-      body: const Center(
-        child: Text(
-          'Home Page Content',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-      ),
+      bottomNavigationBar: const WebRoomBottomNavBar(currentIndex: 0),
     );
   }
 }
