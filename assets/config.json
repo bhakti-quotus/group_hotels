@@ -11,7 +11,7 @@
   "childHotels": [
      {
       "id": "199bca6e-548d-4f7e-b5d2-a5c674bd7c3e",
-      "code": "BQQYBF",
+      "code": "A8423W",
       "name": "Body Holiday",
       "slug": "body-holiday",
       "type": "STANDALONE",
@@ -99,7 +99,7 @@
                 },
                 "image": "https://www.thebodyholiday.com/wp-content/uploads/2023/02/SunSwept_TBH_Pent_View_Hero2.jpg",
                 "title": "Welcome to BodyHoliday Saint Lucia",
-                "subtitle": "Experience Luxury"
+                "subtitle": "An Inspiring Place, Where Bespoke Wellness Holidays Come Alive"
               },
               "type": "heroBanner"
             },
@@ -178,38 +178,48 @@
         ],
         "amenities": [
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/1926/1926492.png",
-            "label": "Cafe"
+            "icon": "https://www.svgrepo.com/show/490316/room.svg",
+            "label": "First Class Accomodations"
           },
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/75/75905.png",
-            "label": "Parking"
+            "icon": "https://www.svgrepo.com/show/56075/fast-food-burger-and-drink.svg",
+            "label": "Food & Drinks"
           },
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/5732/5732044.png",
-            "label": "Spa"
+            "icon": "https://www.svgrepo.com/show/483856/yoga.svg",
+            "label": "Exercise & Activities"
           },
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/3269/3269935.png",
-            "label": "Casino"
+            "icon": "https://www.svgrepo.com/show/375238/wellness.svg",
+            "label": "Health & Wellness"
           }
         ],
         "gallery": {
           "items": [
             {
-              "url": "https://plus.unsplash.com/premium_photo-1661274195465-817fe3d46d7d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTJ8fHNwYXxlbnwwfHwwfHx8MA%3D%3D",
+              "url": "https://www.thebodyholiday.com/wp-content/uploads/2024/05/beauty-2a.webp",
               "type": "image",
-              "caption": "Spa"
+              "caption": "BodyHoliday Experience"
             },
             {
-              "url": "https://images.unsplash.com/photo-1514371879740-2e7d2068f502?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTE3fHxjYWZlfGVufDB8fDB8fHww",
+              "url": "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/Lux-Room-21-a.webp",
               "type": "image",
-              "caption": "Cafe"
+              "caption": "Rooms & Suites"
             },
             {
-              "url": "https://plus.unsplash.com/premium_photo-1698525809613-c6eb1c25bc0f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2FzaW5vfGVufDB8fDB8fHww",
+              "url": "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/Clubhouse-bar-1.jpg",
               "type": "image",
-              "caption": "Casino"
+              "caption": "Eat & Drink"
+            },
+             {
+              "url": "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/DSC8328-1.jpg",
+              "type": "image",
+              "caption": "Wellness Programme"
+            },
+              {
+              "url": "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/DSC8328.jpg",
+              "type": "image",
+              "caption": "Exercise & Activities"
             }
           ]
         },
@@ -217,9 +227,9 @@
           "title": "The World’s Leading Wellness Resort Located on its Secluded Beach in Saint Lucia",
           "description": "At BodyHoliday, we provide an all-inclusive, personalized experience of wellness and discovery where you will enjoy a transformational journey designed as an antidote to the pressures of modern-day life. Located on a pristine crescent beach surrounded by lush tropical gardens, we are the only resort to combine the pleasures of an active beach vacation with a nearly endless array of activities, body treatments, and opportunities to explore, discover, and gain insights that last a lifetime. Your BodyHoliday includes everything you could desire and nothing that distracts from the promise we make to our guests. “Give us your body for a week, and we’ll give you back your mind.”",
           "images": [
+            "https://www.thebodyholiday.com/wp-content/uploads/2025/07/BBC_SW_STL56-scaled.jpg",
             "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/accommodations.jpg",
-            "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/food-drinks.jpg",
-            "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/ex-activities.jpg",
+            "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/Clubhouse-bar-1.jpg",
             "https://www.thebodyholiday.com/wp-content/themes/bodyholiday/custom-assets/images/well-health.jpg"
           ]
         },
@@ -231,19 +241,22 @@
           "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
         },
         "contact": {
-          "email": "lostsanctuary@gmail.com",
-          "phone": "+918249611167",
-          "mapUrl": "",
-          "address": "Book Rooms at Royal Continental Hotel Deira, Dubai",
+          "email": "reservations@thebodyholiday.com",
+          "phone": "1 758 457 7800",
+          "mapUrl": "https://www.google.com/maps/place/Cariblue+Beach,+Cap+Estate,+Saint+Lucia/data=!4m2!3m1!1s0x8c4042715d9bfadd:0x1828639317265d56?sa=X&ved=1t:242&ictx=111",
+          "address": "Cariblue Beach, Cap Estate, Saint Lucia",
           "latitude": 0,
           "longitude": 0
         },
         "footer": {
           "links": [],
           "social": {
-            "instagram": "https://instagram.com"
+            "instagram": "https://www.instagram.com/thebodyholiday/",
+            "facebook": "https://www.facebook.com/TheBodyHoliday/?fref=ts",
+            "twitter":"https://twitter.com/bodyholiday",
+            "youtube":"https://youtube.com/@BodyHolidayTV?si=RNKUylP5LHKG7FBd"
           },
-          "copyright": "© 2025 Lost Sanctuary Pvt. Ltd. All rights reserved"
+          "copyright": "© Copyright 2019 - 2026 | BodyHoliday | All Rights Reserved."
         },
         "extranet": {
           "url": "https://bookings.revchilltech.com/api/v1",
@@ -253,11 +266,11 @@
     },
     {
       "id": "f0795175-a1ad-495e-811a-d68661669594",
-      "code": "SGI1EW",
-      "name": "Royal Continental Hotel Suites",
-      "slug": "royal-continental-suites",
+      "code": "KKOZ3B",
+      "name": "Stolen Time",
+      "slug": "stolen-time",
       "type": "STANDALONE",
-      "apkName": "Royal Continental Suites",
+      "apkName": "Stolen Time",
       "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
       "createdAt": "2025-12-24T10:28:14.699Z",
       "updatedAt": "2025-12-24T10:48:21.121Z",
@@ -270,12 +283,12 @@
         "createdAt": "2025-12-24T10:28:22.672Z",
         "updatedAt": "2026-01-08T06:00:26.700Z",
         "branding": {
-          "logo": "http://res.cloudinary.com/dttazo51h/image/upload/v1770808172/SwiftRooms-Images/e4smfwvxsxgsxyslnhna.png",
-           "primaryColor": "#0D5399",
-          "secondaryColor": "#d67816",
+          "logo": "https://stolentime.com/wp-content/themes/rdv/assets/images/stolentime-logo.png",
+           "primaryColor": "#27408D",
+          "secondaryColor": "#E3000A",
           "backgroundColor": "#FFFFFF",
           "fontFamily": "Inter",
-          "splashImage": "http://res.cloudinary.com/dttazo51h/image/upload/v1770808172/SwiftRooms-Images/e4smfwvxsxgsxyslnhna.png"
+          "splashImage": "https://stolentime.com/wp-content/uploads/2024/06/nature-2.webp"
         },
         "navigation": {
           "type": "bottom",
@@ -339,9 +352,9 @@
                   "label": "Book Now",
                   "route": "/rooms"
                 },
-                "image": "https://img.easemytrip.com/EMTHOTEL-1838502/23/na/l/15917985_18.jpg",
-                "title": "Royal Continental Hotel Suites",
-                "subtitle": "Experience Luxury"
+                "image": "https://stolentime.com/wp-content/uploads/2024/06/nature-2.webp",
+                "title": "Welcome to StolenTime Saint Lucia",
+                "subtitle": "There’s no agenda, no limitations and no-one to judge"
               },
               "type": "heroBanner"
             },
@@ -384,9 +397,10 @@
             {
               "data": {
                 "images": [
-                  "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGhvdGVsfGVufDB8fDB8fHww",
-                  "https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjd8fGhvdGVsfGVufDB8fDB8fHww",
-                  "https://images.unsplash.com/photo-1506059612708-99d6c258160e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjZ8fGhvdGVsfGVufDB8fDB8fHww"
+                  "https://stolentime.com/wp-content/uploads/2023/07/beach-yoga.webp",
+                  "https://stolentime.com/wp-content/themes/rdv/assets/images/Malabar-Beach_Rendezvous-2.jpg",
+                  "https://stolentime.com/wp-content/themes/rdv/assets/images/Malabar-Beach_Rendezvous.jpg",
+                  "https://stolentime.com/wp-content/themes/rdv/assets/images/RDV-main-pool.jpg"
                 ]
               },
               "type": "galleryPreview"
@@ -419,38 +433,43 @@
         ],
         "amenities": [
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/1926/1926492.png",
-            "label": "Cafe"
+            "icon": "https://www.svgrepo.com/show/521869/swimming.svg",
+            "label": "Dive into Spring"
           },
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/75/75905.png",
-            "label": "Parking"
+            "icon": "https://www.svgrepo.com/show/425086/scuba-diving-swim.svg",
+            "label": "Scuba"
           },
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/5732/5732044.png",
-            "label": "Spa"
+            "icon": "https://www.svgrepo.com/show/446027/sports-volleyball.svg",
+            "label": "Land Sports"
           },
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/3269/3269935.png",
-            "label": "Casino"
+            "icon": "https://www.svgrepo.com/show/271399/sailboat.svg",
+            "label": "Water Sports"
           }
         ],
         "gallery": {
           "items": [
             {
-              "url": "https://plus.unsplash.com/premium_photo-1661274195465-817fe3d46d7d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTJ8fHNwYXxlbnwwfHwwfHx8MA%3D%3D",
+              "url": "https://stolentime.com/wp-content/themes/rdv/assets/images/Spa-in-the-Water-Garden-1.jpg",
               "type": "image",
-              "caption": "Spa"
+              "caption": "Spa in the Water Garden"
             },
             {
-              "url": "https://images.unsplash.com/photo-1514371879740-2e7d2068f502?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTE3fHxjYWZlfGVufDB8fDB8fHww",
+              "url": "https://stolentime.com/wp-content/themes/rdv/assets/images/Pilates-1.jpg",
               "type": "image",
-              "caption": "Cafe"
+              "caption": "Pilates"
             },
             {
-              "url": "https://plus.unsplash.com/premium_photo-1698525809613-c6eb1c25bc0f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2FzaW5vfGVufDB8fDB8fHww",
+              "url": "https://stolentime.com/wp-content/themes/rdv/assets/images/Tai-Chi.jpg",
               "type": "image",
-              "caption": "Casino"
+              "caption": "T’ai Chi"
+            },
+             {
+              "url": "https://stolentime.com/wp-content/themes/rdv/assets/images/Gym-Couple.jpg",
+              "type": "image",
+              "caption": "Fitness"
             }
           ]
         },
@@ -458,10 +477,10 @@
           "title": "Family Hotel Apartments with Dubai Canal view",
           "description": "Royal Continental Suites, Dubai, is an ideal starting point from which to discover the city’s dynamic energy, where modern architecture stands side-by-side with traditional souk markets. Strategically located on Business Bay, Marasi Drive Downtown, and minutes away from Dubai Mall and City Walk, the hotel apartment offers spacious rooms with stunning views of the Burj Khalifa and Business Bay Canal. Levantine cuisine dining options and a pool offering unobstructed views of the Burj Khalifa complete the experience. Royal Continental Suites in Dubai offers the perfect blend of comfort and convenience as a family hotel apartment in Business Bay, ideal for both leisure and business stays.\n\nRoyal Continental Suites provides the discerning traveler with impeccable accommodation and service in relaxed contemporary surroundings, perfectly suited to both a short city break or an extended vacation. We pride ourselves on offering a unique and technologically-advanced experience through our innovative in-room hospitality facilities.",
           "images": [
-            "https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTB8fGhvdGVsfGVufDB8fDB8fHww",
-            "https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTF8fGhvdGVsfGVufDB8fDB8fHww",
-            "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTh8fGhvdGVsfGVufDB8fDB8fHww",
-            "https://images.unsplash.com/photo-1722763529109-2bcb289a47c3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODd8fGhvdGVsfGVufDB8fDB8fHww"
+            "https://stolentime.com/wp-content/uploads/2023/02/yq3PB_iA.jpeg",
+            "https://stolentime.com/wp-content/uploads/2023/02/BweCZEU_.jpeg",
+            "https://stolentime.com/wp-content/uploads/2023/02/CSiyqu9t.jpg",
+            "https://stolentime.com/wp-content/uploads/2023/02/tV3kgYOw.jpeg"
           ]
         },
         "policies": {
@@ -472,19 +491,20 @@
           "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
         },
         "contact": {
-          "email": "lostsanctuary@gmail.com",
-          "phone": "+918249611167",
-          "mapUrl": "",
-          "address": "Book Apartments at Royal Continental Hotel Suites in Business Bay, Dubai",
+          "email": "reservations@stolentime.com",
+          "phone": "1888 464 3991",
+          "mapUrl": "google.com/maps/place/Saint+Lucia,+West+Indies/data=!4m2!3m1!1s0x8c406065f12da31d:0x6e7486c4e8399df5?sa=X&ved=1t:155783&ictx=111",
+          "address": "StolenTime, Malabar Beach, PO Box 190, Castries, St.Lucia, West Indies",
           "latitude": 0,
           "longitude": 0
         },
         "footer": {
           "links": [],
           "social": {
-            "instagram": "https://instagram.com"
+            "instagram": "https://www.instagram.com/stolentimesaintlucia/",
+            "facebook": "https://www.facebook.com/StolenTimeSaintLucia/"
           },
-          "copyright": "© 2025 Lost Sanctuary Pvt. Ltd. All rights reserved"
+          "copyright": "© Copyright 2026 StolenTime Saint Lucia"
         },
         "extranet": {
           "url": "https://bookings.revchilltech.com/api/v1",
@@ -502,12 +522,12 @@
     "createdAt": "2025-12-24T09:24:23.203Z",
     "updatedAt": "2026-01-09T08:55:01.332Z",
     "branding": {
-      "logo": "https://royalcontinentalhotels.com/wp-content/uploads/2024/07/RCHS_3-W-550x237.png",
-      "primaryColor": "#000000",
+      "logo": "https://www.sunsweptresorts.com/wp-content/uploads/2024/02/SunSwept-Resorts-Logo-01-2.png",
+      "primaryColor": "#27408D",
       "secondaryColor": "#ad9064",
       "backgroundColor": "#FFFFFF",
       "fontFamily": "Inter",
-      "splashImage": "https://royalcontinentalhotels.com/wp-content/uploads/2024/07/RCHS_3-W-550x237.png"
+      "splashImage": "https://www.sunsweptresorts.com/wp-content/uploads/2023/09/hIBISCUS.jpg"
     },
     "navigation": {
       "type": "bottom",
@@ -540,6 +560,13 @@
           "route": "/contact",
           "visible": false
         },
+         {
+          "id": "webroom",
+          "icon": "web",
+          "label": "Web Room",
+          "route": "/webroom",
+          "visible": true
+        },
         {
           "id": "offers",
           "icon": "local_offer",
@@ -557,9 +584,9 @@
               "label": "Book Now",
               "route": "/hotels"
             },
-            "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGhvdGVsfGVufDB8fDB8fHww",
-            "title": "Welcome to Royal Continental Hotels & Suits",
-            "subtitle": "STAY IN THE HEART OF DUBAI"
+            "image": "https://www.sunsweptresorts.com/wp-content/uploads/2023/09/hIBISCUS.jpg",
+            "title": "Welcome to SunSwept Resorts",
+            "subtitle": "World’s Leading Destination Spa Company, providing Wellness Holidays since 1988."
           },
           "type": "heroBanner"
         },
@@ -642,12 +669,13 @@
       ]
     },
     "about": {
-      "title": "About Royal Continental, Dubai",
-      "description": "Set in two ideal locations, Royal Continental Hotel Deira City Center, a Dubai Airport Hotel, and Royal Continental Suites Business Bay at the strand of Dubai Canal and near Dubai Downtown, both offer business travelers and holidaymakers a stylish and welcoming haven. With a variety of rooms and suites to meet all requirements and tastes, as well as a host of business and leisure facilities, dining outlets, and amenities, Royal Continental Hotel and Suites provide the discerning traveler with impeccable accommodation and service in relaxed contemporary surroundings. Suited to both short city breaks or an extended vacation, we pride ourselves on offering a unique and technologically advanced experience through our innovative in-room hospitality facilities and tastefully appointed units. Whether you need a hotel room or a fully furnished apartment, we have it for you. Experience uncompromising yet affordable luxury and comfort at Royal Continental Hotel, the Best Luxury Business Hotel near airport, and at Royal Continental Suites, a modern and classy Deluxe Hotel Apartment right in the heart of Dubai’s business and entertainment areas.",
+      "title": "Luxury Wellness Holidays",
+      "description": "The DNA of Sunswept Resorts includes a commitment to wellness at each resort, present and future. The BodyHoliday and StolenTime in Saint Lucia continue to set the bar high in the field of Wellness Holidays. The concept is simple and is designed to set us apart from other Wellness Resorts and Spas. We are not fat farms, boot camps or mystical temples. There are elements of these attributes in our holiday design and our wellness teams are professional and expert, so why are we so different? Essentially it’s that we’ve created fun-filled beach vacations where the choices made available to guests to have a fabulous, healthy experience are seemingly endless and fun. Staying at one of our resorts is stacked with value. Not only because of the quantum and quality of inclusions but also because guests can take away something beneficial with them. Imparting new skills and knowledge to enhance our guest’s lifestyle is one of our goals. Of course, getting to the bottom line, it’s apparent that selling one of our holidays means receiving a commission on a long list of activities and personalised body care as well as an all-inclusive room rate. You may ask; “What are the chances of selling one of our holidays to the same client over and over? Currently; 50%”",
       "images": [
-        "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGhvdGVsfGVufDB8fDB8fHww",
-        "https://plus.unsplash.com/premium_photo-1661929519129-7a76946c1d38?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8aG90ZWx8ZW58MHx8MHx8fDA%3D",
-        "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aG90ZWx8ZW58MHx8MHx8fDA%3D"
+        "https://www.sunsweptresorts.com/wp-content/uploads/2023/09/10-1200x1200.jpg",
+        "https://www.sunsweptresorts.com/wp-content/uploads/2023/09/Sharon.jpg",
+        "https://www.sunsweptresorts.com/wp-content/uploads/2023/09/StolenTime_Pool_Sunset.jpg",
+        "https://www.sunsweptresorts.com/wp-content/uploads/2023/09/Spa-in-the-Water-Garden.jpg"
       ]
     },
     "policies": {

@@ -41,12 +41,13 @@ class BottomNavItemManager {
           [];
 
       final rootConfig = Get.find<HotelController>().getRootConfig();
-      final isGroup =
-          (config != null &&
-              config['childHotels'] != null &&
-              (config['childHotels'] as List?)?.isNotEmpty == true) ||
-          (rootConfig != null &&
-              (rootConfig['childHotels'] as List?)?.isNotEmpty == true);
+    final controller = Get.find<HotelController>();
+
+final isGroup =
+    controller.getSelectedHotel() == null &&
+    (config != null &&
+        config['childHotels'] != null &&
+        (config['childHotels'] as List?)?.isNotEmpty == true);
 
       final mappedItems = items.where((item) => item['visible'] == true).map((
         item,
@@ -106,17 +107,7 @@ class BottomNavItemManager {
         );
       }).toList();
 
-      if (isGroup &&
-          mappedItems.every((item) => item.route != AppRoutes.webroom)) {
-        mappedItems.add(
-          const BottomNavItem(
-            icon: Icons.web,
-            label: 'Webroom',
-            route: AppRoutes.webroom,
-          ),
-        );
-      }
-
+    
       return mappedItems;
     } catch (e) {
       //print('Error loading navigation items: $e');

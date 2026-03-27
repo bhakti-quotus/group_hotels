@@ -495,14 +495,14 @@ class _SearchWidgetState extends State<SearchWidget>
   // ── Logo ────────────────────────────────────────────────────────────────────
   Widget _buildLogo() {
     return Container(
-      width: 90,
-      height: 20,
+      width: 60,
+      height: 30,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(9),
         child: (hotelLogoUrl != null && hotelLogoUrl!.isNotEmpty)
             ? Image.network(
                 hotelLogoUrl!,
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
                 errorBuilder: (_, __, ___) => _fallbackLogo(),
               )
             : _fallbackLogo(),

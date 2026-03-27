@@ -14,7 +14,7 @@ class About extends StatefulWidget {
 }
 
 class _AboutState extends State<About> {
-  int _currentIndex = 0;
+  int _currentIndex = 3;
   List<BottomNavItem> _navItems = [];
 
   @override
@@ -36,7 +36,7 @@ class _AboutState extends State<About> {
     setState(() {
       _navItems = items;
       _currentIndex = _navItems.indexWhere((item) => item.route == '/about');
-      if (_currentIndex == -1) _currentIndex = 0;
+      if (_currentIndex == -1) _currentIndex = 3;
     });
   }
 

@@ -4,6 +4,7 @@ import 'package:group/group/views/auth/verify_email.dart';
 import 'package:group/group/views/contact/contact.dart';
 import 'package:group/group/views/offers/offers.dart';
 import 'package:group/group/views/room/room.dart';
+import 'package:group/group/views/webroom/group_webroom_page.dart';
 import 'package:group/ui/booking_details_page.dart';
 import 'package:group/ui/booking_page/confirm_booking_page.dart';
 import 'package:group/ui/booking_page/modify_booking_page.dart';
@@ -99,5 +100,6 @@ class AppRoutes {
         );
       },
     ),
+    GetPage(name: webroom, page: () => const GroupWebRoomPage()),
   ];
 }

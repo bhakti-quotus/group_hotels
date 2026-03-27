@@ -14,7 +14,7 @@ class Contact extends StatefulWidget {
 }
 
 class _ContactState extends State<Contact> {
-  int _currentIndex = 0;
+  int _currentIndex = 4;
   List<BottomNavItem> _navItems = [];
 
   @override
@@ -36,7 +36,7 @@ class _ContactState extends State<Contact> {
     setState(() {
       _navItems = items;
       _currentIndex = _navItems.indexWhere((item) => item.route == '/contact');
-      if (_currentIndex == -1) _currentIndex = 0;
+      if (_currentIndex == -1) _currentIndex = 4;
     });
   }
 
