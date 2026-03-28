@@ -201,7 +201,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withOpacity(0.45),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: Colors.white.withOpacity(0.25),
@@ -310,7 +310,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                         Container(
                           width: 24,
                           height: 2,
-                          color: AppColor.secondary,
+                          color: Colors.white.withOpacity(0.85),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -319,7 +319,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                                 .toString()
                                 .toUpperCase(),
                             style: TextStyle(
-                              color: AppColor.secondary,
+                              color: Colors.white.withOpacity(0.85),
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 2.5,

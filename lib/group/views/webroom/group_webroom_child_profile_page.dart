@@ -3,7 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:group/group/controllers/hotel_controller.dart';
+import 'package:group/group/views/webroom/ui/profile/faq_page.dart';
+import 'package:group/group/views/webroom/ui/profile/personalinfo_page.dart';
 import 'ui/webroom_bottom_navbar.dart';
+import 'ui/profile/preference_page.dart';
 
 class GroupWebRoomChildProfilePage extends StatelessWidget {
   const GroupWebRoomChildProfilePage({super.key});
@@ -115,7 +118,7 @@ class GroupWebRoomChildProfilePage extends StatelessWidget {
                       left: 116,
                       right: 28,
                       child: Text(
-                        'Brian Dass',
+                        'Alex',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -137,25 +140,25 @@ class GroupWebRoomChildProfilePage extends StatelessWidget {
                     _profileListTile(
                       title: 'Personal info',
                       icon: Icons.info_outline,
-                      onTap: () => Get.snackbar('Personal info', 'Personal info pressed'),
+                      onTap: () => Get.to(() => const PersonalInfoPage()),
                     ),
                     const SizedBox(height: 12),
                     _profileListTile(
                       title: 'Preference',
                       icon: Icons.favorite_border,
-                      onTap: () => Get.snackbar('Preference', 'Preference pressed'),
+                       onTap: () => Get.to(() => const PreferencePage()),
                     ),
                     const SizedBox(height: 12),
                     _profileListTile(
                       title: 'Settings',
                       icon: Icons.settings_outlined,
-                      onTap: () => Get.snackbar('Settings', 'Settings pressed'),
+                      onTap: () {},
                     ),
                     const SizedBox(height: 12),
                     _profileListTile(
                       title: 'FAQ',
                       icon: Icons.help_outline,
-                      onTap: () => Get.snackbar('FAQ', 'FAQ pressed'),
+                       onTap: () => Get.to(() => const FaqPage()),
                     ),
                   ],
                 ),
