@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:group/group/controllers/hotel_controller.dart';
+import 'package:group/group/views/webroom/ui/activity/Activities_spa_page.dart';
 import 'package:group/group/views/webroom/ui/eat_and_drink/eat_and_drink_page.dart';
 import 'package:group/group/views/webroom/ui/wellness/wellness_page.dart';
 
@@ -222,7 +223,7 @@ class _ServicesSection extends StatelessWidget {
                   label: 'Activities',
                   icon: Icons.volunteer_activism_outlined,
                   iconColor: Color(0xFF2196F3),
-                  onTap: () => print('Activities tapped'),
+                  onTap: () => Get.to(ActivitiesSpaPage()),
                 ),
               ),
               const SizedBox(width: 10),

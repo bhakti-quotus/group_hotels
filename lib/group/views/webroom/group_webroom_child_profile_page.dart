@@ -5,6 +5,7 @@ import 'package:group/group/common/theme/theme.dart';
 import 'package:group/group/controllers/hotel_controller.dart';
 import 'package:group/group/views/webroom/ui/profile/faq_page.dart';
 import 'package:group/group/views/webroom/ui/profile/personalinfo_page.dart';
+import 'package:group/group/views/webroom/ui/profile/settings_page.dart';
 import 'ui/webroom_bottom_navbar.dart';
 import 'ui/profile/preference_page.dart';
 
@@ -152,7 +153,7 @@ class GroupWebRoomChildProfilePage extends StatelessWidget {
                     _profileListTile(
                       title: 'Settings',
                       icon: Icons.settings_outlined,
-                      onTap: () {},
+                     onTap: () => Get.to(() => const SettingsPage()),
                     ),
                     const SizedBox(height: 12),
                     _profileListTile(
