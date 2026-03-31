@@ -97,7 +97,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
 
       final chewie = ChewieController(
         videoPlayerController: controller,
-        autoPlay: false,
+        autoPlay: true,
         looping: false,
         autoInitialize: false,
         showControlsOnInitialize: false,

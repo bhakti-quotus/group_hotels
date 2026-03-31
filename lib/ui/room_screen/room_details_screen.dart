@@ -11,6 +11,7 @@ import 'dart:io';
 import 'dart:convert';
 import '../booking_page/booking_page_new.dart';
 import 'package:group/group/controllers/api_controller.dart';
+import 'package:group/group/controllers/hotel_controller.dart';
 import 'dart:async';
 import './loyality_program_card.dart'; // Add this import
 
@@ -550,13 +551,16 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                                   if (checkResult['eligible'] == true) {
                                     // Already a member — close dialog, apply discount
                                     if (mounted) {
-                                      setState(() => _isLoadingDiscount = false);
+                                      setState(
+                                        () => _isLoadingDiscount = false,
+                                      );
                                     }
                                     if (!mounted) return;
                                     Navigator.pop(dlgCtx);
                                     _applyDiscount(
                                       email: email,
-                                      percentage: checkResult['percentage'] as int,
+                                      percentage:
+                                          checkResult['percentage'] as int,
                                     );
                                     return;
                                   }
@@ -578,11 +582,14 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                                   if (regResult['eligible'] == true) {
                                     _applyDiscount(
                                       email: email,
-                                      percentage: regResult['percentage'] as int,
+                                      percentage:
+                                          regResult['percentage'] as int,
                                     );
                                   } else {
                                     if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
                                           content: Row(
                                             children: [
@@ -594,7 +601,8 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                                               const SizedBox(width: 10),
                                               Expanded(
                                                 child: Text(
-                                                  regResult['message'] as String? ??
+                                                  regResult['message']
+                                                          as String? ??
                                                       'Something went wrong. Try again.',
                                                   style: const TextStyle(
                                                     color: Colors.white,
@@ -606,7 +614,9 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                                           backgroundColor: Colors.red[700],
                                           behavior: SnackBarBehavior.floating,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                           ),
                                           margin: const EdgeInsets.all(16),
                                           duration: const Duration(seconds: 3),
@@ -785,86 +795,58 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
   // ─── Navigation ──────────────────────────────────────────────────────────────
 
   Future<void> _fetchAndShowAddons({
-    required String propertyCode,
-    required String startDate,
-    required String endDate,
-    required String ratePlanCode,
-    required Map<String, dynamic> room,
-    required Map<String, dynamic> ratePlan,
-    required int adults,
-    required int children,
-    required int totalGuests,
-    required String propertyId,
-    required String hotelName,
-    required double discountedPrice,
-  }) async {
-    setState(() => _isLoadingAddons = true);
-    try {
-      final result = await Get.find<ApiController>().getAvailableAddons(
-        propertyCode: propertyCode,
-        startDate: startDate,
-        endDate: endDate,
-        ratePlanCode: ratePlanCode,
-      );
+  required String propertyCode,
+  required String startDate,
+  required String endDate,
+  required String ratePlanCode,
+  required Map<String, dynamic> room,
+  required Map<String, dynamic> ratePlan,
+  required int adults,
+  required int children,
+  required int totalGuests,
+  required String propertyId,
+  required String hotelName,
+  required double discountedPrice,
+}) async {
+  setState(() => _isLoadingAddons = true);
+  try {
+    // Debug print to verify propertyCode
+    print('=== FETCH ADDONS DEBUG ===');
+    print('propertyCode: $propertyCode');
+    print('propertyId: $propertyId');
+    print('startDate: $startDate');
+    print('endDate: $endDate');
+    print('ratePlanCode: $ratePlanCode');
+    print('==========================');
+    
+    // Ensure propertyCode is not empty
+    String finalPropertyCode = propertyCode;
+    if (finalPropertyCode.isEmpty) {
+      print('ERROR: propertyCode is empty!');
+      // Try to get from hotel controller or room data
+      final hotelController = Get.find<HotelController>();
+      final hotel = hotelController.getSelectedHotel();
+      final fallbackCode = hotel?['code'] as String? ?? 
+                          room['propertyCode'] as String? ?? 
+                          propertyCode;
+      print('Using fallback propertyCode: $fallbackCode');
+      finalPropertyCode = fallbackCode;
+    }
+    
+    final result = await Get.find<ApiController>().getAvailableAddons(
+      propertyCode: finalPropertyCode,
+      startDate: startDate,
+      endDate: endDate,
+      ratePlanCode: ratePlanCode,
+    );
 
-      if (result['success'] == true && result['data'] != null) {
-        final addonsData = result['data'] as List;
-        if (addonsData.isEmpty) {
-          _proceedToBooking(
-            room: room,
-            ratePlan: ratePlan,
-            adults: adults,
-            children: children,
-            totalGuests: totalGuests,
-            startDate: startDate,
-            endDate: endDate,
-            propertyId: propertyId,
-            propertyCode: propertyCode,
-            hotelName: hotelName,
-            discountedPrice: discountedPrice,
-            selectedAddons: [],
-          );
-        } else {
-          if (context.mounted) {
-            Get.to(
-              () => const AddonsScreen(),
-              arguments: {
-                'addons': addonsData,
-                'startDate': startDate,
-                'endDate': endDate,
-                'onAdd': (List<Map<String, dynamic>> sel) => _proceedToBooking(
-                  room: room,
-                  ratePlan: ratePlan,
-                  adults: adults,
-                  children: children,
-                  totalGuests: totalGuests,
-                  startDate: startDate,
-                  endDate: endDate,
-                  propertyId: propertyId,
-                  propertyCode: propertyCode,
-                  hotelName: hotelName,
-                  discountedPrice: discountedPrice,
-                  selectedAddons: sel,
-                ),
-                'onSkip': () => _proceedToBooking(
-                  room: room,
-                  ratePlan: ratePlan,
-                  adults: adults,
-                  children: children,
-                  totalGuests: totalGuests,
-                  startDate: startDate,
-                  endDate: endDate,
-                  propertyId: propertyId,
-                  propertyCode: propertyCode,
-                  hotelName: hotelName,
-                  discountedPrice: discountedPrice,
-                  selectedAddons: [],
-                ),
-              },
-            );
-          }
-        }
-      } else {
+    if (result['success'] == true && result['data'] != null) {
+      final addonsData = result['data'] as List;
+      
+      // 🔥 CRITICAL FIX: Check if addons are empty or null
+      if (addonsData.isEmpty) {
+        print('No addons available - proceeding directly to booking');
+        // Directly proceed to booking without showing addons screen
         _proceedToBooking(
           room: room,
           ratePlan: ratePlan,
@@ -874,13 +856,56 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
           startDate: startDate,
           endDate: endDate,
           propertyId: propertyId,
-          propertyCode: propertyCode,
+          propertyCode: finalPropertyCode,
           hotelName: hotelName,
           discountedPrice: discountedPrice,
-          selectedAddons: [],
+          selectedAddons: [], // Empty addons list
         );
+      } else {
+        print('Addons available - showing addons screen');
+        // Show addons screen when addons are available
+        if (context.mounted) {
+          Get.to(
+            () => const AddonsScreen(),
+            arguments: {
+              'addons': addonsData,
+              'startDate': startDate,
+              'endDate': endDate,
+              'onAdd': (List<Map<String, dynamic>> sel) => _proceedToBooking(
+                room: room,
+                ratePlan: ratePlan,
+                adults: adults,
+                children: children,
+                totalGuests: totalGuests,
+                startDate: startDate,
+                endDate: endDate,
+                propertyId: propertyId,
+                propertyCode: finalPropertyCode,
+                hotelName: hotelName,
+                discountedPrice: discountedPrice,
+                selectedAddons: sel,
+              ),
+              'onSkip': () => _proceedToBooking(
+                room: room,
+                ratePlan: ratePlan,
+                adults: adults,
+                children: children,
+                totalGuests: totalGuests,
+                startDate: startDate,
+                endDate: endDate,
+                propertyId: propertyId,
+                propertyCode: finalPropertyCode,
+                hotelName: hotelName,
+                discountedPrice: discountedPrice,
+                selectedAddons: [],
+              ),
+            },
+          );
+        }
       }
-    } catch (_) {
+    } else {
+      // If API fails or returns error, proceed without addons
+      print('Addons API failed or returned error - proceeding without addons');
       _proceedToBooking(
         room: room,
         ratePlan: ratePlan,
@@ -890,15 +915,33 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         startDate: startDate,
         endDate: endDate,
         propertyId: propertyId,
-        propertyCode: propertyCode,
+        propertyCode: finalPropertyCode,
         hotelName: hotelName,
         discountedPrice: discountedPrice,
         selectedAddons: [],
       );
-    } finally {
-      if (mounted) setState(() => _isLoadingAddons = false);
     }
+  } catch (e) {
+    print('Error fetching addons: $e - proceeding without addons');
+    // On error, proceed without addons
+    _proceedToBooking(
+      room: room,
+      ratePlan: ratePlan,
+      adults: adults,
+      children: children,
+      totalGuests: totalGuests,
+      startDate: startDate,
+      endDate: endDate,
+      propertyId: propertyId,
+      propertyCode: propertyCode,
+      hotelName: hotelName,
+      discountedPrice: discountedPrice,
+      selectedAddons: [],
+    );
+  } finally {
+    if (mounted) setState(() => _isLoadingAddons = false);
   }
+}
 
   void _proceedToBooking({
     required Map<String, dynamic> room,
@@ -947,10 +990,12 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
       padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
       child: LoyaltyProgramCard(
         discountValue: _loyaltyData!['discountValue'] ?? 10,
-        termsText: _loyaltyData!['termsText'] ??
+        termsText:
+            _loyaltyData!['termsText'] ??
             "Member-Only Rates\nEnjoy special discounted prices you won't find anywhere else.",
         benefitsTitle: _loyaltyData!['benefitsTitle'] ?? "VIP Perks",
-        benefitsSubtitle: _loyaltyData!['benefitsSubtitle'] ??
+        benefitsSubtitle:
+            _loyaltyData!['benefitsSubtitle'] ??
             "✅ Exclusive discounted room rates\n✅ Early check-in & late check-out\n✅ Dining & spa discounts\n✅ Priority reservations",
         videoUrl: _loyaltyData!['videoUrl'],
         videoThumbnail: _loyaltyData!['videoThumbnail'],
@@ -1000,7 +1045,8 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         now.add(const Duration(days: 2)).toIso8601String().split('T')[0];
 
     // Use camelCase keys for all room data
-    final roomName = room['roomName'] ?? room['room_name'] ?? room['name'] ?? '';
+    final roomName =
+        room['roomName'] ?? room['room_name'] ?? room['name'] ?? '';
     final roomSize = room['roomSize'] ?? room['room_size'] ?? 0;
     final roomUnit = room['roomUnit'] ?? room['room_unit'] ?? 'sq ft';
     final roomView = room['roomView'] ?? room['room_view'] ?? '';
@@ -1169,7 +1215,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                           }).toList(),
                         ),
                       ),
-                    
+
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -1398,7 +1444,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                       ),
                       const SizedBox(height: 8),
                     ],
-                    
+
                     Text(
                       roomName,
                       style: TextStyle(

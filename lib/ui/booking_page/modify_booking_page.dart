@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:group/group/common/theme/theme.dart';
 import 'package:group/group/controllers/api_controller.dart';
 import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:group/group/controllers/hotel_controller.dart';
+import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -29,9 +31,12 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
   List<Map<String, dynamic>> _guests = [];
   Map<String, dynamic>? _primaryGuest;
 
-  // New guest form data
+// New guest form data
   final List<Map<String, dynamic>> _newAdults = [];
   final List<Map<String, dynamic>> _newChildren = [];
+
+  String? _invTypeCode;
+  String? _ratePlanCode;
 
   // Loading state
   bool _isLoading = false;
@@ -77,6 +82,14 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
       booking = args['bookingData'] as Map<String, dynamic>?;
     }
 
+    print('=== MODIFY BOOKING: RAW ARGUMENTS ===');
+    print('Arguments: $args');
+    print('bookingData extracted: ${booking != null}');
+    if (booking != null) {
+      print('Raw booking data (JSON): ${jsonEncode(booking)}');
+    }
+    print('========================================');
+
     if (booking != null) {
       _bookingData = booking;
       _bookingCode = booking['bookingCode'] as String?;
@@ -111,6 +124,22 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
       }
 
       _priceData = booking['finalPrice'] as Map<String, dynamic>?;
+
+      // Set correct room type (invTypeCode)
+      _invTypeCode = booking['roomTypeCode'] ?? booking['roomType'] ?? booking['roomName'];
+      _ratePlanCode = booking['ratePlanCode'];
+
+      print("INIT invTypeCode: $_invTypeCode");
+      print("INIT ratePlanCode: $_ratePlanCode");
+      
+      // Print full processed booking data
+      print('=== MODIFY BOOKING: PROCESSED DATA ===');
+      print('_bookingCode: $_bookingCode');
+      print('_primaryGuest: ${jsonEncode(_primaryGuest)}');
+      print('Guests count: ${_guests.length}');
+      print('Full _bookingData (JSON): ${jsonEncode(_bookingData)}');
+      print('Price data: ${jsonEncode(_priceData)}');
+      print('=====================================');
     } else {
       _checkInDate = DateTime.now();
       _checkOutDate = DateTime.now().add(const Duration(days: 1));
@@ -124,11 +153,24 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
       _isLoadingPrice = true;
     });
 
+    // Safety check
+    if (_invTypeCode == null || _invTypeCode!.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Room type not chosen',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      setState(() => _isLoadingPrice = false);
+      return;
+    }
+
     try {
       final payload = {
         'bookingCode': _bookingCode,
-        'propertyCode': _bookingData!['propertyCode'] ?? '',
-        'invTypeCode': _bookingData!['roomTypeCode'] ?? '',
+'propertyCode': (Get.find<HotelController>().getSelectedHotel()?['code'] as String?) ?? (_bookingData!['propertyCode'] ?? ''),
+'invTypeCode': _invTypeCode ?? '',
         'ratePlanCode': _bookingData!['ratePlanCode'] ?? '',
         'startDate': _checkInDate.toIso8601String().split('T')[0],
         'endDate': _checkOutDate.toIso8601String().split('T')[0],

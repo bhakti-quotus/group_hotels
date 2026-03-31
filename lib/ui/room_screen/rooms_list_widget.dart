@@ -956,10 +956,13 @@ class _ViewDetailsButtonState extends State<_ViewDetailsButton> {
     
    // print('Sending loyalty data: $loyaltyData'); // Debug print
 
-    Get.toNamed(
+        Get.toNamed(
       '/room-details',
       arguments: {
-        'room': widget.room,
+        'room': {
+          ...widget.room,
+          'invTypeCode': widget.room['roomType'] ?? widget.room['room_type'] ?? widget.room['invTypeCode'] ?? '',
+        },
         'totalGuests': widget.totalGuests,
         'propertyCode': shortPropertyCode,
         'hotelName': widget.hotelName,

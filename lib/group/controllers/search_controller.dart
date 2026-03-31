@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'hotel_controller.dart';
 
 class AppSearchController extends GetxController {
   var searchPayload = {}.obs;
@@ -13,9 +14,20 @@ class AppSearchController extends GetxController {
 
   void _loadPropertyCode() async {
     try {
-      final jsonString = await rootBundle.loadString('assets/config.json');
-      final config = json.decode(jsonString);
-      final propertyCode = config['code'] ?? '';
+      // Check HotelController first for selected child hotel
+      final hotelCtrl = Get.find<HotelController>();
+      String propertyCode = '';
+
+      if (hotelCtrl.hasSelectedHotel()) {
+        final selected = hotelCtrl.getSelectedHotel();
+        propertyCode = selected?['code']?.toString() ?? '';
+      }
+
+      if (propertyCode.isEmpty) {
+        final jsonString = await rootBundle.loadString('assets/config.json');
+        final config = json.decode(jsonString);
+        propertyCode = config['code'] ?? '';
+      }
 
       // Set default values with property code
       final now = DateTime.now();
@@ -83,12 +95,20 @@ class AppSearchController extends GetxController {
     // Create a deep copy to ensure reactivity
     final Map<String, dynamic> newPayload = Map<String, dynamic>.from(payload);
 
-    // Ensure PropertyCode is always set
-    if (newPayload["propertyCode"] == null ||
-        newPayload["propertyCode"] == "") {
+    // Override propertyCode with selected child hotel if available
+    final hotelCtrl = Get.find<HotelController>();
+    if (hotelCtrl.hasSelectedHotel()) {
+      final selected = hotelCtrl.getSelectedHotel();
+      final childCode = selected?['code']?.toString();
+      if (childCode != null && childCode.isNotEmpty) {
+        newPayload["propertyCode"] = childCode;
+      }
+    }
+
+    // Fallback to config if still empty
+    if (newPayload["propertyCode"] == null || newPayload["propertyCode"] == "") {
       try {
-        final jsonString =
-            rootBundle.loadString('assets/config.json') as String;
+        final jsonString = rootBundle.loadString('assets/config.json') as String;
         final config = json.decode(jsonString);
         newPayload["propertyCode"] = config['code'] ?? '';
       } catch (e) {

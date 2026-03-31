@@ -1999,156 +1999,170 @@ class _PaymentPageState extends State<PaymentPage>
 
   // ── Complete Booking ──────────────────────────────────────────────────────────
   void _completeBooking() async {
-    if (!_isCompleteBookingEnabled || _isProcessingBooking) return;
+  if (!_isCompleteBookingEnabled || _isProcessingBooking) return;
 
-    setState(() => _isProcessingBooking = true);
+  setState(() => _isProcessingBooking = true);
 
-    try {
-      final rawPriceData = widget.priceData;
-
-      final enhancedPriceData = {
-        ...rawPriceData,
-        'totalAmount': _toDouble(rawPriceData['totalAmount']),
-        'amountBeforeTax': _toDouble(rawPriceData['amountBeforeTax']),
-        'taxedAmount': _toDouble(rawPriceData['taxedAmount']),
-        'totalAddonAmount': _toDouble(rawPriceData['totalAddonAmount']),
-        'totalPromotionAmount': _toDouble(
-          rawPriceData['totalPromotionAmount'] ?? 0,
-        ),
-        'currentChargeableAmount': _toDouble(
-          rawPriceData['currentChargeableAmount'],
-        ),
-        'latterpayableAmount': _toDouble(
-          rawPriceData['latterpayableAmount'] ?? 0,
-        ),
-        'loyalityDiscount': _toDouble(rawPriceData['loyalityDiscount'] ?? 0),
-        'promoCodeDiscount': _toDouble(rawPriceData['promoCodeDiscount'] ?? 0),
-        'currencyCode': rawPriceData['currencyCode'] ?? 'USD',
-        'numberOfNights': _calculateNights(),
-        'baseRatePerNight': _toDouble(rawPriceData['baseRatePerNight'] ?? 0),
-        'requestedRooms': rawPriceData['requestedRooms'] ?? 1,
-        'additionalGuestCharges': _toDouble(
-          rawPriceData['additionalGuestCharges'] ?? 0,
-        ),
-        'totalTaxAmount': _toDouble(rawPriceData['taxedAmount']),
-        // Fix: safely fallback all breakdown arrays — check both key spellings
-        'taxBrakeDown':
-            rawPriceData['taxBrakeDown'] ?? rawPriceData['taxBreakDown'] ?? [],
-        'addonBrakeDown':
-            rawPriceData['addonBrakeDown'] ??
-            rawPriceData['addonBreakDown'] ??
-            [],
-        'promotionBrakeDown':
-            rawPriceData['promotionBrakeDown'] ??
-            rawPriceData['promotionBreakDown'] ??
-            [],
-        'dailyPriceBrakeDown':
-            rawPriceData['dailyPriceBrakeDown'] ??
-            rawPriceData['dailyBreakdown'] ??
-            rawPriceData['dailyPriceBreakDown'] ??
-            [],
-        'dailyBreakdown':
-            rawPriceData['dailyBreakdown'] ??
-            rawPriceData['dailyPriceBrakeDown'] ??
-            [],
-      };
-
-      // Safely build guests object with roomsArray
-      final guestsRaw =
-          widget.bookingDetails['guests'] as Map<String, dynamic>? ?? {};
-      final roomsArray =
-          guestsRaw['roomsArray'] as List? ??
-          [
-            {
-              'adults': guestsRaw['adults'] ?? 1,
-              'children': guestsRaw['children'] ?? 0,
-              'childAges': [],
-            },
-          ];
-
-      final guests = {
-        'adults': guestsRaw['adults'] ?? 1,
-        'children': guestsRaw['children'] ?? 0,
-        'rooms': guestsRaw['rooms'] ?? 1,
-        'roomsArray': roomsArray,
-      };
-
-      // Build selectedPromotions as objects (not strings)
-      final rawPromotions = widget.bookingDetails['selectedPromotions'];
-      final selectedPromotions = (rawPromotions is List)
-          ? rawPromotions.where((p) => p is Map).toList()
-          : [];
-
-      // Build complete bookingDetails matching expected API structure
-      final bookingDetails = {
-        'startDate': widget.bookingDetails['startDate'],
-        'endDate': widget.bookingDetails['endDate'],
-        'propertyCode': widget.bookingDetails['propertyCode'],
-        'hotelName': widget.bookingDetails['hotelName'],
-        'roomTypeCode': widget.bookingDetails['roomTypeCode'],
-        'numberOfRooms': widget.bookingDetails['numberOfRooms'] ?? 1,
-        'finalPrice': enhancedPriceData,
-        'promoCode': widget.bookingDetails['promoCode'] ?? null,
-        'currency':
-            widget.bookingDetails['currency'] ??
-            rawPriceData['currencyCode'] ??
-            'USD',
-        'email': widget.bookingDetails['email'] ?? '',
-        'phone': widget.bookingDetails['phone'] ?? '',
-        'guests': guests,
-        'guestDetails': widget.bookingDetails['guestDetails'] ?? [],
-        'ratePlanCode': widget.bookingDetails['ratePlanCode'] ?? '',
-        'paymentMethod':
-            widget.bookingDetails['paymentMethod'] ?? _selectedPaymentMethod,
-        'bookingSource': widget.bookingDetails['bookingSource'] ?? 'direct',
-        'selectedPromotions': selectedPromotions,
-        'selectedAddons': widget.bookingDetails['selectedAddons'] ?? [],
-      };
-
-      final payload = {
-        'data': {
-          'bankDetails': _fetchedPaymentData,
-          'bookingDetails': bookingDetails,
-          'priceData': enhancedPriceData,
-          'guestDetails': widget.bookingDetails['guestDetails'] ?? [],
-          'paymentMethod': _selectedPaymentMethod,
-          'paymentScreenshot': _paymentScreenshot != null
-              ? base64Encode(await _paymentScreenshot!.readAsBytes())
-              : null,
-        },
-      };
-
-      print('=== COMPLETE BOOKING DEBUG ===');
-      print('Payload being sent: ${json.encode(payload)}');
-
-      final result = await Get.find<ApiController>().completeBooking(payload);
-
-      if (!mounted) return;
-
-      if (result['success'] == true) {
-        final bookingData = result['data'] as Map<String, dynamic>? ?? {};
-        final bookingCode = bookingData['bookingCode'] as String? ?? '';
-        final propertyCode =
-            bookingData['propertyCode'] as String? ??
-            widget.bookingDetails['propertyCode'] as String? ??
-            '';
-
-        setState(() => _isProcessingBooking = false);
-
-        _showBookingSuccessDialog(
-          bookingCode: bookingCode,
-          propertyCode: propertyCode,
-        );
-      } else {
-        setState(() => _isProcessingBooking = false);
-        showErrorDialog(context, 'Booking failed: ${result['error']}');
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isProcessingBooking = false);
-      showErrorDialog(context, 'Booking failed: $e');
+  try {
+    // Debug: Check property code in booking details
+    print('=== COMPLETE BOOKING DEBUG ===');
+    print('Booking details propertyCode: ${widget.bookingDetails['propertyCode']}');
+    print('================================');
+    
+    // Ensure propertyCode is not empty
+    String finalPropertyCode = widget.bookingDetails['propertyCode'] as String? ?? '';
+    if (finalPropertyCode.isEmpty) {
+      print('WARNING: propertyCode is empty in bookingDetails!');
+      // Try to get from widget propertyId or other sources
+      finalPropertyCode = widget.propertyId; // propertyId might be used as code
+      print('Using propertyId as fallback: $finalPropertyCode');
     }
+    
+    final rawPriceData = widget.priceData;
+
+    final enhancedPriceData = {
+      ...rawPriceData,
+      'totalAmount': _toDouble(rawPriceData['totalAmount']),
+      'amountBeforeTax': _toDouble(rawPriceData['amountBeforeTax']),
+      'taxedAmount': _toDouble(rawPriceData['taxedAmount']),
+      'totalAddonAmount': _toDouble(rawPriceData['totalAddonAmount']),
+      'totalPromotionAmount': _toDouble(
+        rawPriceData['totalPromotionAmount'] ?? 0,
+      ),
+      'currentChargeableAmount': _toDouble(
+        rawPriceData['currentChargeableAmount'],
+      ),
+      'latterpayableAmount': _toDouble(
+        rawPriceData['latterpayableAmount'] ?? 0,
+      ),
+      'loyalityDiscount': _toDouble(rawPriceData['loyalityDiscount'] ?? 0),
+      'promoCodeDiscount': _toDouble(rawPriceData['promoCodeDiscount'] ?? 0),
+      'currencyCode': rawPriceData['currencyCode'] ?? 'USD',
+      'numberOfNights': _calculateNights(),
+      'baseRatePerNight': _toDouble(rawPriceData['baseRatePerNight'] ?? 0),
+      'requestedRooms': rawPriceData['requestedRooms'] ?? 1,
+      'additionalGuestCharges': _toDouble(
+        rawPriceData['additionalGuestCharges'] ?? 0,
+      ),
+      'totalTaxAmount': _toDouble(rawPriceData['taxedAmount']),
+      'taxBrakeDown':
+          rawPriceData['taxBrakeDown'] ?? rawPriceData['taxBreakDown'] ?? [],
+      'addonBrakeDown':
+          rawPriceData['addonBrakeDown'] ??
+          rawPriceData['addonBreakDown'] ??
+          [],
+      'promotionBrakeDown':
+          rawPriceData['promotionBrakeDown'] ??
+          rawPriceData['promotionBreakDown'] ??
+          [],
+      'dailyPriceBrakeDown':
+          rawPriceData['dailyPriceBrakeDown'] ??
+          rawPriceData['dailyBreakdown'] ??
+          rawPriceData['dailyPriceBreakDown'] ??
+          [],
+      'dailyBreakdown':
+          rawPriceData['dailyBreakdown'] ??
+          rawPriceData['dailyPriceBrakeDown'] ??
+          [],
+    };
+
+    // Safely build guests object with roomsArray
+    final guestsRaw =
+        widget.bookingDetails['guests'] as Map<String, dynamic>? ?? {};
+    final roomsArray =
+        guestsRaw['roomsArray'] as List? ??
+        [
+          {
+            'adults': guestsRaw['adults'] ?? 1,
+            'children': guestsRaw['children'] ?? 0,
+            'childAges': [],
+          },
+        ];
+
+    final guests = {
+      'adults': guestsRaw['adults'] ?? 1,
+      'children': guestsRaw['children'] ?? 0,
+      'rooms': guestsRaw['rooms'] ?? 1,
+      'roomsArray': roomsArray,
+    };
+
+    // Build selectedPromotions as objects (not strings)
+    final rawPromotions = widget.bookingDetails['selectedPromotions'];
+    final selectedPromotions = (rawPromotions is List)
+        ? rawPromotions.where((p) => p is Map).toList()
+        : [];
+
+    // Build complete bookingDetails matching expected API structure
+    final bookingDetails = {
+      'startDate': widget.bookingDetails['startDate'],
+      'endDate': widget.bookingDetails['endDate'],
+      'propertyCode': finalPropertyCode, // Use the validated property code
+      'hotelName': widget.bookingDetails['hotelName'],
+      'roomTypeCode': widget.bookingDetails['roomTypeCode'],
+      'numberOfRooms': widget.bookingDetails['numberOfRooms'] ?? 1,
+      'finalPrice': enhancedPriceData,
+      'promoCode': widget.bookingDetails['promoCode'] ?? null,
+      'currency':
+          widget.bookingDetails['currency'] ??
+          rawPriceData['currencyCode'] ??
+          'USD',
+      'email': widget.bookingDetails['email'] ?? '',
+      'phone': widget.bookingDetails['phone'] ?? '',
+      'guests': guests,
+      'guestDetails': widget.bookingDetails['guestDetails'] ?? [],
+      'ratePlanCode': widget.bookingDetails['ratePlanCode'] ?? '',
+      'paymentMethod':
+          widget.bookingDetails['paymentMethod'] ?? _selectedPaymentMethod,
+      'bookingSource': widget.bookingDetails['bookingSource'] ?? 'direct',
+      'selectedPromotions': selectedPromotions,
+      'selectedAddons': widget.bookingDetails['selectedAddons'] ?? [],
+    };
+
+    final payload = {
+      'data': {
+        'bankDetails': _fetchedPaymentData,
+        'bookingDetails': bookingDetails,
+        'priceData': enhancedPriceData,
+        'guestDetails': widget.bookingDetails['guestDetails'] ?? [],
+        'paymentMethod': _selectedPaymentMethod,
+        'paymentScreenshot': _paymentScreenshot != null
+            ? base64Encode(await _paymentScreenshot!.readAsBytes())
+            : null,
+      },
+    };
+
+    print('=== COMPLETE BOOKING FINAL PAYLOAD ===');
+    print('Payload being sent: ${json.encode(payload)}');
+    print('======================================');
+
+    final result = await Get.find<ApiController>().completeBooking(payload);
+
+    if (!mounted) return;
+
+    if (result['success'] == true) {
+      final bookingData = result['data'] as Map<String, dynamic>? ?? {};
+      final bookingCode = bookingData['bookingCode'] as String? ?? '';
+      final propertyCode =
+          bookingData['propertyCode'] as String? ??
+          widget.bookingDetails['propertyCode'] as String? ??
+          '';
+
+      setState(() => _isProcessingBooking = false);
+
+      _showBookingSuccessDialog(
+        bookingCode: bookingCode,
+        propertyCode: propertyCode,
+      );
+    } else {
+      setState(() => _isProcessingBooking = false);
+      showErrorDialog(context, 'Booking failed: ${result['error']}');
+    }
+  } catch (e) {
+    if (!mounted) return;
+    setState(() => _isProcessingBooking = false);
+    showErrorDialog(context, 'Booking failed: $e');
   }
+}
 
   // ── Booking Success Dialog ────────────────────────────────────────────────────
   void _showBookingSuccessDialog({

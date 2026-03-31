@@ -3,6 +3,7 @@ import 'package:group/group/common/theme/theme.dart';
 import 'package:get/get.dart';
 import 'package:group/group/controllers/api_controller.dart';
 import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:group/group/controllers/hotel_controller.dart';
 import 'package:group/group/models/booking_data_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -59,9 +60,8 @@ class _BookingPageState extends State<BookingPage>
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-final List<Map<String, TextEditingController>> _adultControllers = [];
+  final List<Map<String, TextEditingController>> _adultControllers = [];
   List<Map<String, TextEditingController>> _childControllers = [];
-
 
   @override
   void initState() {
@@ -84,21 +84,24 @@ final List<Map<String, TextEditingController>> _adultControllers = [];
       _emailController.text = widget.guestEmail!;
     }
 
-for (int i = 0; i < widget.adults; i++) {
+    for (int i = 0; i < widget.adults; i++) {
       _adultControllers.add({
         'firstName': TextEditingController(),
         'lastName': TextEditingController(),
         'dob': TextEditingController(),
       });
     }
-    
+
     // Add child controllers
-    _childControllers = List.generate(widget.children, (index) => {
-      'firstName': TextEditingController(),
-      'lastName': TextEditingController(),
-      'dob': TextEditingController(),
-    });
-    
+    _childControllers = List.generate(
+      widget.children,
+      (index) => {
+        'firstName': TextEditingController(),
+        'lastName': TextEditingController(),
+        'dob': TextEditingController(),
+      },
+    );
+
     _getPrice();
   }
 
@@ -133,7 +136,6 @@ for (int i = 0; i < widget.adults; i++) {
     );
   }
 
-
   @override
   void dispose() {
     _fadeController.dispose();
@@ -152,7 +154,6 @@ for (int i = 0; i < widget.adults; i++) {
     super.dispose();
   }
 
-
   Future<void> _getPrice() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
@@ -161,9 +162,15 @@ for (int i = 0; i < widget.adults; i++) {
 
     try {
       final Map<String, dynamic> payload = {
-        "propertyCode": widget.propertyCode,
+        "propertyCode":
+            (Get.find<HotelController>().getSelectedHotel()?['code']
+                as String?) ??
+            widget.propertyCode,
         "invTypeCode":
-            widget.room['room_type'] ?? widget.room['invTypeCode'] ?? '',
+            widget.room['invTypeCode'] ??
+            widget.room['roomTypeCode'] ??
+            widget.room['room_type'] ??
+            '',
         "ratePlanCode": widget.ratePlan['ratePlanCode'] ?? '',
         "startDate": widget.startDate,
         "endDate": widget.endDate,
@@ -174,7 +181,9 @@ for (int i = 0; i < widget.adults; i++) {
       };
 
       // Add guest email if discount applied
-      if (widget.discountApplied && widget.guestEmail != null && widget.guestEmail!.isNotEmpty) {
+      if (widget.discountApplied &&
+          widget.guestEmail != null &&
+          widget.guestEmail!.isNotEmpty) {
         payload['guestEmail'] = widget.guestEmail;
       }
 
@@ -196,7 +205,8 @@ for (int i = 0; i < widget.adults; i++) {
 
       // Add guestDistribution from fetchRoomsAPI searchCriteria.guests equivalent (roomsArray)
       final searchController = Get.find<search_ctrl.AppSearchController>();
-      payload['guestDistribution'] = searchController.searchPayload['guests']['roomsArray'];
+      payload['guestDistribution'] =
+          searchController.searchPayload['guests']['roomsArray'];
 
       final result = await Get.find<ApiController>().getPrice(payload);
 
@@ -225,7 +235,7 @@ for (int i = 0; i < widget.adults; i++) {
   void _prettyPrintJson(dynamic json) {
     try {
       String prettyString = const JsonEncoder.withIndent('  ').convert(json);
-     // print(prettyString);
+      // print(prettyString);
     } catch (e) {
       print('Error formatting JSON: $e');
       print(json);
@@ -253,11 +263,11 @@ for (int i = 0; i < widget.adults; i++) {
     bool isAdult,
   ) async {
     final DateTime today = DateTime.now();
-    
+
     DateTime firstDate;
     DateTime maxDate;
     DateTime initialDate;
-    
+
     if (isAdult) {
       // Adult: min age 16 (maxDate=today-16yrs), max age 100 (firstDate=today-100yrs)
       firstDate = DateTime(today.year - 100, today.month, today.day);
@@ -277,9 +287,9 @@ for (int i = 0; i < widget.adults; i++) {
       lastDate: maxDate,
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(primary: AppColor.primary)
-          ),
+          data: Theme.of(
+            context,
+          ).copyWith(colorScheme: ColorScheme.light(primary: AppColor.primary)),
           child: child!,
         );
       },
@@ -289,7 +299,6 @@ for (int i = 0; i < widget.adults; i++) {
       controller.text = picked.toIso8601String().split('T')[0];
     }
   }
-
 
   int _calculateNights() {
     try {
@@ -729,20 +738,22 @@ for (int i = 0; i < widget.adults; i++) {
                     ],
                   ),
                   const SizedBox(height: 12),
-              InkWell(
-                onTap: () =>
-                    _selectDate(context, _adultControllers[index]['dob']!, true),
-                borderRadius: BorderRadius.circular(10),
-                child: IgnorePointer(
-                  child: _buildElegantField(
-                    controller: _adultControllers[index]['dob']!,
-                    label: 'Date of Birth',
-                    icon: Icons.cake_outlined,
-                    readOnly: true,
+                  InkWell(
+                    onTap: () => _selectDate(
+                      context,
+                      _adultControllers[index]['dob']!,
+                      true,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                    child: IgnorePointer(
+                      child: _buildElegantField(
+                        controller: _adultControllers[index]['dob']!,
+                        label: 'Date of Birth',
+                        icon: Icons.cake_outlined,
+                        readOnly: true,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-
                 ],
               );
             }),
@@ -812,7 +823,11 @@ for (int i = 0; i < widget.adults; i++) {
                     ),
                     const SizedBox(height: 12),
                     InkWell(
-                      onTap: () => _selectDate(context, _childControllers[index]['dob']!, false),
+                      onTap: () => _selectDate(
+                        context,
+                        _childControllers[index]['dob']!,
+                        false,
+                      ),
                       borderRadius: BorderRadius.circular(10),
                       child: IgnorePointer(
                         child: _buildElegantField(
@@ -823,7 +838,6 @@ for (int i = 0; i < widget.adults; i++) {
                         ),
                       ),
                     ),
-
                   ],
                 ),
               );
@@ -833,7 +847,6 @@ for (int i = 0; i < widget.adults; i++) {
       ),
     );
   }
-
 
   Widget _buildContactSection() {
     return _buildRoyalCard(
@@ -1349,6 +1362,33 @@ for (int i = 0; i < widget.adults; i++) {
     return;
   }
   
+  // Debug: Check propertyCode
+  print('=== PROCEED TO PAYMENT DEBUG ===');
+  print('widget.propertyCode: ${widget.propertyCode}');
+  print('widget.propertyId: ${widget.propertyId}');
+  print('widget.room["propertyCode"]: ${widget.room['propertyCode']}');
+  print('================================');
+  
+  // Ensure we have a valid propertyCode
+  String finalPropertyCode = widget.propertyCode;
+  if (finalPropertyCode.isEmpty) {
+    // Try to get from room data
+    if (widget.room['propertyCode'] != null && widget.room['propertyCode'].toString().isNotEmpty) {
+      finalPropertyCode = widget.room['propertyCode'].toString();
+      print('Using propertyCode from room: $finalPropertyCode');
+    } else {
+      // Try to get from hotel controller
+      final hotelController = Get.find<HotelController>();
+      final hotel = hotelController.getSelectedHotel();
+      if (hotel != null && hotel['code'] != null && hotel['code'].toString().isNotEmpty) {
+        finalPropertyCode = hotel['code'].toString();
+        print('Using propertyCode from hotel controller: $finalPropertyCode');
+      } else {
+        print('WARNING: No valid propertyCode found!');
+      }
+    }
+  }
+  
   List<Map<String, dynamic>> guestDetails = [];
   // Add adults
   for (var controllers in _adultControllers) {
@@ -1373,15 +1413,12 @@ for (int i = 0; i < widget.adults; i++) {
 
   final numberOfNights = _calculateNights();
 
-  // REMOVE all the enhancedFinalPrice construction code
-  // Instead, use the raw API data directly
-
   final bookingDetails = {
     'startDate': widget.startDate,
     'endDate': widget.endDate,
-    'propertyCode': widget.propertyCode,
+    'propertyCode': finalPropertyCode, // Use the validated property code
     'hotelName': widget.hotelName,
-    'roomTypeCode': widget.room['room_type'],
+    'roomTypeCode': widget.room['invTypeCode'] ?? widget.room['roomTypeCode'] ?? widget.room['room_type'] ?? '',
     'numberOfRooms': 1,
     'currency': widget.ratePlan['currencyCode'] ?? 'USD',
     'email': _emailController.text.trim(),
@@ -1417,7 +1454,7 @@ for (int i = 0; i < widget.adults; i++) {
 
   Get.to(
     () => PaymentPage(
-      priceData: _priceData!, // ← Pass the RAW API response from getPrice()
+      priceData: _priceData!,
       paymentData: {},
       bookingDetails: bookingDetails,
       propertyId: widget.propertyId,
