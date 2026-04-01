@@ -15,7 +15,7 @@ class Room extends StatefulWidget {
 }
 
 class _RoomState extends State<Room> {
-  int _currentIndex = 0;
+  int _currentIndex = 1;
   List<BottomNavItem> _navItems = [];
   bool _initialized = false; // ← guard to prevent re-init
 
@@ -90,7 +90,7 @@ class _RoomState extends State<Room> {
       setState(() {
         _navItems = items;
         _currentIndex = _navItems.indexWhere((item) => item.route == '/rooms');
-        if (_currentIndex == -1) _currentIndex = 0;
+        if (_currentIndex == -1) _currentIndex = 1;
         _initialized = true; // ← mark as done
       });
     }

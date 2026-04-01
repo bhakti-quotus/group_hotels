@@ -18,7 +18,7 @@ class GroupContact extends StatefulWidget {
 }
 
 class _GroupContactState extends State<GroupContact> {
-  int _currentIndex = 0;
+  int _currentIndex = 3;
   List<BottomNavItem> _navItems = [];
   String _groupName = 'Head Office';
 
@@ -84,7 +84,7 @@ class _GroupContactState extends State<GroupContact> {
       _currentIndex = _navItems.indexWhere(
         (item) => item.route == '/groupcontact',
       );
-      if (_currentIndex == -1) _currentIndex = 0;
+      if (_currentIndex == -1) _currentIndex = 3;
     });
   }
 

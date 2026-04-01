@@ -4,7 +4,6 @@ import 'package:group/group/views/auth/verify_email.dart';
 import 'package:group/group/views/contact/contact.dart';
 import 'package:group/group/views/offers/offers.dart';
 import 'package:group/group/views/room/room.dart';
-import 'package:group/group/views/webroom/group_webroom_page.dart';
 import 'package:group/ui/booking_details_page.dart';
 import 'package:group/ui/booking_page/confirm_booking_page.dart';
 import 'package:group/ui/booking_page/modify_booking_page.dart';
@@ -20,7 +19,6 @@ import '../views/home/group_home_page.dart';
 import '../views/about/group_about.dart';
 import '../views/contact/group_contact.dart';
 import '../views/hotels/hotels.dart';
-import '../views/webroom/webroom_routes.dart';
 
 class AppRoutes {
   static const groupHome = '/grouphome';
@@ -82,8 +80,6 @@ class AppRoutes {
     GetPage(name: cancelBooking, page: () => const CancelBookingPage()),
     GetPage(name: groupBookingDetails, page: () => const BookingDetailsPage()),
     GetPage(name: groupHotels, page: () => const Hotels()),
-    ...WebroomRoutes.pages,
-    // ✅ FIX: Read bookingCode and propertyCode from Get.arguments
     GetPage(
       name: BookingDetails,
       page: () {
@@ -100,6 +96,5 @@ class AppRoutes {
         );
       },
     ),
-    GetPage(name: webroom, page: () => const GroupWebRoomPage()),
   ];
 }

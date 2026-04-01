@@ -18,7 +18,7 @@ class GroupAbout extends StatefulWidget {
 }
 
 class _GroupAboutState extends State<GroupAbout> {
-  int _currentIndex = 0;
+  int _currentIndex = 2;
   List<BottomNavItem> _navItems = [];
 
   @override
@@ -80,7 +80,7 @@ class _GroupAboutState extends State<GroupAbout> {
       _currentIndex = _navItems.indexWhere(
         (item) => item.route == '/groupabout',
       );
-      if (_currentIndex == -1) _currentIndex = 0;
+      if (_currentIndex == -1) _currentIndex = 2;
     });
   }
 
