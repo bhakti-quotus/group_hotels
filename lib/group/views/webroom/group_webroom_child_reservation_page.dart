@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
+import 'package:sunswept/group/controllers/hotel_controller.dart';
 import 'ui/webroom_bottom_navbar.dart';
 
 class GroupWebRoomChildReservationPage extends StatelessWidget {

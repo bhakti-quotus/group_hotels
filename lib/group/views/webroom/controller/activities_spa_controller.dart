@@ -1,6 +1,6 @@
 // activities_spa_controller.dart
 import 'package:get/get.dart';
-import 'package:group/group/views/webroom/common/activities_spa_data.dart';
+import 'package:sunswept/group/views/webroom/common/activities_spa_data.dart';
 
 class ActivitiesSpaController extends GetxController {
   // ── Observables ────────────────────────────────────────────────────────────

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/api_controller.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
-import 'package:group/group/utils/app_routes.dart';
-import 'package:group/group/common/bottom_navitem/bottom_navitem_list.dart';
-import 'package:group/ui/bottom_navbar/bottom_navbar.dart';
-import 'package:group/ui/booking_page/modify_booking_page.dart';
-import 'package:group/ui/booking_page/cancel_booking_page.dart';
+import 'package:sunswept/group/controllers/api_controller.dart';
+import 'package:sunswept/group/controllers/hotel_controller.dart';
+import 'package:sunswept/group/utils/app_routes.dart';
+import 'package:sunswept/group/common/bottom_navitem/bottom_navitem_list.dart';
+import 'package:sunswept/ui/bottom_navbar/bottom_navbar.dart';
+import 'package:sunswept/ui/booking_page/modify_booking_page.dart';
+import 'package:sunswept/ui/booking_page/cancel_booking_page.dart';
 import 'package:intl/intl.dart';
 
 class BookingDetailsPage extends StatefulWidget {

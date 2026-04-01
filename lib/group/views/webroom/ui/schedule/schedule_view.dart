@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/views/webroom/controller/schedule_controller.dart';
-import 'package:group/group/views/webroom/model/schedule_event.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/group/views/webroom/controller/schedule_controller.dart';
+import 'package:sunswept/group/views/webroom/model/schedule_event.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // ScheduleView — drop this anywhere inside a Scaffold body.
 // It expects ScheduleController to already be registered via Get.put().

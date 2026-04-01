@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:sunswept/group/controllers/search_controller.dart' as search_ctrl;
 import 'package:cached_network_image/cached_network_image.dart';
 
 // ─────────────────────────────────────────────

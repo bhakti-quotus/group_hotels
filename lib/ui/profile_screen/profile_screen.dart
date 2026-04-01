@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/utils/app_routes.dart';
-import 'package:group/ui/dialog/dialog.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/group/utils/app_routes.dart';
+import 'package:sunswept/ui/dialog/dialog.dart';
 import '../../ui/bottom_navbar/bottom_navbar.dart';
 
 class ProfileScreen extends StatefulWidget {

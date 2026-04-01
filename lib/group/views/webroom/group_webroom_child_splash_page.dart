@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/utils/app_routes.dart';
+import 'package:sunswept/group/utils/app_routes.dart';
 
 class GroupWebRoomChildSplashPage extends StatefulWidget {
   const GroupWebRoomChildSplashPage({super.key});

@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:group/main.dart';
+import 'package:sunswept/main.dart';
 // ignore: depend_on_referenced_packages
 //import 'package:royal_continent/main.dart';
 

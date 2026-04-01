@@ -1,10 +1,10 @@
 // activities_spa_page.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
 import 'package:flutter/services.dart';
-import 'package:group/group/views/webroom/controller/activities_spa_controller.dart';
-import 'package:group/group/views/webroom/common/activities_spa_data.dart';
+import 'package:sunswept/group/views/webroom/controller/activities_spa_controller.dart';
+import 'package:sunswept/group/views/webroom/common/activities_spa_data.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Entry point — call Get.to(() => const ActivitiesSpaPage())

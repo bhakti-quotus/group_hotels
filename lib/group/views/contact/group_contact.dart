@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/ui/bottom_navbar/bottom_navbar.dart';
-import 'package:group/ui/contact_screen/contact_screen.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/ui/bottom_navbar/bottom_navbar.dart';
+import 'package:sunswept/ui/contact_screen/contact_screen.dart';
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../common/bottom_navitem/bottom_navitem_list.dart';

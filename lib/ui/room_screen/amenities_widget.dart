@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
 
 class AmenitiesWidget extends StatelessWidget {
   final List<Map<String, dynamic>> amenities;

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
-import 'package:group/group/views/webroom/ui/profile/faq_page.dart';
-import 'package:group/group/views/webroom/ui/profile/personalinfo_page.dart';
-import 'package:group/group/views/webroom/ui/profile/settings_page.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/group/controllers/hotel_controller.dart';
+import 'package:sunswept/group/views/webroom/ui/profile/faq_page.dart';
+import 'package:sunswept/group/views/webroom/ui/profile/personalinfo_page.dart';
+import 'package:sunswept/group/views/webroom/ui/profile/settings_page.dart';
 import 'ui/webroom_bottom_navbar.dart';
 import 'ui/profile/preference_page.dart';
 

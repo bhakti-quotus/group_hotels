@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/services.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);

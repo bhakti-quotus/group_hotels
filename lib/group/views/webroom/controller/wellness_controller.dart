@@ -1,6 +1,6 @@
 // wellness_controller.dart
 import 'package:get/get.dart';
-import 'package:group/group/views/webroom/common/wellness_data.dart';
+import 'package:sunswept/group/views/webroom/common/wellness_data.dart';
 
 class WellnessController extends GetxController {
   @override

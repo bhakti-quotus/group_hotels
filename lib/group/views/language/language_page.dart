@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/utils/app_routes.dart';
+import 'package:sunswept/group/utils/app_routes.dart';
 import 'package:get/get.dart';
 import '../../common/theme/theme.dart';
 

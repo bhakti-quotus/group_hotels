@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/group/controllers/hotel_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
 import 'image_grid_widget.dart';

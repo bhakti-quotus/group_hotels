@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
 
 class DescriptionSection extends StatefulWidget {
   final String title;

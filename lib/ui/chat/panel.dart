@@ -5,10 +5,10 @@ import 'package:get/get.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart'
     show rootBundle, RawKeyDownEvent, LogicalKeyboardKey;
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/controllers/chat_controller.dart';
-import 'package:group/group/controllers/api_controller.dart';
-import 'package:group/group/controllers/search_controller.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/group/controllers/chat_controller.dart';
+import 'package:sunswept/group/controllers/api_controller.dart';
+import 'package:sunswept/group/controllers/search_controller.dart';
 
 class ChatPanel extends StatefulWidget {
   const ChatPanel({super.key});

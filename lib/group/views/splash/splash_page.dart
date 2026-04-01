@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:group/ui/splash_screen/splash_screen.dart';
+import 'package:sunswept/ui/splash_screen/splash_screen.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

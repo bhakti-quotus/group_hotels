@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/bottom_navitem/bottom_navitem_list.dart';
-import 'package:group/group/utils/app_routes.dart';
+import 'package:sunswept/group/common/bottom_navitem/bottom_navitem_list.dart';
+import 'package:sunswept/group/utils/app_routes.dart';
 
 class WebroomNavItems {
   static const List<BottomNavItem> groupItems = [

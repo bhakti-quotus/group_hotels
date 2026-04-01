@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
-import 'package:group/group/controllers/api_controller.dart';
-import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:sunswept/group/controllers/hotel_controller.dart';
+import 'package:sunswept/group/controllers/api_controller.dart';
+import 'package:sunswept/group/controllers/search_controller.dart' as search_ctrl;
 import 'amenities_widget.dart';
 import 'gallery_widget.dart';
 import 'rooms_list_widget.dart';

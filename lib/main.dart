@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/api_controller.dart';
-import 'package:group/group/controllers/auth_controller.dart';
-import 'package:group/group/controllers/chat_controller.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
-import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
-import 'package:group/group/models/booking_model.dart';
-import 'package:group/group/models/chat_message.dart';
-import 'package:group/group/services/hive_service.dart';
-import 'package:group/group/utils/app_routes.dart';
+import 'package:sunswept/group/controllers/api_controller.dart';
+import 'package:sunswept/group/controllers/auth_controller.dart';
+import 'package:sunswept/group/controllers/chat_controller.dart';
+import 'package:sunswept/group/controllers/hotel_controller.dart';
+import 'package:sunswept/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:sunswept/group/models/booking_model.dart';
+import 'package:sunswept/group/models/chat_message.dart';
+import 'package:sunswept/group/services/hive_service.dart';
+import 'package:sunswept/group/utils/app_routes.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'group',
+      title: 'Sunswept',
       initialRoute: AppRoutes.splash,
       getPages: AppRoutes.routes,
     );

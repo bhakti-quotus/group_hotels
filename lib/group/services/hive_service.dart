@@ -1,4 +1,4 @@
-import 'package:group/group/models/chat_message.dart';
+import 'package:sunswept/group/models/chat_message.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/booking_model.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/views/webroom/common/eatanddrink_data.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/group/views/webroom/common/eatanddrink_data.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EAT & DRINK PAGE  (entry point)

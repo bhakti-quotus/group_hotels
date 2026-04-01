@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:group/group/utils/app_routes.dart';
+import 'package:sunswept/group/utils/app_routes.dart';
 import 'group_webroom_page.dart';
 import 'group_webroom_child_splash_page.dart';
 import 'group_webroom_child_login_page.dart';

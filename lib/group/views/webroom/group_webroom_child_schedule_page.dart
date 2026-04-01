@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
-import 'package:group/group/views/webroom/controller/schedule_controller.dart';
-import 'package:group/group/views/webroom/ui/schedule/schedule_view.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/group/controllers/hotel_controller.dart';
+import 'package:sunswept/group/views/webroom/controller/schedule_controller.dart';
+import 'package:sunswept/group/views/webroom/ui/schedule/schedule_view.dart';
 import 'ui/webroom_bottom_navbar.dart';
 
 

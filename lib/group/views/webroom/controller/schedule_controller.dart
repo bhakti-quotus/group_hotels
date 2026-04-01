@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:group/group/views/webroom/model/schedule_event.dart';
+import 'package:sunswept/group/views/webroom/model/schedule_event.dart';
 
 class ScheduleController extends GetxController {
   final events = <ScheduleEvent>[].obs;

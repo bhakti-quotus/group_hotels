@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/ui/bottom_navbar/bottom_navbar.dart';
-import 'package:group/ui/room_screen/room_screen.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/ui/bottom_navbar/bottom_navbar.dart';
+import 'package:sunswept/ui/room_screen/room_screen.dart';
 import 'package:get/get.dart';
 import '../../common/bottom_navitem/bottom_navitem_list.dart';
 import '../../controllers/hotel_controller.dart';

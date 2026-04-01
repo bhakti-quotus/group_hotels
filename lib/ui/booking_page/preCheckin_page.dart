@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/controllers/api_controller.dart';
-import 'package:group/group/models/booking_model.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/group/controllers/api_controller.dart';
+import 'package:sunswept/group/models/booking_model.dart';
 
 class PreCheckinPage extends StatefulWidget {
   final BookingModel booking;

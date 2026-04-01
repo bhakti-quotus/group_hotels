@@ -1,9 +1,9 @@
 // wellness_page.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/views/webroom/controller/wellness_controller.dart';
-import 'package:group/group/views/webroom/common/wellness_data.dart';
+import 'package:sunswept/group/common/theme/theme.dart';
+import 'package:sunswept/group/views/webroom/controller/wellness_controller.dart';
+import 'package:sunswept/group/views/webroom/common/wellness_data.dart';
 import 'package:flutter/services.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
