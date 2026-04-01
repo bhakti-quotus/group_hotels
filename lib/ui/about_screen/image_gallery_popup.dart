@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 
 // Image Gallery Popup Widget
 class ImageGalleryPopup extends StatefulWidget {

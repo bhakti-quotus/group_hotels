@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
+import 'package:royalcontinent/group/controllers/hotel_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 
 class ContactScreen extends StatefulWidget {
   final String title;

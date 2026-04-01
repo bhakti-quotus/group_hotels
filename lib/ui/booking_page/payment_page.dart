@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/api_controller.dart';
-import 'package:group/ui/dialog/dialog.dart';
+import 'package:royalcontinent/group/controllers/api_controller.dart';
+import 'package:royalcontinent/ui/dialog/dialog.dart';
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'price_breakdown_widget.dart';
-import 'package:group/group/controllers/api_controller.dart';
+import 'package:royalcontinent/group/controllers/api_controller.dart';
 
 class PaymentPage extends StatefulWidget {
   final Map<String, dynamic>

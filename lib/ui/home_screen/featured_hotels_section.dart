@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
-import 'package:group/group/utils/app_routes.dart';
+import 'package:royalcontinent/group/controllers/hotel_controller.dart';
+import 'package:royalcontinent/group/utils/app_routes.dart';
 
 class FeaturedHotelsSection extends StatefulWidget {
   final List<dynamic> hotels;

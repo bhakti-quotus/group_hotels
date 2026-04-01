@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/controllers/auth_controller.dart';
-import 'package:group/ui/dialog/dialog.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/controllers/auth_controller.dart';
+import 'package:royalcontinent/ui/dialog/dialog.dart';
 import 'package:get/get.dart';
 
 class VerifyEmailPage extends StatefulWidget {

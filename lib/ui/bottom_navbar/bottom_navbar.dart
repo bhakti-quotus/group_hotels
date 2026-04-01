@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/bottom_navitem/bottom_navitem_list.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/bottom_navitem/bottom_navitem_list.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 
 class BottomNavbar extends StatefulWidget {
   final int currentIndex;

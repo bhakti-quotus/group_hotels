@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/api_controller.dart';
-import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
-import 'package:group/group/controllers/hotel_controller.dart';
-import 'package:group/group/models/booking_data_model.dart';
+import 'package:royalcontinent/group/controllers/api_controller.dart';
+import 'package:royalcontinent/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:royalcontinent/group/controllers/hotel_controller.dart';
+import 'package:royalcontinent/group/models/booking_data_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'payment_page.dart';

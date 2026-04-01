@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/api_controller.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
-import 'package:group/group/utils/app_routes.dart';
-import 'package:group/group/common/bottom_navitem/bottom_navitem_list.dart';
-import 'package:group/ui/bottom_navbar/bottom_navbar.dart';
-import 'package:group/ui/booking_page/modify_booking_page.dart';
-import 'package:group/ui/booking_page/cancel_booking_page.dart';
+import 'package:royalcontinent/group/controllers/api_controller.dart';
+import 'package:royalcontinent/group/controllers/hotel_controller.dart';
+import 'package:royalcontinent/group/utils/app_routes.dart';
+import 'package:royalcontinent/group/common/bottom_navitem/bottom_navitem_list.dart';
+import 'package:royalcontinent/ui/bottom_navbar/bottom_navbar.dart';
+import 'package:royalcontinent/ui/booking_page/modify_booking_page.dart';
+import 'package:royalcontinent/ui/booking_page/cancel_booking_page.dart';
 import 'package:intl/intl.dart';
 
 class BookingDetailsPage extends StatefulWidget {

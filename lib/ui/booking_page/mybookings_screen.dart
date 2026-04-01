@@ -1,8 +1,8 @@
 // screens/my_bookings_screen.dart
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/models/booking_model.dart';
-import 'package:group/ui/booking_page/preCheckin_page.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/models/booking_model.dart';
+import 'package:royalcontinent/ui/booking_page/preCheckin_page.dart';
 
 class MyBookingsScreen extends StatefulWidget {
   final List<BookingModel> bookings;

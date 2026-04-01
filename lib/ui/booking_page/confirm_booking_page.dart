@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/models/booking_data_model.dart';
+import 'package:royalcontinent/group/models/booking_data_model.dart';
 
 class ConfirmBookingPage extends StatelessWidget {
   const ConfirmBookingPage({Key? key}) : super(key: key);

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/controllers/api_controller.dart';
-import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
-import 'package:group/group/controllers/hotel_controller.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/controllers/api_controller.dart';
+import 'package:royalcontinent/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:royalcontinent/group/controllers/hotel_controller.dart';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';

@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:group/group/models/chat_message.dart';
-import 'package:group/group/services/hive_service.dart';
+import 'package:royalcontinent/group/models/chat_message.dart';
+import 'package:royalcontinent/group/services/hive_service.dart';
 
 class ChatController extends GetxController {
   final messages = <ChatMessage>[].obs; // ← now typed!

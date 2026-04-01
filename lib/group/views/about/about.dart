@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/ui/about_screen/about_screen.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
+import 'package:royalcontinent/ui/about_screen/about_screen.dart';
 import 'package:get/get.dart';
-import 'package:group/ui/bottom_navbar/bottom_navbar.dart';
+import 'package:royalcontinent/ui/bottom_navbar/bottom_navbar.dart';
 import '../../common/bottom_navitem/bottom_navitem_list.dart';
 import '../../controllers/hotel_controller.dart';
 

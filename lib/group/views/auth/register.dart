@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:group/group/utils/app_routes.dart';
-import 'package:group/group/views/auth/verify_email.dart';
-import 'package:group/ui/dialog/dialog.dart';
+import 'package:royalcontinent/group/utils/app_routes.dart';
+import 'package:royalcontinent/group/views/auth/verify_email.dart';
+import 'package:royalcontinent/ui/dialog/dialog.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
 import '../../common/theme/theme.dart';

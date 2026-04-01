@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
-import 'package:group/ui/room_screen/addons_screen.dart';
+import 'package:royalcontinent/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:royalcontinent/ui/room_screen/addons_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
 import '../booking_page/booking_page_new.dart';
-import 'package:group/group/controllers/api_controller.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
+import 'package:royalcontinent/group/controllers/api_controller.dart';
+import 'package:royalcontinent/group/controllers/hotel_controller.dart';
 import 'dart:async';
 import './loyality_program_card.dart'; // Add this import
 

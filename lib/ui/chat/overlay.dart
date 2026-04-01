@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/controllers/chat_controller.dart';
-import 'package:group/group/utils/app_routes.dart';
-import 'package:group/ui/chat/panel.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/controllers/chat_controller.dart';
+import 'package:royalcontinent/group/utils/app_routes.dart';
+import 'package:royalcontinent/ui/chat/panel.dart';
 
 class ChatOverlay extends StatelessWidget {
   final String title;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
-import 'package:group/group/utils/app_routes.dart';
+import 'package:royalcontinent/group/utils/app_routes.dart';
 
 class RoomCard extends StatelessWidget {
   final Map<String, dynamic> room;

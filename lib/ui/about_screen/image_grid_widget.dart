@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 
 class ImageGridWidget extends StatelessWidget {
   final List<dynamic> images;

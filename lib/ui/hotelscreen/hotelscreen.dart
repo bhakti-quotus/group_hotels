@@ -2,11 +2,11 @@
 // import 'package:get/get.dart';
 // import 'dart:convert';
 // import 'package:flutter/services.dart';
-// import 'package:group/group/controllers/hotel_controller.dart';
-// import 'package:group/group/utils/app_routes.dart';
+// import 'package:royalcontinent/group/controllers/hotel_controller.dart';
+// import 'package:royalcontinent/group/utils/app_routes.dart';
 // import 'package:http/http.dart' as http;
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
-// import 'package:group/group/common/theme/theme.dart';
+// import 'package:royalcontinent/group/common/theme/theme.dart';
 // import '../../ui/room_screen/amenities_widget.dart';
 // import '../../ui/room_screen/gallery_widget.dart';
 
@@ -523,9 +523,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'package:group/group/controllers/hotel_controller.dart';
-import 'package:group/group/utils/app_routes.dart';
-import 'package:group/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/controllers/hotel_controller.dart';
+import 'package:royalcontinent/group/utils/app_routes.dart';
+import 'package:royalcontinent/group/common/theme/theme.dart';
 
 class HotelScreen extends StatefulWidget {
   const HotelScreen({super.key});

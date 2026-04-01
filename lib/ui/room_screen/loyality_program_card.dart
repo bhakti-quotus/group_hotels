@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart' as theme;
+import 'package:royalcontinent/group/common/theme/theme.dart' as theme;
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'dart:convert';

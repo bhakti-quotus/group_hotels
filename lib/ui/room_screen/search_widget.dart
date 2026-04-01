@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:group/group/common/theme/theme.dart';
-import 'package:group/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:royalcontinent/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/controllers/search_controller.dart' as search_ctrl;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  THEME CONSTANTS  — White / Gold / Primary accent

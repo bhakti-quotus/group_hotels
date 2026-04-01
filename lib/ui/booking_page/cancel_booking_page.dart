@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/group/controllers/api_controller.dart';
+import 'package:royalcontinent/group/controllers/api_controller.dart';
 
 class CancelBookingPage extends StatefulWidget {
   const CancelBookingPage({super.key});
