@@ -9,10 +9,10 @@ class PriceBreakdownWidget extends StatefulWidget {
   final GlobalKey? infoIconKey;
 
   const PriceBreakdownWidget({
-    Key? key,
+    super.key,
     required this.priceData,
     this.infoIconKey,
-  }) : super(key: key);
+  });
 
   @override
   State<PriceBreakdownWidget> createState() => PriceBreakdownWidgetState();

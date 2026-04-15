@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class ModifyBookingPage extends StatefulWidget {
-  const ModifyBookingPage({Key? key}) : super(key: key);
+  const ModifyBookingPage({super.key});
 
   @override
   State<ModifyBookingPage> createState() => _ModifyBookingPageState();

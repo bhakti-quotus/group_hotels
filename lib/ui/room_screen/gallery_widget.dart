@@ -4,7 +4,7 @@ import 'package:royalcontinent/group/common/theme/theme.dart';
 class GalleryWidget extends StatelessWidget {
   final List<Map<String, dynamic>> gallery;
 
-  const GalleryWidget({required this.gallery});
+  const GalleryWidget({super.key, required this.gallery});
 
   @override
   Widget build(BuildContext context) {

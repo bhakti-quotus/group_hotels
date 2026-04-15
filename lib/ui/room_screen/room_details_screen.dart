@@ -122,7 +122,7 @@ List<_GroupedPlan> _groupRatePlans(List roomPrice) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class RoomDetailsScreen extends StatefulWidget {
-  const RoomDetailsScreen({Key? key}) : super(key: key);
+  const RoomDetailsScreen({super.key});
 
   @override
   State<RoomDetailsScreen> createState() => _RoomDetailsScreenState();
@@ -1023,8 +1023,9 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
       return _buildErrorScaffold('Loading.....');
     }
     final room = args['room'] as Map<String, dynamic>?;
-    if (room == null)
+    if (room == null) {
       return _buildErrorScaffold('Room information not available');
+    }
 
     final totalGuests = args['totalGuests'] as int? ?? 1;
     final propertyCode = args['propertyCode'] as String? ?? '';
@@ -1058,9 +1059,9 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     final rawImages = room['images'];
     if (rawImages is List) {
       for (var img in rawImages) {
-        if (img is String)
+        if (img is String) {
           images.add(img);
-        else if (img is Map && img['url'] != null)
+        } else if (img is Map && img['url'] != null)
           images.add(img['url'].toString());
       }
     }
@@ -1485,24 +1486,27 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     int maxOccupancy,
   ) {
     final stats = <Map<String, dynamic>>[];
-    if (roomSize > 0)
+    if (roomSize > 0) {
       stats.add({
         'icon': Icons.straighten_rounded,
         'label': '$roomSize $roomUnit',
         'sub': 'Room Size',
       });
-    if (roomView.isNotEmpty)
+    }
+    if (roomView.isNotEmpty) {
       stats.add({
         'icon': Icons.landscape_rounded,
         'label': _capitalize(roomView),
         'sub': 'View',
       });
-    if (maxOccupancy > 0)
+    }
+    if (maxOccupancy > 0) {
       stats.add({
         'icon': Icons.people_outline_rounded,
         'label': '$maxOccupancy Guests',
         'sub': 'Max Capacity',
       });
+    }
     if (stats.isEmpty) return const SizedBox();
 
     return Container(
@@ -2181,7 +2185,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                   ),
               ],
             );
-          }).toList(),
+          }),
 
           // ── Geo-discount chips ─────────────────────────────
           if (plan.appliedDiscounts.isNotEmpty)
@@ -2454,25 +2458,32 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     if (n.contains('ac') || n.contains('air')) return Icons.ac_unit_rounded;
     if (n.contains('parking')) return Icons.local_parking_rounded;
     if (n.contains('pool')) return Icons.pool_rounded;
-    if (n.contains('gym') || n.contains('fitness'))
+    if (n.contains('gym') || n.contains('fitness')) {
       return Icons.fitness_center_rounded;
-    if (n.contains('breakfast') || n.contains('food'))
+    }
+    if (n.contains('breakfast') || n.contains('food')) {
       return Icons.restaurant_rounded;
-    if (n.contains('bath') || n.contains('shower'))
+    }
+    if (n.contains('bath') || n.contains('shower')) {
       return Icons.bathtub_rounded;
+    }
     if (n.contains('kitchen')) return Icons.kitchen_rounded;
     if (n.contains('pet')) return Icons.pets_rounded;
-    if (n.contains('balcony') || n.contains('terrace'))
+    if (n.contains('balcony') || n.contains('terrace')) {
       return Icons.balcony_rounded;
+    }
     if (n.contains('safe') || n.contains('lock')) return Icons.lock_rounded;
     if (n.contains('coffee') || n.contains('tea')) return Icons.coffee_rounded;
     if (n.contains('desk') || n.contains('work')) return Icons.desk_rounded;
-    if (n.contains('phone') || n.contains('telephone'))
+    if (n.contains('phone') || n.contains('telephone')) {
       return Icons.phone_rounded;
-    if (n.contains('curtain') || n.contains('blackout'))
+    }
+    if (n.contains('curtain') || n.contains('blackout')) {
       return Icons.blinds_rounded;
-    if (n.contains('slipper') || n.contains('bathrobe'))
+    }
+    if (n.contains('slipper') || n.contains('bathrobe')) {
       return Icons.checkroom_rounded;
+    }
     if (n.contains('alarm') || n.contains('clock')) return Icons.alarm_rounded;
     if (n.contains('iron')) return Icons.iron_rounded;
     if (n.contains('sound')) return Icons.volume_off_rounded;

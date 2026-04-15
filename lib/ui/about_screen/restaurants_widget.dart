@@ -4,7 +4,7 @@ import 'package:royalcontinent/group/common/theme/theme.dart';
 class RestaurantsWidget extends StatelessWidget {
   final List<Map<String, dynamic>> restaurants;
 
-  const RestaurantsWidget({required this.restaurants});
+  const RestaurantsWidget({super.key, required this.restaurants});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class RestaurantsWidget extends StatelessWidget {
                 if (!isLast) const SizedBox(height: 16),
               ],
             );
-          }).toList(),
+          }),
         ],
       ),
     );

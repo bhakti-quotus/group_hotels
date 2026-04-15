@@ -7,8 +7,8 @@ import '../services/hive_service.dart';
 class ApiController extends GetxController {
   final HiveService hiveService = Get.find<HiveService>();
 
-  String _baseUrl = '';
-  String _pmsUrl = '';
+  final String _baseUrl = '';
+  final String _pmsUrl = '';
 
   bool _configLoaded = false;
 

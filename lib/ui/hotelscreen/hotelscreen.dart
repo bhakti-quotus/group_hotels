@@ -556,11 +556,12 @@ class _HotelScreenState extends State<HotelScreen> {
         final rootArgs = args['config'] ?? args;
         BrandingColors.loadFromConfig(rootArgs);
         Get.find<HotelController>().setConfig(args, isRoot: true);
-        if (mounted)
+        if (mounted) {
           setState(() {
             groupData = args;
             _isLoading = false;
           });
+        }
         return;
       }
     }
@@ -574,10 +575,11 @@ class _HotelScreenState extends State<HotelScreen> {
         decoded['config'] as Map<String, dynamic>? ?? {},
       );
 
-      if (mounted)
+      if (mounted) {
         setState(() {
           groupData = decoded;
         });
+      }
       Get.find<HotelController>().setConfig(decoded, isRoot: true);
     } catch (e) {
       debugPrint('❌ Error loading config.json: $e');

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:royalcontinent/group/utils/app_routes.dart';
 import 'package:royalcontinent/ui/dialog/dialog.dart';
-import '../../ui/bottom_navbar/bottom_navbar.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

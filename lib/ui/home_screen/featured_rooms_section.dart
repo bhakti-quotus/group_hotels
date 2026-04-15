@@ -6,8 +6,7 @@ import 'package:royalcontinent/group/utils/app_routes.dart';
 class FeaturedRoomsSection extends StatelessWidget {
   final Map<String, dynamic> featuredRooms;
 
-  const FeaturedRoomsSection({Key? key, required this.featuredRooms})
-    : super(key: key);
+  const FeaturedRoomsSection({super.key, required this.featuredRooms});
 
   @override
   Widget build(BuildContext context) {

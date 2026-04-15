@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:royalcontinent/ui/splash_screen/splash_screen.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../utils/app_routes.dart';
 import '../../controllers/hotel_controller.dart';
 import '../../common/theme/theme.dart';

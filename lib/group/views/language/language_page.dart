@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../common/theme/theme.dart';
 
 class LanguagePage extends StatefulWidget {
-  const LanguagePage({Key? key}) : super(key: key);
+  const LanguagePage({super.key});
 
   @override
   State<LanguagePage> createState() => _LanguagePageState();

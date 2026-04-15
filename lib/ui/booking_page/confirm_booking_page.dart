@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:royalcontinent/group/models/booking_data_model.dart';
 
 class ConfirmBookingPage extends StatelessWidget {
-  const ConfirmBookingPage({Key? key}) : super(key: key);
+  const ConfirmBookingPage({super.key});
 
   BookingDataModel get bookingData => Get.arguments as BookingDataModel;
 

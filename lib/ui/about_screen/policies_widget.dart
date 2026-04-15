@@ -4,7 +4,7 @@ import 'package:royalcontinent/group/common/theme/theme.dart';
 class PoliciesWidget extends StatelessWidget {
   final List<Map<String, dynamic>> policies;
 
-  const PoliciesWidget({required this.policies});
+  const PoliciesWidget({super.key, required this.policies});
 
   @override
   Widget build(BuildContext context) {

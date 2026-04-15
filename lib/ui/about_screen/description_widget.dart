@@ -4,7 +4,7 @@ import 'package:royalcontinent/group/common/theme/theme.dart';
 class DescriptionWidget extends StatefulWidget {
   final Map<String, dynamic> about;
 
-  const DescriptionWidget({required this.about});
+  const DescriptionWidget({super.key, required this.about});
 
   @override
   State<DescriptionWidget> createState() => _DescriptionWidgetState();

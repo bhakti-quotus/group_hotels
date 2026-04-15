@@ -15,13 +15,13 @@ class HeroBanner extends StatefulWidget {
   final List<dynamic>? highlights;
 
   const HeroBanner({
-    Key? key,
+    super.key,
     required this.bannerData,
     required this.images,
     required this.currentImageIndex,
     required this.logoUrl,
     this.highlights,
-  }) : super(key: key);
+  });
 
   @override
   State<HeroBanner> createState() => _HeroBannerState();

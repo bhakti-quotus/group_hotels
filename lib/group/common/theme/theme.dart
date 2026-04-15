@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart';
 
 // Default color constants
 const Color _defaultPrimary = Color.fromARGB(255, 15, 89, 47);

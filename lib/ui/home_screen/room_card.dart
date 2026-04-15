@@ -6,7 +6,7 @@ import 'package:royalcontinent/group/utils/app_routes.dart';
 class RoomCard extends StatelessWidget {
   final Map<String, dynamic> room;
 
-  const RoomCard({Key? key, required this.room}) : super(key: key);
+  const RoomCard({super.key, required this.room});
 
   @override
   Widget build(BuildContext context) {

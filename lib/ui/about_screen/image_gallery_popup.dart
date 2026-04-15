@@ -7,10 +7,10 @@ class ImageGalleryPopup extends StatefulWidget {
   final int initialIndex;
 
   const ImageGalleryPopup({
-    Key? key,
+    super.key,
     required this.images,
     required this.initialIndex,
-  }) : super(key: key);
+  });
 
   @override
   State<ImageGalleryPopup> createState() => _ImageGalleryPopupState();

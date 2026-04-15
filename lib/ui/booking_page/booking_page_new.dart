@@ -28,7 +28,7 @@ class BookingPage extends StatefulWidget {
   final String? guestEmail;
 
   const BookingPage({
-    Key? key,
+    super.key,
     required this.room,
     required this.ratePlan,
     required this.totalGuests,
@@ -43,7 +43,7 @@ class BookingPage extends StatefulWidget {
     this.discountApplied = false,
     this.discountedPrice = 0,
     this.guestEmail,
-  }) : super(key: key);
+  });
 
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -716,8 +716,9 @@ class _BookingPageState extends State<BookingPage>
                           label: 'First Name',
                           icon: Icons.badge_outlined,
                           validator: (value) {
-                            if (value == null || value.isEmpty)
+                            if (value == null || value.isEmpty) {
                               return 'First name is required';
+                            }
                             return null;
                           },
                         ),
@@ -729,8 +730,9 @@ class _BookingPageState extends State<BookingPage>
                           label: 'Last Name',
                           icon: Icons.badge_outlined,
                           validator: (value) {
-                            if (value == null || value.isEmpty)
+                            if (value == null || value.isEmpty) {
                               return 'Last name is required';
+                            }
                             return null;
                           },
                         ),
@@ -800,8 +802,9 @@ class _BookingPageState extends State<BookingPage>
                             label: 'First Name',
                             icon: Icons.child_care_outlined,
                             validator: (value) {
-                              if (value == null || value.isEmpty)
+                              if (value == null || value.isEmpty) {
                                 return 'First name is required';
+                              }
                               return null;
                             },
                           ),
@@ -813,8 +816,9 @@ class _BookingPageState extends State<BookingPage>
                             label: 'Last Name',
                             icon: Icons.child_care_outlined,
                             validator: (value) {
-                              if (value == null || value.isEmpty)
+                              if (value == null || value.isEmpty) {
                                 return 'Last name is required';
+                              }
                               return null;
                             },
                           ),
@@ -861,10 +865,12 @@ class _BookingPageState extends State<BookingPage>
             keyboardType: TextInputType.emailAddress,
             readOnly: widget.guestEmail != null,
             validator: (value) {
-              if (value == null || value.isEmpty)
+              if (value == null || value.isEmpty) {
                 return 'Please enter an email address';
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value))
+              }
+              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                 return 'Please enter a valid email address';
+              }
               return null;
             },
           ),
@@ -875,8 +881,9 @@ class _BookingPageState extends State<BookingPage>
             icon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
             validator: (value) {
-              if (value == null || value.isEmpty)
+              if (value == null || value.isEmpty) {
                 return 'Please enter a phone number';
+              }
               return null;
             },
           ),

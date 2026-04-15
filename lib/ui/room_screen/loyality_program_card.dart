@@ -23,7 +23,7 @@ class LoyaltyProgramCard extends StatefulWidget {
   final int joinedDiscountPercentage;
 
   const LoyaltyProgramCard({
-    Key? key,
+    super.key,
     required this.discountValue,
     required this.termsText,
     required this.benefitsTitle,
@@ -37,7 +37,7 @@ class LoyaltyProgramCard extends StatefulWidget {
     this.onLogout,
     this.isJoined = false,
     this.joinedDiscountPercentage = 0,
-  }) : super(key: key);
+  });
 
   @override
   State<LoyaltyProgramCard> createState() => _LoyaltyProgramCardState();
@@ -275,7 +275,9 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                               ? null
                               : () async {
                                   if (!formKey.currentState!
-                                      .validate()) return;
+                                      .validate()) {
+                                    return;
+                                  }
                                   setDlg(
                                       () => _isLoading = true);
 
@@ -512,8 +514,11 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Video section - now takes full width without any padding
           _buildVideoSection(),
+          // Content section with padding
           Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
@@ -552,136 +557,147 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     );
   }
 
-  // ─── Video section ─────────────────────────────────────────────────────────
-  Widget _buildVideoSection() {
-    return ClipRRect(
-      borderRadius:
-          const BorderRadius.vertical(top: Radius.circular(15)),
-      child: SizedBox(
-        height: 200,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // ── Always show Chewie when initialized ──────────────────
-            if (_videoInitialized && _chewieController != null)
-              Chewie(controller: _chewieController!)
-            else if (_videoError)
-              _buildVideoError()
-            else
-              _buildThumbnail(),
+  // ─── Video section - Full width with no margins ───────────────────────────
+ Widget _buildVideoSection() {
+  return ClipRRect(
+    borderRadius: const BorderRadius.only(
+      topLeft: Radius.circular(15),
+      topRight: Radius.circular(15),
+    ),
+    child: SizedBox(
+      width: double.infinity,
+      height: 200,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // ── Chewie wrapped in FittedBox for cover zoom effect ──
+          if (_videoInitialized && _chewieController != null)
+            FittedBox(
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
+              child: SizedBox(
+                width: _videoController!.value.size.width,
+                height: _videoController!.value.size.height,
+                child: Chewie(controller: _chewieController!),
+              ),
+            )
+          else if (_videoError)
+            _buildVideoError()
+          else
+            _buildThumbnail(),
 
-            // ── Custom play overlay (shown until user taps play) ─────
-            if (!_videoStarted && !_videoError)
-              GestureDetector(
-                onTap: _videoInitialized
-                    ? _onPlayTapped
-                    : null, // do nothing while still loading
-                child: Container(
-                  color: Colors.transparent,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Thumbnail behind overlay when not yet initialized
-                      if (!_videoInitialized) _buildThumbnail(),
+          // ── Custom play overlay (shown until user taps play) ─────
+          if (!_videoStarted && !_videoError)
+            GestureDetector(
+              onTap: _videoInitialized
+                  ? _onPlayTapped
+                  : null, // do nothing while still loading
+              child: Container(
+                color: Colors.transparent,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Thumbnail behind overlay when not yet initialized
+                    if (!_videoInitialized) _buildThumbnail(),
 
-                      // Semi-dark gradient at bottom
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          height: 60,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.55),
-                                Colors.transparent,
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Play button circle
-                      Center(
-                        child: AnimatedOpacity(
-                          opacity: _videoInitializing ? 0.5 : 1.0,
-                          duration: const Duration(milliseconds: 300),
-                          child: Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.55),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.8),
-                                width: 2,
-                              ),
-                            ),
-                            child: _videoInitializing
-                                ? const Padding(
-                                    padding: EdgeInsets.all(16),
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.play_arrow_rounded,
-                                    color: Colors.white,
-                                    size: 32,
-                                  ),
-                          ),
-                        ),
-                      ),
-
-                      // Property name label
-                      Positioned(
-                        bottom: 14,
-                        left: 14,
-                        child: Text(
-                          '${widget.propertyName ?? ''} – Property Tour',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            shadows: [
-                              Shadow(
-                                  color: Colors.black45,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 1)),
+                    // Semi-dark gradient at bottom
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.55),
+                              Colors.transparent,
                             ],
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+
+                    // Play button circle
+                    Center(
+                      child: AnimatedOpacity(
+                        opacity: _videoInitializing ? 0.5 : 1.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.55),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.8),
+                              width: 2,
+                            ),
+                          ),
+                          child: _videoInitializing
+                              ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.play_arrow_rounded,
+                                  color: Colors.white,
+                                  size: 32,
+                                ),
+                        ),
+                      ),
+                    ),
+
+                    // Property name label
+                    Positioned(
+                      bottom: 14,
+                      left: 14,
+                      child: Text(
+                        '${widget.propertyName ?? ''} – Property Tour',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          shadows: [
+                            Shadow(
+                                color: Colors.black45,
+                                blurRadius: 4,
+                                offset: Offset(0, 1)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
+    ),
+  );
+}
+ Widget _buildThumbnail() {
+  if (widget.videoThumbnail != null &&
+      widget.videoThumbnail!.isNotEmpty) {
+    return Image.network(
+      widget.videoThumbnail!,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, __, ___) => _placeholderBox(),
     );
   }
-
-  Widget _buildThumbnail() {
-    if (widget.videoThumbnail != null &&
-        widget.videoThumbnail!.isNotEmpty) {
-      return Image.network(
-        widget.videoThumbnail!,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        errorBuilder: (_, __, ___) => _placeholderBox(),
-      );
-    }
-    return _placeholderBox();
-  }
-
+  return _placeholderBox();
+}
   Widget _placeholderBox() {
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       color: Colors.grey[200],
       child: Center(
         child: Icon(Icons.videocam_outlined,
@@ -692,6 +708,8 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
 
   Widget _buildVideoError() {
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       color: Colors.grey[200],
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -734,7 +752,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     );
   }
 
-  // ─── Other UI helpers (unchanged) ─────────────────────────────────────────
+  // ─── Other UI helpers ─────────────────────────────────────────
   Widget _buildHeader() {
     return Row(
       children: [
@@ -901,7 +919,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                 onChanged: (value) {
                   if (value && !_isProgramJoined) _openJoinFlow();
                 },
-                activeColor: Colors.green,
+                activeThumbColor: Colors.green,
                 activeTrackColor: Colors.green.withOpacity(0.5),
                 inactiveThumbColor: Colors.grey[400],
                 inactiveTrackColor: Colors.grey[300],

@@ -7,8 +7,7 @@ import 'package:royalcontinent/group/utils/app_routes.dart';
 class FeaturedHotelsSection extends StatefulWidget {
   final List<dynamic> hotels;
 
-  const FeaturedHotelsSection({Key? key, required this.hotels})
-    : super(key: key);
+  const FeaturedHotelsSection({super.key, required this.hotels});
 
   @override
   State<FeaturedHotelsSection> createState() => _FeaturedHotelsSectionState();
@@ -109,8 +108,7 @@ class HotelCard extends StatefulWidget {
   final Map<String, dynamic> hotel;
   final int index;
 
-  const HotelCard({Key? key, required this.hotel, required this.index})
-    : super(key: key);
+  const HotelCard({super.key, required this.hotel, required this.index});
 
   @override
   State<HotelCard> createState() => _HotelCardState();

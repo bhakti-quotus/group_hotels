@@ -7,8 +7,7 @@ import 'package:royalcontinent/group/common/theme/theme.dart';
 
 class ContactScreen extends StatefulWidget {
   final String title;
-  const ContactScreen({Key? key, this.title = 'Get In Touch'})
-    : super(key: key);
+  const ContactScreen({super.key, this.title = 'Get In Touch'});
 
   @override
   State<ContactScreen> createState() => _ContactScreenState();

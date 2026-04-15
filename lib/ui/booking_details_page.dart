@@ -14,8 +14,7 @@ class BookingDetailsPage extends StatefulWidget {
   final String? bookingCode;
   final String? propertyCode;
 
-  const BookingDetailsPage({Key? key, this.bookingCode, this.propertyCode})
-    : super(key: key);
+  const BookingDetailsPage({super.key, this.bookingCode, this.propertyCode});
 
   @override
   State<BookingDetailsPage> createState() => _BookingDetailsPageState();
@@ -38,7 +37,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // Bottom nav for search state
   List<BottomNavItem> _navItems = [];
   Map<String, dynamic> _config = {};
-  int _navCurrentIndex = 2; // My Bookings
+  final int _navCurrentIndex = 2; // My Bookings
   Color _primaryColor = AppColor.primary;
 
   Future<void> _loadNavForDetails() async {
@@ -988,7 +987,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ],
     );
@@ -1060,7 +1059,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
         if (dailyBreakdown.isNotEmpty) ...[
           _sectionLabel('Daily Charges'),
           const SizedBox(height: 8),
-          ...dailyBreakdown.map((day) => _buildDayCharge(day)).toList(),
+          ...dailyBreakdown.map((day) => _buildDayCharge(day)),
           const SizedBox(height: 8),
         ],
 

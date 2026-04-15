@@ -20,12 +20,12 @@ class PaymentPage extends StatefulWidget {
   final String propertyId;
 
   const PaymentPage({
-    Key? key,
+    super.key,
     required this.priceData,
     required this.paymentData,
     required this.bookingDetails,
     required this.propertyId,
-  }) : super(key: key);
+  });
 
   @override
   State<PaymentPage> createState() => _PaymentPageState();
@@ -184,8 +184,9 @@ class _PaymentPageState extends State<PaymentPage>
 
   String _getHintText() {
     if (_isProcessingBooking) return 'Processing your reservation...';
-    if (_selectedPaymentMethod == null)
+    if (_selectedPaymentMethod == null) {
       return 'Please select a payment method to continue';
+    }
     if ((_selectedPaymentMethod == 'upi' ||
             _selectedPaymentMethod == 'bankTransfer') &&
         _paymentScreenshot == null) {
@@ -2089,7 +2090,7 @@ class _PaymentPageState extends State<PaymentPage>
     // Build selectedPromotions as objects (not strings)
     final rawPromotions = widget.bookingDetails['selectedPromotions'];
     final selectedPromotions = (rawPromotions is List)
-        ? rawPromotions.where((p) => p is Map).toList()
+        ? rawPromotions.whereType<Map>().toList()
         : [];
 
     // Build complete bookingDetails matching expected API structure
@@ -2101,7 +2102,7 @@ class _PaymentPageState extends State<PaymentPage>
       'roomTypeCode': widget.bookingDetails['roomTypeCode'],
       'numberOfRooms': widget.bookingDetails['numberOfRooms'] ?? 1,
       'finalPrice': enhancedPriceData,
-      'promoCode': widget.bookingDetails['promoCode'] ?? null,
+      'promoCode': widget.bookingDetails['promoCode'],
       'currency':
           widget.bookingDetails['currency'] ??
           rawPriceData['currencyCode'] ??

@@ -48,14 +48,18 @@ class _BottomNavbarState extends State<BottomNavbar>
   void didUpdateWidget(BottomNavbar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.items.length != widget.items.length) {
-      for (final c in _scaleControllers) c.dispose();
+      for (final c in _scaleControllers) {
+        c.dispose();
+      }
       _buildControllers();
     }
   }
 
   @override
   void dispose() {
-    for (final c in _scaleControllers) c.dispose();
+    for (final c in _scaleControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 

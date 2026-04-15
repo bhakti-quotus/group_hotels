@@ -4,7 +4,7 @@ import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
 
 class AddonsScreen extends StatefulWidget {
-  const AddonsScreen({Key? key}) : super(key: key);
+  const AddonsScreen({super.key});
 
   @override
   State<AddonsScreen> createState() => _AddonsScreenState();
@@ -80,9 +80,9 @@ class _AddonsScreenState extends State<AddonsScreen> {
           // Compare date only, ignore time component
           final dDateOnly = DateTime(d.year, d.month, d.day);
           final lastDateOnly = DateTime(
-            lastValidNight!.year,
-            lastValidNight!.month,
-            lastValidNight!.day,
+            lastValidNight.year,
+            lastValidNight.month,
+            lastValidNight.day,
           );
           if (dDateOnly.isAfter(lastDateOnly)) continue;
         } catch (_) {}
@@ -530,7 +530,7 @@ class _AddonsScreenState extends State<AddonsScreen> {
     final totalQty = _totalQtyForAddon(id);
     final totalNightPrice = totalQty * price;
 
-    String _fmt(String raw) {
+    String fmt(String raw) {
       try {
         final d = DateTime.parse(raw);
         const months = [
@@ -579,7 +579,7 @@ class _AddonsScreenState extends State<AddonsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _fmt(date),
+                  fmt(date),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: active ? FontWeight.w600 : FontWeight.w400,
@@ -618,7 +618,7 @@ class _AddonsScreenState extends State<AddonsScreen> {
               ],
             ),
           );
-        }).toList(),
+        }),
         if (totalQty > 0) ...[
           const SizedBox(height: 6),
           Container(

@@ -42,11 +42,11 @@ class SearchWidget extends StatefulWidget {
   final VoidCallback? onModifySearch;
 
   const SearchWidget({
-    Key? key,
+    super.key,
     this.update = false,
     this.showEditText = false,
     this.onModifySearch,
-  }) : super(key: key);
+  });
 
   @override
   State<SearchWidget> createState() => _SearchWidgetState();
@@ -275,8 +275,9 @@ class _SearchWidgetState extends State<SearchWidget>
     setState(() {
       if (isCheckIn) {
         checkIn = picked;
-        if (!checkOut.isAfter(checkIn))
+        if (!checkOut.isAfter(checkIn)) {
           checkOut = checkIn.add(const Duration(days: 1));
+        }
       } else {
         checkOut = picked;
       }
@@ -494,7 +495,7 @@ class _SearchWidgetState extends State<SearchWidget>
 
   // ── Logo ────────────────────────────────────────────────────────────────────
   Widget _buildLogo() {
-    return Container(
+    return SizedBox(
       width: 60,
       height: 30,
       child: ClipRRect(

@@ -12,7 +12,7 @@ import 'package:royalcontinent/group/models/booking_model.dart';
 class PreCheckinPage extends StatefulWidget {
   final BookingModel booking;
 
-  const PreCheckinPage({Key? key, required this.booking}) : super(key: key);
+  const PreCheckinPage({super.key, required this.booking});
 
   @override
   State<PreCheckinPage> createState() => _PreCheckinPageState();
@@ -384,7 +384,7 @@ class _PreCheckinPageState extends State<PreCheckinPage> {
                               border: Border.all(color: Colors.grey.shade300),
                             ),
                             child: DropdownButtonFormField<String>(
-                              value: _selectedIdType,
+                              initialValue: _selectedIdType,
                               hint: const Text(
                                 'Select ID type',
                                 style: TextStyle(color: Colors.grey),

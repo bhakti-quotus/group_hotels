@@ -26,7 +26,7 @@ class RoomsListWidget extends StatefulWidget {
   final Map<String, dynamic>? loyaltyConfig;
 
   const RoomsListWidget({
-    Key? key,
+    super.key,
     required this.rooms,
     this.totalGuests = 1,
     this.propertyCode = '',
@@ -42,7 +42,7 @@ class RoomsListWidget extends StatefulWidget {
     this.propertyDetails,
     this.propertyVideos,
     this.loyaltyConfig,
-  }) : super(key: key);
+  });
 
   @override
   State<RoomsListWidget> createState() => _RoomsListWidgetState();
@@ -1046,7 +1046,7 @@ class _ViewDetailsButtonState extends State<_ViewDetailsButton> {
                 letterSpacing: 0.8,
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.white),
           ],
         ),

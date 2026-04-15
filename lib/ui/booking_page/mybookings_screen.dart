@@ -11,12 +11,12 @@ class MyBookingsScreen extends StatefulWidget {
   final Function(String code) onToggleExpanded;
 
   const MyBookingsScreen({
-    Key? key,
+    super.key,
     required this.bookings,
     required this.expandedStates,
     required this.onRefresh,
     required this.onToggleExpanded,
-  }) : super(key: key);
+  });
 
   @override
   State<MyBookingsScreen> createState() => _MyBookingsScreenState();

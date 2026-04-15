@@ -12,7 +12,7 @@ import 'gallery_preview_section.dart';
 class HomeScreen extends StatefulWidget {
   final Map<String, dynamic> config;
 
-  const HomeScreen({Key? key, required this.config}) : super(key: key);
+  const HomeScreen({super.key, required this.config});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

@@ -6,8 +6,7 @@ class AmenityIcon extends StatelessWidget {
   final String icon;
   final String label;
 
-  const AmenityIcon({Key? key, required this.icon, required this.label})
-    : super(key: key);
+  const AmenityIcon({super.key, required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +15,7 @@ class AmenityIcon extends StatelessWidget {
       child: Row(
         children: [
           // Image on the left
-          Container(
+          SizedBox(
             width: 18,
             height: 18,
             child: icon.toLowerCase().contains('.svg')

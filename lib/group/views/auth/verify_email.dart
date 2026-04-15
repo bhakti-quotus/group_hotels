@@ -9,10 +9,10 @@ class VerifyEmailPage extends StatefulWidget {
   final String nextRoute;
 
   const VerifyEmailPage({
-    Key? key,
+    super.key,
     required this.email,
     required this.nextRoute,
-  }) : super(key: key);
+  });
 
   @override
   State<VerifyEmailPage> createState() => _VerifyEmailPageState();

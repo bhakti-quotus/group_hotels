@@ -5,7 +5,7 @@ class ImageGridWidget extends StatelessWidget {
   final List<dynamic> images;
   final void Function(List<dynamic>, int) onImageTap;
 
-  const ImageGridWidget({required this.images, required this.onImageTap});
+  const ImageGridWidget({super.key, required this.images, required this.onImageTap});
 
   @override
   Widget build(BuildContext context) {

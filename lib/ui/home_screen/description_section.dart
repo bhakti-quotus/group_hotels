@@ -6,10 +6,10 @@ class DescriptionSection extends StatefulWidget {
   final String description;
 
   const DescriptionSection({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
-  }) : super(key: key);
+  });
 
   @override
   State<DescriptionSection> createState() => _DescriptionSectionState();

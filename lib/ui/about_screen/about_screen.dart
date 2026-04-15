@@ -12,7 +12,7 @@ import 'image_gallery_popup.dart';
 //import 'contact_widget.dart';
 
 class AboutScreen extends StatefulWidget {
-  const AboutScreen({Key? key}) : super(key: key);
+  const AboutScreen({super.key});
 
   @override
   State<AboutScreen> createState() => _AboutScreenState();

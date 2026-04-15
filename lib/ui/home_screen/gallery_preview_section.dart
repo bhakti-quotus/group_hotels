@@ -10,11 +10,11 @@ class GalleryPreviewSection extends StatefulWidget {
   final List<Map<String, dynamic>>? galleryItems;
 
   const GalleryPreviewSection({
-    Key? key,
+    super.key,
     required this.images,
     required this.currentImageIndex,
     this.galleryItems,
-  }) : super(key: key);
+  });
 
   @override
   State<GalleryPreviewSection> createState() => _GalleryPreviewSectionState();

@@ -13,7 +13,7 @@ import 'loyality_program_card.dart';
 
 /// Main screen that displays rooms, amenities, and gallery for the selected hotel.
 class RoomScreen extends StatefulWidget {
-  const RoomScreen({Key? key}) : super(key: key);
+  const RoomScreen({super.key});
 
   @override
   State<RoomScreen> createState() => _RoomScreenState();

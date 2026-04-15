@@ -5,9 +5,9 @@ class HighlightsSection extends StatelessWidget {
   final Map<String, dynamic> highlights;
 
   const HighlightsSection({
-    Key? key,
+    super.key,
     required this.highlights,
-  }) : super(key: key);
+  });
 
 
   @override

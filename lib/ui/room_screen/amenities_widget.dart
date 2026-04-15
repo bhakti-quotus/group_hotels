@@ -6,7 +6,7 @@ class AmenitiesWidget extends StatelessWidget {
   final List<Map<String, dynamic>> amenities;
   final Color? primaryColor;
 
-  const AmenitiesWidget({required this.amenities, this.primaryColor});
+  const AmenitiesWidget({super.key, required this.amenities, this.primaryColor});
 
   @override
   Widget build(BuildContext context) {
