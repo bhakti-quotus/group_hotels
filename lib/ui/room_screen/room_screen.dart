@@ -9,7 +9,6 @@ import 'amenities_widget.dart';
 import 'gallery_widget.dart';
 import 'rooms_list_widget.dart';
 import 'search_widget.dart';
-import 'loyality_program_card.dart';
 
 /// Main screen that displays rooms, amenities, and gallery for the selected hotel.
 class RoomScreen extends StatefulWidget {

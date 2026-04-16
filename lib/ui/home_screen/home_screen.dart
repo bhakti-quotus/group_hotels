@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
-import 'dart:convert';
 import 'hero_banner.dart';
-import 'highlights_section.dart';
 import 'description_section.dart';
 import 'featured_rooms_section.dart';
 import 'featured_hotels_section.dart';

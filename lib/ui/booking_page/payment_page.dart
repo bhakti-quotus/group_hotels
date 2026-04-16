@@ -10,7 +10,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'price_breakdown_widget.dart';
-import 'package:royalcontinent/group/controllers/api_controller.dart';
 
 class PaymentPage extends StatefulWidget {
   final Map<String, dynamic>
