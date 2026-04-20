@@ -9,7 +9,7 @@
   "createdAt": "2025-12-24T09:24:10.259Z",
   "updatedAt": "2025-12-24T09:24:10.259Z",
   "childHotels": [
-     {
+    {
       "id": "199bca6e-548d-4f7e-b5d2-a5c674bd7c3e",
       "code": "BQQYBF",
       "name": "Royal Continental Hotel",
@@ -136,12 +136,43 @@
               "data": {
                 "images": [
                   "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Royal-Continental-4-Star-Luxury-Business-Hotel-in-Dubai.jpg",
-                  "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/WAKE-BAKE-CAFE-2-qv7il4ov1ypzpv4mcv24agp0zp4b4uvbqxc41nlev0.jpg",
+                  "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/WAKE-BAKE-CAFE-2-qv7il4ov1ypzpv4mcv24agp0zp4b4uvbqxc41nlev0jpg",
                   "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-2-qv7j4j2y3va1c4y62qxx92giczi0zyvw2y1vm8twfw.jpg",
                   "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Oasis-Restaurant-restaurant-dubai-deira-2-qv7gp519kss7oeihj0hll9z5oxeq37ue1cnnxaj0hs.jpg"
                 ]
               },
               "type": "galleryPreview"
+            },
+            {
+              "data": {
+                "items": [
+                  {
+                    "icon": "facilities",
+                    "label": "Facilities",
+                    "route": "/facilities",
+                    "color": "#0D5399"
+                  },
+                  {
+                    "icon": "local_offer",
+                    "label": "Promotion",
+                    "route": "/promotions",
+                    "color": "#D67816"
+                  },
+                  {
+                    "icon": "meeting_room",
+                    "label": "Meetings and Events",
+                    "route": "/meetings-events",
+                    "color": "#800080"
+                  },
+                  {
+                    "icon": "tourism",
+                    "label": "Sustainable Tourism",
+                    "route": "/tourism",
+                    "color": "#228B22"
+                  }
+                ]
+              },
+              "type": "quickActions"
             }
           ]
         },
@@ -236,15 +267,398 @@
           "social": {
             "instagram": "https://www.instagram.com/royalcontinentaldubai/?hl=en",
             "facebook": "https://www.facebook.com/RoyalContinentalHotels/",
-            "linkedin":"https://www.linkedin.com/company/royalcontinentalhoteldubai",
-            "youtube":"https://www.youtube.com/@royalcontinentalhotels3892/videos"
+            "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
+            "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
           },
           "copyright": "© Copyright Royal Continental Hotel Dubai"
         },
         "extranet": {
           "url": "https://bookings.revchilltech.com/api/v1",
           "apiKey": ""
-        }
+        },
+        "facility": [
+          {
+            "id": "meeting_room",
+            "type": "meeting_room",
+            "name": "Meeting Rooms",
+            "heading": "A VENUE FOR ALL KINDS OF MEETINGS AND EVENTS IN DUBAI",
+            "description": "Meetings, Business Facilities and Services",
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/18-1-qrxkokeggw7ylomp4jhhdfjuhj4fcyogfxbnq7qk3k.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "meeting_room",
+            "details": {
+              "title": "Meeting Room Details",
+              "fullDescription": "From industry conferences to business events, Royal Continental provides a venue for all occasions in Deira. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. Elevate your business meetings with our exquisite meeting room experience. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations.",
+              "wpNumber": "+971 523536563",
+              "callNumber": "+971 4 203 5000",
+              "locations": [
+                {
+                  "id": "location_1",
+                  "name": "Al Diwan",
+                  "location": "Located on the Ground Floor Royal Continental Hotel, Deira, Dubai, the Al Diwan Room is a perfect venue for meetings and training sessions",
+                  "sqm": "74 sqm",
+                  "description": "Book Meeting Rooms in Dubai from Royal Continental Hotel Deira – Hotel Near to Airport ensures you remain seamlessly connected through our free building-wide Wi-Fi internet service, complemented by a complete range of business support services. Our Business Centre caters to all your equipment and connectivity needs, while Al Diwan, the cutting-edge conference facility provides the ideal venue for meetings and corporate events which makes the hotel a Luxury Business hotel in Dubai.",
+                  "wpNumber": "+971 523536563",
+                  "callNumber": "+971 4 203 5000",
+                  "photos": [
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Al-Diwan-meeting-room-dubai.jpg",
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Al-Diwan-meeting-room-dubai-business-hotel-dubai.jpg",
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/171104_133_JRT_3933.jpg",
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/171104_134_JRT_3935.jpg",
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/171104_135_JRT_3936-1.jpg",
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/171104_132_JRT_3931-1.jpg"
+                  ],
+                  "facilities": [
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/wifi-signal.png",
+                      "name": "High speed WiFi"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/innovation-1.png",
+                      "name": "Fully equipped business center"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/smart-tv.png",
+                      "name": "Multi user Screen Sharing"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/stationary-1.png",
+                      "name": "Flip charts & stationary"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/water.png",
+                      "name": "Complimentary bottled water"
+                    },
+                    {
+                      "icon": "https://static.vecteezy.com/system/resources/previews/007/285/470/non_2x/cup-of-coffee-thin-black-lines-on-a-white-background-vector.jpg",
+                      "name": "Tea & Coffee making facilities"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/concierge.png",
+                      "name": "Concierge service"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/speaker.png",
+                      "name": "In-built sound system"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/parking-lot.png",
+                      "name": "Free parking for each delegate"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/people.png",
+                      "name": "Dedicated Events Team to service"
+                    }
+                  ]
+                },
+                {
+                  "id": "location_2",
+                  "name": "Executive Lounge",
+                  "location": "Located on the Second Floor of Royal Continental Hotel, Deira, Dubai, the Executive Lounge is a perfect venue for meetings and training sessions",
+                  "sqm": "59 sqm",
+                  "description": "Royal Continental Hotel – Hotel Near to Airport ensures you remain seamlessly connected through our free building-wide Wi-Fi internet service, complemented by a complete range of business support services. Our Business Centre caters to all your equipment and connectivity needs, while Executive Lounge provides the ideal venue for meetings and corporate events which makes the hotel a Luxury Business hotel in Dubai.",
+                  "wpNumber": "+971 4 203 5000",
+                  "callNumber": "+971 4 203 5000",
+                  "photos": [
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Executive-Lounge-ROYAL-CONTINENTAL-Business-HOTEL-DEIRA.jpg",
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Executive-Lounge-ROYAL-CONTINENTAL-Business-HOTEL-DEIRA-1.jpg",
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/06/Executive-Lounge-1.jpg",
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/06/Executive-Lounge-2.jpg",
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/06/Executive-Lounge-4.jpg",
+                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/06/Executive-Lounge.jpg"
+                  ],
+                  "facilities": [
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/wifi-signal.png",
+                      "name": "High speed WiFi"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/innovation-1.png",
+                      "name": "Fully equipped business center"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/smart-tv.png",
+                      "name": "Multi user Screen Sharing"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/stationary-1.png",
+                      "name": "Flip charts & stationary"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/water.png",
+                      "name": "Complimentary bottled water"
+                    },
+                    {
+                      "icon": "https://static.vecteezy.com/system/resources/previews/007/285/470/non_2x/cup-of-coffee-thin-black-lines-on-a-white-background-vector.jpg",
+                      "name": "Tea & Coffee making facilities"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/concierge.png",
+                      "name": "Concierge service"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/speaker.png",
+                      "name": "In-built sound system"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/parking-lot.png",
+                      "name": "Free parking for each delegate"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/people.png",
+                      "name": "Dedicated Events Team to service"
+                    }
+                  ]
+                },
+                {
+                  "id": "location_3",
+                  "name": "Pool Party Area",
+                  "location": "Take your event to the next level at the exclusive Pool Party Area in Royal Continental Hotel. With a lavish Executive Lounge and stunning pool area, it’s the perfect venue for any party or celebration.",
+                  "sqm": "80",
+                  "description": "Elevate your celebrations at the exclusive Pool Party Area of Royal Continental Hotel, where luxury meets unforgettable experiences. Featuring a stunning poolside ambiance and access to a lavish Executive Lounge, this premium venue is designed to impress. Whether you're hosting a birthday bash, corporate gathering, or a private celebration, the elegant setting, vibrant atmosphere, and top-tier amenities create the perfect backdrop for every occasion. Celebrate in style and make every moment extraordinary.",
+                  "wpNumber": "+971 523536563",
+                  "callNumber": "+971 4 203 5000",
+                  "photos": [
+                    "https:\/\/royalcontinentalhotels.com\/wp-content\/uploads\/2024\/06\/Royal-Continental-swimming-pool-2.jpg",
+                    "https:\/\/royalcontinentalhotels.com\/wp-content\/uploads\/2024\/06\/Royal-Continental-swimming-pool.jpg",
+                    "https:\/\/royalcontinentalhotels.com\/wp-content\/uploads\/2024\/06\/Royal-Continental-swimming-pool1.jpg"
+                  ],
+                  "facilities": []
+                }
+              ]
+            }
+          },
+          {
+            "id": "restaurant",
+            "type": "restaurant",
+            "name": "Oasis Restaurant",
+            "heading": "Multi-cuisine dining experience",
+            "description": "Traditional recipes for a modern audience.",
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Oasis-Restaurant-restaurant-dubai-deira-2-qv7gp519kss7oeihj0hll9z5oxeq37ue1cnnxaj0hs.jpg",
+            "learnMoreLabel": "Check Menu",
+            "icon": "restaurant",
+            "details": {
+              "title": "Oasis Restaurant",
+              "fullDescription": "Royal Continental features dining options to satisfy your culinary needs 24 hours a day, 7 days a week, whether you choose to select from our extensive in-room dining menu, or one of our two outlets. Oasis Restaurant Deira, Dubai, our all-day dining venue, offering sumptuous multi-cuisine buffets for breakfast, lunch and dinner. Royal Continental Hotel reflects and upholds Arab cultural values throughout its facilities, and therefore does not serve any alcoholic beverages or pork items.",
+              "menuPdfUrl": "https://royalcontinentalhotels.com/Oasis-Restaurant-Menu.pdf",
+              "wpNumber": "",
+              "callNumber": "",
+              "photos": [
+                "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Oasis-Restaurant-restaurant-dubai-deira-2.jpg",
+                "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Oasis-Restaurant-restaurant-dubai-deira-1.jpg",
+                "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Oasis-Restaurant-restaurant-dubai-deira.jpg"
+              ],
+              "facilities": [
+                {
+                  "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/icon-17.png",
+                  "name": "International"
+                },
+                {
+                  "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/restaurant.png",
+                  "name": "Multi Cuisine"
+                },
+                {
+                  "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/icon-14.png",
+                  "name": "No-Smoking"
+                },
+                {
+                  "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/24-hours.png",
+                  "name": "24-Hour Service"
+                }
+              ]
+            }
+          },
+          {
+            "id": "swimming_pool",
+            "type": "swimming_pool",
+            "name": "Swimming Pool",
+            "heading": "Outdoor swimming pool and sun deck",
+            "description": "Refreshing work-out experience",
+            "image": "https://q-xx.bstatic.com/xdata/images/hotel/max500/633479909.jpg?k=038bfa7450a3a31a0c621d1d62dc71e3c512b874d4be0bbecfd4df1ce8724d55&o=",
+            "learnMoreLabel": "Learn More",
+            "icon": "pool",
+            "details": {
+              "title": "Swimming Pool",
+              "fullDescription": "The Swimming Pool at Royal Continental Hotel is the perfect oasis for those seeking a tranquil escape after a hectic day. Nestled on the pool deck level, this serene spot boasts stunning views and a laid-back atmosphere that instantly puts you at ease. As you kick off your shoes and dip your toes into the refreshing water, you can unwind to the soothing sounds of chilled lounge music playing in the background. Sip on delicious mocktails or smoothies as you bask in the warm sun, indulging in fresh fruit and snacks to keep you energized. And when hunger strikes, tantalize your taste buds with mouth-watering food options that are sure to satisfy any craving. The Swimming Pool at Royal Continental Hotel provides a luxurious haven where you can truly unwind and recharge amidst luxury surroundings.",
+              "photos": [
+                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Royal-Continental-swimming-pool1-qv7id7vuksumkfod95fmk1u97g6yq2irrrn2zczs9k.jpg",
+                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Royal-Continental-swimming-pool-1-qv7i91hmdiyds46d70gskjfyspow5t3qc54jzgqfe8.jpg"
+              ]
+            }
+          },
+          {
+            "id": "wake_and_bake",
+            "type": "cafe",
+            "name": "Wake & Bake Cafe",
+            "heading": "Light bites and specialty coffee",
+            "description": "The flavour of coffee from bean to cup",
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/WAKE-BAKE-CAFE-2-qv7il4ov1ypzpv4mcv24agp0zp4b4uvbqxc41nlev0.jpg",
+            "learnMoreLabel": "Check Menu",
+            "icon": "local_cafe",
+            "details": {
+              "title": "Wake & Bake Cafe",
+              "fullDescription": "Step into the inviting atmosphere of Wake & Bake Café at Royal Continental Hotel, where the rich aroma of freshly brewed coffee fills the air and entices customers to start their day on a flavorful note. As you enter the café, you are greeted by friendly baristas who expertly craft your favorite espresso-based beverages with precision and care. The cozy seating area offers a relaxing space to enjoy your drink while soaking in the vibrant energy of this bustling coffee shop.",
+              "menuPdfUrl": "https://royalcontinentalhotels.com/wake-bake-cafe-menu.pdf",
+              "wpNumber": "",
+              "callNumber": "",
+              "photos": [
+                "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Wake-Bake-Cafe-in-Royal-Continental-Hotel-1.jpg",
+                "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Wake-Bake-Cafe-in-Royal-Continental-Hotel.jpg"
+              ],
+              "facilities": []
+            }
+          },
+          {
+            "id": "gym",
+            "type": "gym",
+            "name": "Fitness Center",
+            "heading": "State-of-the-art fitness center",
+            "description": "Keep up with your fitness routine while you are away!",
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-2-qv7j4j2y3va1c4y62qxx92giczi0zyvw2y1vm8twfw.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "fitness_center",
+            "details": {
+              "title": "Fitness Center",
+              "fullDescription": "The Gym at Royal Continental Hotel offers guests the perfect opportunity to stay active and fit while away from home. Equipped with modern technology and a variety of exercise equipment, this gym is designed to help you achieve clear and effective results. Whether you prefer cardio workouts, strength training with free weights, running on machines, or using resistance equipment, there is something for everyone here. With top-of-the-line facilities and dedicated staff members ready to assist you in reaching your fitness goals, staying healthy during your stay has never been easier at the Gym at Royal Continental Hotel.",
+              "menuPdfUrl": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/Orchid-Brochure.pdf",
+              "photos": [
+                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-2-qv7j4j315i8jwk07ryfe05qekhkwdgy06y0yyshzh4.jpg",
+                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-1-qv7j3xgoyj8latb5tv4g08u9jjg43qq6x0vypsxoxc.jpg"
+              ]
+            }
+          },
+          {
+            "id": "spa",
+            "type": "spa",
+            "name": "Orchid Spa",
+            "heading": "Spa and wellness treatments",
+            "description": "Revitalize your body, mind and spirit with our Spa and Beauty treatment",
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Orchid-Spa-Beauty-Salon-3-qv7jg1lrtt1hk681u84eanusbwqwahlinxr099ra7w.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "spa",
+            "details": {
+              "title": "Orchid Spa",
+              "fullDescription": "Orchid Spa & Beauty Salon is your exclusive beauty destination for all your Hair, Nail, Face & body treatments. Set in Royal Continental Hotel Dubai, we welcome you into a calming atmosphere where you can unwind, de-stress & get a fabulous makeover! At Orchid Spa, with six indulgent spa treatment rooms, a sauna and a Moroccan hammam, complete relaxation is only ever a few floors away.",
+              "wpNumber": "+971 4 203 5001",
+              "callNumber": "+971 4 203 5001",
+              "rate-cardPdfUrl": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/Orchid-Brochure.pdf",
+              "youtubeUrl": "https://www.youtube.com/@royalcontinentalhotels3892/videos",
+              "photos": [
+                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Orchid-Spa-Beauty-Salon-1-qv7jg6b17orxpcc9ehv6kmlssquornku7xy0x0qauo.jpg",
+                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Orchid-Spa-Beauty-Salon-3-qv7jg1lrtt1hk681u84eanusbwqwahlinxr099ra7w.jpg"
+              ],
+              "services": [
+                {
+                  "name": "Moroccan Bath",
+                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/services-1.jpg"
+                },
+                 {
+                  "name": "Massage",
+                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/woman-getting-massage-from-therapist-2023-11-27-05-35-39-utc-qrxkolc5sb3ih9yebeffhlxuxk59xmxb8vmglvs9sw.jpg"
+                
+                },
+                 {
+                  "name": "Facial",
+                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/the-beautician-applies-a-collagen-booster-on-the-c-2024-02-26-16-09-40-utc-qrxkolc5sb3ih9yebeffhlxuxk59xmxb8vmglvs9sw.jpg"
+                },
+                 {
+                  "name": "Manicure & Pedicure",
+                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/beauty-saloon-master-together-with-client-choose-2023-11-27-05-37-06-utc-qrxkolc880odpa9v585rprml08kj95cr0gsswoqpv4.jpg"
+                },
+                 {
+                  "name": "Hair Services",
+                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/hairdresser-cleaning-the-hair-with-hot-water-and-s-2023-11-27-05-12-07-utc-qrxkolc880odpa9v585rprml08kj95cr0gsswoqpv4.jpg"
+                },
+                 {
+                  "name": "Waxing",
+                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/women-hold-orange-paraffin-wax-bowl-woman-in-beau-2023-11-27-04-52-20-utc-qrxkolc5sb3ih9yebeffhlxuxk59xmxb8vmglvs9sw.jpg"
+                }
+              ]
+            }
+          }
+        ],
+        "promotion": [
+          {
+            "id": "room-offer",
+            "name": "Room Offer",
+            
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/RCH-Non-smoking-room-promo-copy-red7pyp4vliwsyg94h8gthahgz5yl5o66u40f354xs.jpg",
+            "phone": "",
+            "buttonText": "Book Now",
+            "buttonRoute": "/rooms",
+            "details": {
+              "title": "Non-smoking rooms at 40% off",
+              "fullDescription": "Breathe Easy. Stay Smart. Enjoy 40% OFF on our Non-Smoking Rooms — where comfort meets sustainability. Experience modern elegance, premium amenities, and a refreshing smoke-free environment designed for your well-being. Relax in style and make every moment a breath of luxury. T&Cs Apply."
+            }
+          },
+          {
+            "id": "gym-offer",
+            "name": "Gym Offer",
+           
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/2025/11/RCH-DFC-GYM-2025.jpg",
+            "phone": "+971 4 203 5000",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Gym Membership Promotion",
+              "fullDescription": "Hurry up and kick-start your wellness journey! Our exclusive gym memberships come with amazing perks — unlimited gym access, pool entry, and special discounts. Sign up today and take your lifestyle to the next level!"
+              
+            }
+          },
+
+           {
+            "id": "f-b-offer",
+            "name": "F & B Offer",
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/2025/10/10-Off-on-All-Food-Beverages.jpg",
+            "phone": "+971 4 203 5000",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Stay with Us & Savor for Less!",
+              "fullDescription": "Book your room at Royal Continental Hotel and enjoy 10% off on all Food & Beverages throughout your stay."
+              
+            }
+          },
+            {
+            "id": "f-b-offer",
+            "name": "F & B Offer",
+           
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/2025/10/Shisha-combo-01-copy.jpg",
+            "phone": "+971 4 203 5106",
+            "buttonText": "Book Now",
+            "buttonRoute": "/rooms",
+            "details": {
+              "title": "Unwind with Our Shisha Combo Offer",
+              "fullDescription": "Sip, Puff, Repeat – An Indulgent Experience Awaits. Enjoy your favorite shisha flavor paired with a refreshing juice, smoothie, or hot beverage. A perfect blend of comfort and relaxation — exclusively at Royal Continental Hotel, Deira for AED 59"
+            }
+          },
+            {
+            "id": "meeting-room-offer",
+            "name": "Meeting Room Offer",
+           
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Sustainable-meeting-room-deira-r3uon6hwqhmostp1atv9obg9pbtvrpsbr3kscj9i68.jpg",
+            "phone": "971 52 353 6563",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Green Meeting Room Package",
+              "fullDescription": "Avail 10% Discount on coffee break menu. Experience eco-friendly meetings with our Green Meeting Room Package – sustainable, stylish, and smart for the planet!"
+            }
+          },
+           {
+            "id": "meeting-room-offer",
+            "name": "Meeting Room Offer",
+           
+            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Corporate-meeting-space-3_3-qrxkolcanq98xalbz1w3xxbb2wzskns6s1z57hp5xc.jpg",
+            "phone": "971 52 353 6563",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Conference Meeting Package",
+              "fullDescription": "Royal Continental Hotel is the perfect address to stage business meetings & corporate events, pairing state-of-the-art audiovisual facilities with impeccable service and powerful connectivity."
+            }
+          }
+        ]
       }
     },
     {
@@ -267,7 +681,7 @@
         "updatedAt": "2026-01-08T06:00:26.700Z",
         "branding": {
           "logo": "http://res.cloudinary.com/dttazo51h/image/upload/v1770808172/SwiftRooms-Images/e4smfwvxsxgsxyslnhna.png",
-           "primaryColor": "#0D5399",
+          "primaryColor": "#0D5399",
           "secondaryColor": "#d67816",
           "backgroundColor": "#FFFFFF",
           "fontFamily": "Inter",
@@ -290,7 +704,7 @@
               "route": "/rooms",
               "visible": true
             },
-             {
+            {
               "id": "my_bookings",
               "icon": "booking",
               "label": "My Bookings",
@@ -320,6 +734,38 @@
             }
           ]
         },
+        "outlets":[
+  {
+    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7583-qv7zfsoyh8q6nhj9i5vfg5ps5os9z2swu18uxa72cg.jpg",
+    "title": "Babati Restaurant And Café",
+    "description": "Experience the vibrant flavors of Lebanon at Babati Restaurant And Café, located in the heart of Business Bay. Let us take you on a culinary journey with our innovative and authentic Lebanese cuisine, all while enjoying stunning views of the Dubai Water Canal."
+  },
+  {
+    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Rukn-Raihan-Gents-Spa-qvlb34cwrce4b9s7gk4ejb5dq2ccqhvrvcq59lrgkg.jpg",
+    "title": "Rukn Raihan Gents Spa",
+    "description": "Rejuvenate your mind, body, and soul with luxurious spa services at Rukn Raihan Gents Spa. From traditional Moroccan baths to specialized massages, Spa have everything you need for total relaxation and healing."
+  },
+  {
+    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Lilis-House-Beauty-Salon-qv8zi65crs3potkoww4h40o7t79lbw990dyybv31k0.jpg",
+    "title": "Lili’s House Beauty Salon",
+    "description": "Pamper yourself at Lili’s House Beauty Salon with a wide range of services including skin treatments, lash and eyebrow services, hair styling and more. Indulge in the ultimate beauty experience today."
+  },
+  {
+    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Bay-Mini-Mart-qv8zkznx9vyoiph8g406lb1zytd8f7g9ecfe5qwiw0.jpg",
+    "title": "Royal Bay Mini Mart",
+    "description": "Experience convenience and quality at ROYAL BAY MINI MART, your 24/7 go-to store for essential cupboard items and fresh produce. Located at Royal Continental Suites Hotel Apartments."
+  },
+   {
+    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Monarch-Laundry-qvlb5vzsvs6ihxrhar6uvm08owp9eevbl1vm4xnq8w.jpg",
+    "title": "Royal Monarch Laundry",
+    "description": "Experience the royal treatment for your laundry needs at Royal Monarch Laundry. From dry cleaning and ironing to carpet and leather care, we have you covered with our top-notch services."
+  },
+  {
+    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Limousine-Service-1-qrxkon7wloptfbik63m3sjhhfbev4rluhr43tblzfk.jpg",
+    "title": "Limousine Service",
+    "description": "Arrive in style with our luxurious LIMOUSINE SERVICE at Royal Continental Suites Hotel Apartments. From private airport transfers to chauffeured services, we’ve got you covered for a seamless and comfortable ride."
+  }
+],
         "home": {
           "sections": [
             {
@@ -380,6 +826,43 @@
                 ]
               },
               "type": "galleryPreview"
+            },
+             {
+              "data": {
+                "items": [
+                  {
+                    "icon": "facilities",
+                    "label": "Facilities",
+                    "route": "/facilities",
+                    "color": "#0D5399"
+                  },
+                  {
+                    "icon": "local_offer",
+                    "label": "Promotion",
+                    "route": "/promotions",
+                    "color": "#D67816"
+                  },
+                  {
+                    "icon": "meeting_room",
+                    "label": "Meetings and Events",
+                    "route": "/meetings-events",
+                    "color": "#800080"
+                  },
+                  {
+                    "icon": "restaurant",
+                    "label": "Outlet",
+                    "route": "/outlet",
+                    "color": "#FF8C00"
+                  },
+                  {
+                    "icon": "tourism",
+                    "label": "Sustainable Tourism",
+                    "route": "/tourism",
+                    "color": "#228B22"
+                  }
+                ]
+              },
+              "type": "quickActions"
             }
           ]
         },
@@ -477,17 +960,301 @@
             "facebook": "https://www.facebook.com/RoyalContinentalHotels/",
             "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
             "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
-
           },
           "copyright": "© Copyright Royal Continental Suites Dubai"
         },
         "extranet": {
           "url": "https://bookings.revchilltech.com/api/v1",
           "apiKey": ""
-        }
+        },
+         "facility": [
+          {
+            "id": "meeting_room",
+            "type": "meeting_room",
+            "name": "Meeting Rooms",
+            "heading": "A VENUE FOR ALL KINDS OF MEETINGS AND EVENTS IN THE HEART OF DUBAI",
+            "description": "",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/AL-MARASI-meeting-room-in-Dubai1.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "meeting_room",
+            "details": {
+              "title": "",
+              "fullDescription": "From industry conferences to business events, Royal Continental Suites provides a venue for all occasions. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our state-of-the-art meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. We will help your clients have an experience they won’t forget ever, without having to worry about making any arrangements. We offer two meeting rooms each with an impressive capacity of 24 which are very well designed and spacious state of the art meeting rooms where the interiors are refurbished and very finely furnished. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations.",
+              "wpNumber": "+971 523536563",
+              "callNumber": "+971 4 203 5000",
+              "locations": [
+                {
+                  "id": "location_1",
+                  "name": "AL MARASI",
+                  "location": "Royal Continental Suites, the Al Marasi Room is a perfect venue for meetings and training sessions for up to 24 delegates.",
+                  "sqm": "38 sqm",
+                  "description": "From industry conferences to business events, Royal Continental Suites provides a venue for all occasions. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our state-of-the-art meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. We will help your clients have an experience they won’t forget ever, without having to worry about making any arrangements. We offer two meeting rooms each with an impressive capacity of 24 which are very well designed and spacious state of the art meeting rooms where the interiors are refurbished and very finely furnished. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations",
+                  "wpNumber": "+971 523536563",
+                  "callNumber": "+971 4 203 5000",
+                  "photos": [
+                    "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/AL-MARASI-meeting-room-in-Dubai1.jpg",
+                    "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/AL-MARASI-meeting-room-in-Dubai.jpg"
+                  ],
+                  "facilities": [
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/wifi-signal.png",
+                      "name": "High speed WiFi"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/innovation-1.png",
+                      "name": "Fully equipped business center"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/smart-tv.png",
+                      "name": "Multi user Screen Sharing"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/stationary-1.png",
+                      "name": "Flip charts & stationary"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/water.png",
+                      "name": "Complimentary bottled water"
+                    },
+                    {
+                      "icon": "https://static.vecteezy.com/system/resources/previews/007/285/470/non_2x/cup-of-coffee-thin-black-lines-on-a-white-background-vector.jpg",
+                      "name": "Tea & Coffee making facilities"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/concierge.png",
+                      "name": "Concierge service"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/speaker.png",
+                      "name": "In-built sound system"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/parking-lot.png",
+                      "name": "Free parking for each delegate"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/people.png",
+                      "name": "Dedicated Events Team to service"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+         
+          {
+            "id": "lounge",
+            "type": "lounge",
+            "name": "Royal Continental Suites Lounge",
+            "heading": "Royal Continental Suites Lounge",
+            "description": "",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental7347.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "pool",
+            "details": {
+              "title": "",
+              "fullDescription": "The Royal Continental Suites hotel’s lobby lounge is a haven of comfort and luxury for guests seeking a relaxing retreat. The elegant interiors feature plush furnishings in rich hues, complemented by tasteful decor and artwork that exude sophistication.",
+              "photos": [
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental-Suites-Lounge-4.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental-Suites-Lounge-1.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental-Suites-Lounge.jpg"
+              ]
+            }
+          },
+
+           {
+            "id": "canal-view",
+            "type": "canal-view",
+            "name": "Hotel apartment canal view",
+            "heading": "Hotel apartment canal view",
+            "description": "",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-apartment-with-dubai-canal-view-1-1.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "pool",
+            "details": {
+              "title": "Rooms with Dubai Canal View",
+              "fullDescription": "Experience the ultimate luxury living at Royal Continental Suites, where you can have an amazing Canal View with Burj Khalifa as your backdrop. Imagine waking up to the stunning sight of the iconic Dubai skyline right outside your window. Royal Continental Suites offers a stunning choice for travelers seeking a hotel apartment with a canal view. This property features elegantly designed accommodations that overlook the picturesque canal, providing guests with a serene and scenic backdrop. Each hotel apartment with a canal view at Royal Continental Suites is thoughtfully appointed to ensure maximum comfort and luxury, allowing guests to enjoy both the beauty of the water and the convenience of modern amenities. Whether you’re staying for business or leisure, the breathtaking canal views enhance the experience, making Royal Continental Suites a standout choice for those seeking a memorable stay.",
+              "photos": [
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-apartment-with-canal-view-dubai.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-apartment-with-dubai-canal-view1.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-apartment-with-dubai-canal-view-2.jpg"
+              ]
+            }
+          },
+           {
+            "id": "gym",
+            "type": "gym",
+            "name": "Royal Gym",
+            "heading": "Royal Gym",
+            "description": "",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-GYM-2-1024x683.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "pool",
+            "details": {
+              "title": "",
+              "fullDescription": "At Royal Continental Suites, guests can enjoy access to the luxurious Royal GYM services. This state-of-the-art fitness center offers top-of-the-line equipment and amenities for those looking to stay active during their stay. From cardio machines to free weights, there is something for every type of workout enthusiast.",
+              "photos": [
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-GYM-2-1024x683.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-GYM-3-1024x683.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-GYM-1-1024x683.jpg"
+              ]
+            }
+          },
+           {
+            "id": "lounge",
+            "type": "lounge",
+            "name": "Babati Restaurant and Shisha Lounge",
+            "heading": "Witness The Beauty Of Waterfront Views",
+            "description": "",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7583-qv7zfsow1j7b1jwsulip2vg3fgxq46am5naxpu30xo.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "pool",
+            "details": {
+              "title": "",
+              "fullDescription": "At Babati, our mission is to bring a unique interpretation of Lebanese cuisine to Dubai. Located in Business Bay with mesmerizing views of the Dubai Water Canal, our restaurant in Dubai is a dining destination that offers a taste of true Levantine cuisine with its characteristic blend of fresh herbs and flavorful spices. Lebanese cuisine has always found its unique place in the broader umbrella of Levantine cuisine. Our chefs have made it their mission to bring out the charm of Lebanese cuisine using modern techniques and high-quality ingredients. Acquaint your tastebuds with a plethora of flavours and textures that you have never enjoyed before!",
+              "photos": [
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Babati-Restaurant-and-Shisha-Lounge--qv8zr4jyo3l75nqxjfassaaywvd2a7knaen5tbura8.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7594-qv8zr0slwrg1v7we5doaib94jbvlff5pxw17w80bz4.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Babati-Restaurant-and-Shisha-Lounge-4-qv8zqqgdtl1wbibetr7e8vv203ak2r0o8guvm6fnvk.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Babati-Restaurant-and-Shisha-Lounge-3-qv8zqx195fawks1urc1s8c7a5se4kmqsldf9z45wo0.jpg"
+              ]
+            }
+          },
+           {
+            "id": "jaccuzi",
+            "type": "jaccuzi",
+            "name": "Jacuzzi",
+            "heading": "",
+            "description": "Come relax in our luxurious jacuzzi at Royal Continental Suites. Let the warm bubbles take you on you stay.",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-Jacuzzi-qv8a5t2uo7mewn7itgb51gqpnyc75eqb881colqpoc.jpg",
+            "learnMoreLabel": "",
+            "icon": "pool",
+            "details": {
+             
+            }
+          },
+
+           {
+            "id": "sauna",
+            "type": "sauna",
+            "name": "Sauna",
+            "heading": "",
+            "description": "Pamper yourself like royality and leave feeling refreshed and rejuvenated at our Sauna in Royal Continental Suites.",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental8784-qv7w9xiq51bum3b2qvmoj3uwu460o596u2afu4wwos.jpg",
+            "learnMoreLabel": "",
+            "icon": "pool",
+            "details": {
+             
+            }
+          },
+          {
+  "id": "steam_room",
+  "type": "steam_room",
+  "name": "Steam Room",
+  "heading": "",
+  "description": "Get ready to steam, sweat, and relax like royalty at our luxurious steam room in Royal Continental Suites Dubai.",
+  "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Steam-Room-qv8aa5426pk0fwwvibr7jdd89wz4n5xr5obycjbczg.jpg",
+  "learnMoreLabel": "",
+  "icon": "cloud",
+  "details": {}
+}, 
+{
+  "id": "ev_charger",
+  "type": "ev_charger",
+  "name": "Electric Vehicle Charger",
+  "heading": "",
+  "description": "Charge up and stay powered with our convenient electric vehicle charging facilities at Royal Continental Suites.",
+  "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/abandoned-electric-vehicle-charging-station-elect-2023-11-27-05-15-25-utc-qrxkon7u5z5inwjdock83hmrqhft355lbnfljh6iew.jpg",
+  "learnMoreLabel": "",
+  "icon": "bolt",
+  "details": {}
+},
+
+{
+  "id": "limousine_service",
+  "type": "limousine_service",
+  "name": "Limousine Service",
+  "heading": "",
+  "description": "Arrive in style with our exclusive limousine service, offering comfort, luxury, and convenience at Royal Continental Suites.",
+  "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Limousine-Service-qrxkon7u5z5inwjdock83hmrqhft355lbnfljh6iew.jpg",
+  "learnMoreLabel": "",
+  "icon": "directions_car",
+  "details": {}
+}
+          
+        ],
+         "promotion": [
+          
+          {
+            "id": "gym-offer",
+            "name": "Gym Offer",
+           
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/06/RCS-Fitness-2_1_2.jpg",
+            "phone": "+971 56 8178372",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Gym & Pool Membership",
+              "fullDescription": "LADIES’ PACKAGE: 1 MONTH / 3 MONTH / 6 MONTH / 1 YEAR Packages & COUPLE’S PACKAGE: 1 MONTH / 3 MONTH / 6 MONTH / 1 YEAR Packages"
+              
+            }
+          },
+
+            {
+            "id": "meeting-room-offer",
+            "name": "Meeting Room Offer",
+           
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2025/04/Sustainable-meeting-room-business-bay.jpg",
+            "phone": "+971 56 8178372",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Green Meeting Room Package",
+              "fullDescription": "Avail 10% Discount on coffee break menu. Experience eco-friendly meetings with our Green Meeting Room Package – sustainable, stylish, and smart for the planet!"
+            }
+          },
+           {
+            "id": "meeting-room-offer",
+            "name": "Meeting Room Offer",
+           
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/04/Corporate-meeting-space-3_4-1.jpg",
+            "phone": "+971 56 8178372",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Corporate Meeting Package",
+              "fullDescription": "The Half-Day Package includes flexible refreshment options with 1 coffee break priced at AED 80 per person or 2 coffee breaks at AED 120 per person, along with a Banquet Rental Package available at AED 1,500 per day for up to a maximum of 7 hours, making it an ideal choice for meetings, events, and small gatherings."
+            }
+          },
+           {
+            "id": "beauty-wellness-offer",
+            "name": "Beauty & Wellness Offer",
+           
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/06/4-may.jpg",
+            "phone": "+971 56 8178372",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Lili's House Beauty Salon",
+              "fullDescription": "Look good, feel good. Get 20% discount on all services at Lili’s House Beauty Salon located at Royal Continental Suites by presenting a screenshot or soft copy of this page. "
+            }
+          },
+          {
+            "id": "dining-offer",
+            "name": "Dining Offer",
+           
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Babati-Restaurant-and-Shisha-Lounge-4-qv8zqqghh5frm44wekhd4885hydnbwn0hc483ceb0g.jpg",
+            "phone": "+971 56 8178372",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Babati Restaurant",
+              "fullDescription": "Savor exquisite flavors at Babati Restaurant, nestled within Royal Continental Suites in Business Bay. Indulge in culinary delights that transcend taste, ambiance, and hospitality. Discover a gastronomic journey unlike any other."
+            }
+          }
+        ]
       }
     }
-    
   ],
   "config": {
     "id": "d8448efb-0cfe-4b8a-be9f-47575c313998",
@@ -496,6 +1263,32 @@
     "status": "DRAFT",
     "createdAt": "2025-12-24T09:24:23.203Z",
     "updatedAt": "2026-01-09T08:55:01.332Z",
+    "childHotels": [
+      {
+        "id": "199bca6e-548d-4f7e-b5d2-a5c674bd7c3e",
+        "code": "BQQYBF",
+        "name": "Royal Continental Hotel",
+        "slug": "royal-continental-hotel",
+        "type": "STANDALONE",
+        "apkName": "Royal Continental Hotel",
+        "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+        "createdAt": "2025-12-24T10:28:14.699Z",
+        "updatedAt": "2025-12-24T10:48:21.121Z",
+        "childHotels": []
+      },
+      {
+        "id": "f0795175-a1ad-495e-811a-d68661669594",
+        "code": "SGI1EW",
+        "name": "Royal Continental Hotel Suites",
+        "slug": "royal-continental-suites",
+        "type": "STANDALONE",
+        "apkName": "Royal Continental Suites",
+        "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+        "createdAt": "2025-12-24T10:28:14.699Z",
+        "updatedAt": "2025-12-24T10:48:21.121Z",
+        "childHotels": []
+      }
+    ],
     "branding": {
       "logo": "https://royalcontinentalhotels.com/wp-content/uploads/2024/07/RCHS_3-W-550x237.png",
       "primaryColor": "#000000",
@@ -521,7 +1314,6 @@
           "route": "/hotels",
           "visible": true
         },
-      
         {
           "id": "about",
           "icon": "info",
@@ -663,14 +1455,69 @@
       "longitude": 0
     },
     "footer": {
-     
       "social": {
         "instagram": "https://www.instagram.com/royalcontinentaldubai/?hl=en",
-            "facebook": "https://www.facebook.com/RoyalContinentalHotels/",
-            "linkedin":"https://www.linkedin.com/company/royalcontinentalhoteldubai",
-            "youtube":"https://www.youtube.com/@royalcontinentalhotels3892/videos"
+        "facebook": "https://www.facebook.com/RoyalContinentalHotels/",
+        "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
+        "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
       },
       "copyright": "© Copyright Royal Continental Hotel Dubai"
-    }
+    },
+    "promotion": [
+      {
+        "id": "summer_special",
+        "name": "Summer Special",
+        "description": "Enjoy 25% off on all room bookings this summer. Perfect for your vacation getaway.",
+        "image": "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800",
+        "phone": "+971 4 203 5000",
+        "buttonText": "Book Now",
+        "buttonRoute": "/rooms",
+        "details": {
+          "title": "Summer Special Offer",
+          "fullDescription": "Take advantage of our exclusive summer promotion with 25% discount on all room types. Valid for bookings made before August 31st.",
+          "photos": [
+            "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800",
+            "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800"
+          ],
+          "facilities": [
+            {
+              "icon": "local_offer",
+              "name": "25% Discount"
+            },
+            {
+              "icon": "event",
+              "name": "Summer Season"
+            }
+          ]
+        }
+      },
+      {
+        "id": "weekend_deal",
+        "name": "Weekend Deal",
+        "description": "Special rates for weekend stays with complimentary breakfast.",
+        "image": "https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?w=800",
+        "phone": "+971 4 203 5000",
+        "buttonText": "Reserve Now",
+        "buttonRoute": "/rooms",
+        "details": {
+          "title": "Weekend Special Deal",
+          "fullDescription": "Book your weekend stay and enjoy special rates plus complimentary breakfast for two.",
+          "photos": [
+            "https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?w=800",
+            "https://images.unsplash.com/photo-1498503182468-3b51cbb6cb24?w=800"
+          ],
+          "facilities": [
+            {
+              "icon": "free_breakfast",
+              "name": "Complimentary Breakfast"
+            },
+            {
+              "icon": "weekend",
+              "name": "Weekend Special"
+            }
+          ]
+        }
+      }
+    ]
   }
 }

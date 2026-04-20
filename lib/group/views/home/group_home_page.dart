@@ -80,7 +80,7 @@ class _GroupHomePageState extends State<GroupHomePage> {
       data: ThemeData(fontFamily: fontFamily),
       child: Scaffold(
         backgroundColor: AppColor.background,
-        body: HomeScreen(config: groupData),
+        body: HomeScreen(config: groupData, isGroupHome: true),
         bottomNavigationBar: BottomNavbar(
           currentIndex: _currentIndex,
           onTap: _onNavTap,

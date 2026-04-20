@@ -11,6 +11,10 @@ import 'package:royalcontinent/ui/booking_page/cancel_booking_page.dart';
 import 'package:royalcontinent/ui/profile_screen/profile_screen.dart';
 import 'package:get/get.dart';
 import 'package:royalcontinent/ui/room_screen/room_details_screen.dart';
+import 'package:royalcontinent/ui/promotions_page/promotions_list_page.dart';
+import 'package:royalcontinent/ui/facilities_page/facilities_list_page.dart';
+import 'package:royalcontinent/ui/outlet_page/outlet_page.dart';
+import 'package:royalcontinent/ui/tourism/dubai_sustainable_tourism_ui.dart';
 import '../views/splash/splash_page.dart';
 import '../views/auth/login.dart';
 import '../views/language/language_page.dart';
@@ -54,6 +58,11 @@ class AppRoutes {
   static const profile = '/profile';
 
   static const roomDetails = '/room-details';
+  static const promotions = '/promotions';
+  static const facilities = '/facilities';
+  static const outlet = '/outlet';
+
+  static const tourism = '/tourism';
 
   static final routes = [
     GetPage(name: groupHome, page: () => const GroupHomePage()),
@@ -81,6 +90,25 @@ class AppRoutes {
     GetPage(name: groupBookingDetails, page: () => const BookingDetailsPage()),
     GetPage(name: groupHotels, page: () => const Hotels()),
     GetPage(
+      name: promotions,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        final promotions = args?['promotions'] as List<dynamic>? ?? [];
+        final title = args?['title'] as String?;
+        return PromotionListPage(promotions: promotions, title: title);
+      },
+    ),
+    GetPage(
+      name: facilities,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        final facilities = args?['facilities'] as List<dynamic>? ?? [];
+        final title = args?['title'] as String?;
+        return FacilitiesListPage(facilities: facilities, title: title);
+      },
+    ),
+    GetPage(name: outlet, page: () => const OutletPage()),
+    GetPage(
       name: BookingDetails,
       page: () {
         final args = Get.arguments;
@@ -96,5 +124,6 @@ class AppRoutes {
         );
       },
     ),
+    GetPage(name: tourism, page: () => const DubaiSustainableTourismPage()),
   ];
 }
