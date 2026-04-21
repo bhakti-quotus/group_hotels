@@ -179,212 +179,212 @@ class FacilitiesListPage extends StatelessWidget {
                                     transition: Transition.rightToLeft,
                                   )
                               : null,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(24),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Left side: Image Section
-                                  SizedBox(
-                                    width: 130,
-                                    height: 160,
-                                    child: Stack(
-                                      children: [
-                                        // Image
-                                        imageUrl.isNotEmpty
-                                            ? Image.network(
-                                                imageUrl,
-                                                width: 130,
-                                                height: 160,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) =>
-                                                    Container(
+                          child: SizedBox(
+                            height: 160, // ← fixed card height
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(24),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Left side: Image Section
+                                    SizedBox(
+                                      width: 130,
+                                      height: 160,
+                                      child: Stack(
+                                        children: [
+                                          imageUrl.isNotEmpty
+                                              ? Image.network(
+                                                  imageUrl,
+                                                  width: 130,
+                                                  height: 160,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (_, __, ___) =>
+                                                      Container(
+                                                        color: AppColor.primary
+                                                            .withOpacity(0.1),
+                                                        child: const Center(
+                                                          child: Icon(
+                                                            Icons.image_outlined,
+                                                            size: 40,
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                  loadingBuilder:
+                                                      (context, child, progress) {
+                                                    if (progress == null) return child;
+                                                    return Container(
                                                       color: AppColor.primary
                                                           .withOpacity(0.1),
                                                       child: const Center(
-                                                        child: Icon(
-                                                          Icons.image_outlined,
-                                                          size: 40,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                loadingBuilder:
-                                                    (context, child, progress) {
-                                                  if (progress == null) return child;
-                                                  return Container(
-                                                    color: AppColor.primary
-                                                        .withOpacity(0.1),
-                                                    child: const Center(
-                                                      child: SizedBox(
-                                                        width: 24,
-                                                        height: 24,
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                          strokeWidth: 2,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              )
-                                            : Container(
-                                                color: AppColor.primary
-                                                    .withOpacity(0.1),
-                                                child: Center(
-                                                  child: Icon(
-                                                    Icons.image_outlined,
-                                                    size: 40,
-                                                    color: AppColor.primary
-                                                        .withOpacity(0.5),
-                                                  ),
-                                                ),
-                                              ),
-                                        // Gradient Overlay
-                                        Positioned.fill(
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                begin: Alignment.centerLeft,
-                                                end: Alignment.centerRight,
-                                                colors: [
-                                                  Colors.black.withOpacity(0.3),
-                                                  Colors.transparent,
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  // Right side: Content Section
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(14),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          // Facility Name
-                                          Text(
-                                            name,
-                                            style: const TextStyle(
-                                              color: Colors.black87,
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
-                                              height: 1.3,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 6),
-
-                                          // Description
-                                          Text(
-                                            description,
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontSize: 14,
-                                              height: 1.4,
-                                            ),
-                                            maxLines:
-                                                learnmoreLabel.isNotEmpty ? 2 : null,
-                                            overflow: learnmoreLabel.isNotEmpty
-                                                ? TextOverflow.ellipsis
-                                                : TextOverflow.visible,
-                                          ),
-                                          const SizedBox(height: 12),
-
-                                          // CTA Button
-                                          if (learnmoreLabel.isNotEmpty) ...[
-                                            Align(
-                                              alignment: Alignment.centerRight,
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
-                                                child: BackdropFilter(
-                                                  filter: ImageFilter.blur(
-                                                    sigmaX: 10,
-                                                    sigmaY: 10,
-                                                  ),
-                                                  child: Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white
-                                                          .withOpacity(0.7),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                                30,
-                                                              ),
-                                                      border: Border.all(
-                                                        color: AppColor.secondary
-                                                            .withOpacity(0.6),
-                                                        width: 1.5,
-                                                      ),
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: AppColor
-                                                              .secondary
-                                                              .withOpacity(0.15),
-                                                          blurRadius: 12,
-                                                          offset: const Offset(
-                                                            0,
-                                                            4,
+                                                        child: SizedBox(
+                                                          width: 24,
+                                                          height: 24,
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                            strokeWidth: 2,
                                                           ),
                                                         ),
-                                                      ],
-                                                    ),
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Text(
-                                                          'View Details',
-                                                          style: TextStyle(
-                                                            color: AppColor
-                                                                .secondary,
-                                                            fontSize: 11,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            letterSpacing: 0.5,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(width: 6),
-                                                        Icon(
-                                                          Icons.arrow_forward_ios,
-                                                          size: 10,
-                                                          color: AppColor.secondary,
-                                                        ),
-                                                      ],
+                                                      ),
+                                                    );
+                                                  },
+                                                )
+                                              : Container(
+                                                  color: AppColor.primary
+                                                      .withOpacity(0.1),
+                                                  child: Center(
+                                                    child: Icon(
+                                                      Icons.image_outlined,
+                                                      size: 40,
+                                                      color: AppColor.primary
+                                                          .withOpacity(0.5),
                                                     ),
                                                   ),
                                                 ),
+                                          // Gradient Overlay
+                                          Positioned.fill(
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.centerLeft,
+                                                  end: Alignment.centerRight,
+                                                  colors: [
+                                                    Colors.black.withOpacity(0.3),
+                                                    Colors.transparent,
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ]
+                                          ),
                                         ],
                                       ),
                                     ),
-                                  ),
-                                ],
+
+                                    // Right side: Content Section
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(14),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween, // ← distribute content evenly
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                // Facility Name
+                                                Text(
+                                                  name,
+                                                  style: const TextStyle(
+                                                    color: Colors.black87,
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w700,
+                                                    height: 1.3,
+                                                  ),
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                                const SizedBox(height: 6),
+                                                // Description
+                                                Text(
+                                                  description,
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontSize: 13,
+                                                    height: 1.4,
+                                                  ),
+                                                  maxLines: 3,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                            ),
+
+                                            // CTA Button
+                                            if (learnmoreLabel.isNotEmpty)
+                                              Align(
+                                                alignment: Alignment.centerRight,
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(30),
+                                                  child: BackdropFilter(
+                                                    filter: ImageFilter.blur(
+                                                      sigmaX: 10,
+                                                      sigmaY: 10,
+                                                    ),
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                        horizontal: 16,
+                                                        vertical: 8,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.7),
+                                                        borderRadius:
+                                                            BorderRadius.circular(30),
+                                                        border: Border.all(
+                                                          color: AppColor.secondary
+                                                              .withOpacity(0.6),
+                                                          width: 1.5,
+                                                        ),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: AppColor
+                                                                .secondary
+                                                                .withOpacity(0.15),
+                                                            blurRadius: 12,
+                                                            offset:
+                                                                const Offset(0, 4),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Text(
+                                                            'View Details',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  AppColor.secondary,
+                                                              fontSize: 11,
+                                                              fontWeight:
+                                                                  FontWeight.w600,
+                                                              letterSpacing: 0.5,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(width: 6),
+                                                          Icon(
+                                                            Icons.arrow_forward_ios,
+                                                            size: 10,
+                                                            color: AppColor.secondary,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),

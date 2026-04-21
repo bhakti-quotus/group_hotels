@@ -35,27 +35,31 @@ class QuickActionsSection extends StatelessWidget {
             ],
           ),
         ),
-        Row(
-          children: items.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value as Map<String, dynamic>;
-            final label = item['label'] as String? ?? '';
-            final iconName = item['icon'] as String? ?? '';
-            final route = item['route'] as String? ?? '';
-            final colorValue = item['color'] as String? ?? '#0D5399';
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: items.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value as Map<String, dynamic>;
+              final label = item['label'] as String? ?? '';
+              final iconName = item['icon'] as String? ?? '';
+              final route = item['route'] as String? ?? '';
+              final colorValue = item['color'] as String? ?? '#0D5399';
 
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: _QuickActionButton(
-                  icon: _getIcon(iconName),
-                  label: label,
-                  color: _getColor(colorValue),
-                  onTap: () => onItemTap?.call(index, route),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: SizedBox(
+                  width: 75,
+                  child: _QuickActionButton(
+                    icon: _getIcon(iconName),
+                    label: label,
+                    color: _getColor(colorValue),
+                    onTap: () => onItemTap?.call(index, route),
+                  ),
                 ),
-              ),
-            );
-          }).toList(),
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
@@ -123,7 +127,7 @@ class _QuickActionButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 90,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
@@ -137,12 +141,13 @@ class _QuickActionButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

@@ -552,24 +552,23 @@
                   "name": "Moroccan Bath",
                   "image": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/services-1.jpg"
                 },
-                 {
+                {
                   "name": "Massage",
                   "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/woman-getting-massage-from-therapist-2023-11-27-05-35-39-utc-qrxkolc5sb3ih9yebeffhlxuxk59xmxb8vmglvs9sw.jpg"
-                
                 },
-                 {
+                {
                   "name": "Facial",
                   "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/the-beautician-applies-a-collagen-booster-on-the-c-2024-02-26-16-09-40-utc-qrxkolc5sb3ih9yebeffhlxuxk59xmxb8vmglvs9sw.jpg"
                 },
-                 {
+                {
                   "name": "Manicure & Pedicure",
                   "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/beauty-saloon-master-together-with-client-choose-2023-11-27-05-37-06-utc-qrxkolc880odpa9v585rprml08kj95cr0gsswoqpv4.jpg"
                 },
-                 {
+                {
                   "name": "Hair Services",
                   "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/hairdresser-cleaning-the-hair-with-hot-water-and-s-2023-11-27-05-12-07-utc-qrxkolc880odpa9v585rprml08kj95cr0gsswoqpv4.jpg"
                 },
-                 {
+                {
                   "name": "Waxing",
                   "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/women-hold-orange-paraffin-wax-bowl-woman-in-beau-2023-11-27-04-52-20-utc-qrxkolc5sb3ih9yebeffhlxuxk59xmxb8vmglvs9sw.jpg"
                 }
@@ -581,7 +580,6 @@
           {
             "id": "room-offer",
             "name": "Room Offer",
-            
             "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/RCH-Non-smoking-room-promo-copy-red7pyp4vliwsyg94h8gthahgz5yl5o66u40f354xs.jpg",
             "phone": "",
             "buttonText": "Book Now",
@@ -594,7 +592,6 @@
           {
             "id": "gym-offer",
             "name": "Gym Offer",
-           
             "image": "https://royalcontinentalhotels.com/wp-content/uploads/2025/11/RCH-DFC-GYM-2025.jpg",
             "phone": "+971 4 203 5000",
             "buttonText": "",
@@ -602,11 +599,9 @@
             "details": {
               "title": "Gym Membership Promotion",
               "fullDescription": "Hurry up and kick-start your wellness journey! Our exclusive gym memberships come with amazing perks — unlimited gym access, pool entry, and special discounts. Sign up today and take your lifestyle to the next level!"
-              
             }
           },
-
-           {
+          {
             "id": "f-b-offer",
             "name": "F & B Offer",
             "image": "https://royalcontinentalhotels.com/wp-content/uploads/2025/10/10-Off-on-All-Food-Beverages.jpg",
@@ -616,13 +611,11 @@
             "details": {
               "title": "Stay with Us & Savor for Less!",
               "fullDescription": "Book your room at Royal Continental Hotel and enjoy 10% off on all Food & Beverages throughout your stay."
-              
             }
           },
-            {
+          {
             "id": "f-b-offer",
             "name": "F & B Offer",
-           
             "image": "https://royalcontinentalhotels.com/wp-content/uploads/2025/10/Shisha-combo-01-copy.jpg",
             "phone": "+971 4 203 5106",
             "buttonText": "Book Now",
@@ -632,10 +625,9 @@
               "fullDescription": "Sip, Puff, Repeat – An Indulgent Experience Awaits. Enjoy your favorite shisha flavor paired with a refreshing juice, smoothie, or hot beverage. A perfect blend of comfort and relaxation — exclusively at Royal Continental Hotel, Deira for AED 59"
             }
           },
-            {
+          {
             "id": "meeting-room-offer",
             "name": "Meeting Room Offer",
-           
             "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Sustainable-meeting-room-deira-r3uon6hwqhmostp1atv9obg9pbtvrpsbr3kscj9i68.jpg",
             "phone": "971 52 353 6563",
             "buttonText": "",
@@ -645,10 +637,9 @@
               "fullDescription": "Avail 10% Discount on coffee break menu. Experience eco-friendly meetings with our Green Meeting Room Package – sustainable, stylish, and smart for the planet!"
             }
           },
-           {
+          {
             "id": "meeting-room-offer",
             "name": "Meeting Room Offer",
-           
             "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Corporate-meeting-space-3_3-qrxkolcanq98xalbz1w3xxbb2wzskns6s1z57hp5xc.jpg",
             "phone": "971 52 353 6563",
             "buttonText": "",
@@ -734,38 +725,38 @@
             }
           ]
         },
-        "outlets":[
-  {
-    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7583-qv7zfsoyh8q6nhj9i5vfg5ps5os9z2swu18uxa72cg.jpg",
-    "title": "Babati Restaurant And Café",
-    "description": "Experience the vibrant flavors of Lebanon at Babati Restaurant And Café, located in the heart of Business Bay. Let us take you on a culinary journey with our innovative and authentic Lebanese cuisine, all while enjoying stunning views of the Dubai Water Canal."
-  },
-  {
-    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Rukn-Raihan-Gents-Spa-qvlb34cwrce4b9s7gk4ejb5dq2ccqhvrvcq59lrgkg.jpg",
-    "title": "Rukn Raihan Gents Spa",
-    "description": "Rejuvenate your mind, body, and soul with luxurious spa services at Rukn Raihan Gents Spa. From traditional Moroccan baths to specialized massages, Spa have everything you need for total relaxation and healing."
-  },
-  {
-    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Lilis-House-Beauty-Salon-qv8zi65crs3potkoww4h40o7t79lbw990dyybv31k0.jpg",
-    "title": "Lili’s House Beauty Salon",
-    "description": "Pamper yourself at Lili’s House Beauty Salon with a wide range of services including skin treatments, lash and eyebrow services, hair styling and more. Indulge in the ultimate beauty experience today."
-  },
-  {
-    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Bay-Mini-Mart-qv8zkznx9vyoiph8g406lb1zytd8f7g9ecfe5qwiw0.jpg",
-    "title": "Royal Bay Mini Mart",
-    "description": "Experience convenience and quality at ROYAL BAY MINI MART, your 24/7 go-to store for essential cupboard items and fresh produce. Located at Royal Continental Suites Hotel Apartments."
-  },
-   {
-    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Monarch-Laundry-qvlb5vzsvs6ihxrhar6uvm08owp9eevbl1vm4xnq8w.jpg",
-    "title": "Royal Monarch Laundry",
-    "description": "Experience the royal treatment for your laundry needs at Royal Monarch Laundry. From dry cleaning and ironing to carpet and leather care, we have you covered with our top-notch services."
-  },
-  {
-    "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Limousine-Service-1-qrxkon7wloptfbik63m3sjhhfbev4rluhr43tblzfk.jpg",
-    "title": "Limousine Service",
-    "description": "Arrive in style with our luxurious LIMOUSINE SERVICE at Royal Continental Suites Hotel Apartments. From private airport transfers to chauffeured services, we’ve got you covered for a seamless and comfortable ride."
-  }
-],
+        "outlets": [
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7583-qv7zfsoyh8q6nhj9i5vfg5ps5os9z2swu18uxa72cg.jpg",
+            "title": "Babati Restaurant And Café",
+            "description": "Experience the vibrant flavors of Lebanon at Babati Restaurant And Café, located in the heart of Business Bay. Let us take you on a culinary journey with our innovative and authentic Lebanese cuisine, all while enjoying stunning views of the Dubai Water Canal."
+          },
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Rukn-Raihan-Gents-Spa-qvlb34cwrce4b9s7gk4ejb5dq2ccqhvrvcq59lrgkg.jpg",
+            "title": "Rukn Raihan Gents Spa",
+            "description": "Rejuvenate your mind, body, and soul with luxurious spa services at Rukn Raihan Gents Spa. From traditional Moroccan baths to specialized massages, Spa have everything you need for total relaxation and healing."
+          },
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Lilis-House-Beauty-Salon-qv8zi65crs3potkoww4h40o7t79lbw990dyybv31k0.jpg",
+            "title": "Lili’s House Beauty Salon",
+            "description": "Pamper yourself at Lili’s House Beauty Salon with a wide range of services including skin treatments, lash and eyebrow services, hair styling and more. Indulge in the ultimate beauty experience today."
+          },
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Bay-Mini-Mart-qv8zkznx9vyoiph8g406lb1zytd8f7g9ecfe5qwiw0.jpg",
+            "title": "Royal Bay Mini Mart",
+            "description": "Experience convenience and quality at ROYAL BAY MINI MART, your 24/7 go-to store for essential cupboard items and fresh produce. Located at Royal Continental Suites Hotel Apartments."
+          },
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Monarch-Laundry-qvlb5vzsvs6ihxrhar6uvm08owp9eevbl1vm4xnq8w.jpg",
+            "title": "Royal Monarch Laundry",
+            "description": "Experience the royal treatment for your laundry needs at Royal Monarch Laundry. From dry cleaning and ironing to carpet and leather care, we have you covered with our top-notch services."
+          },
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Limousine-Service-1-qrxkon7wloptfbik63m3sjhhfbev4rluhr43tblzfk.jpg",
+            "title": "Limousine Service",
+            "description": "Arrive in style with our luxurious LIMOUSINE SERVICE at Royal Continental Suites Hotel Apartments. From private airport transfers to chauffeured services, we’ve got you covered for a seamless and comfortable ride."
+          }
+        ],
         "home": {
           "sections": [
             {
@@ -827,7 +818,7 @@
               },
               "type": "galleryPreview"
             },
-             {
+            {
               "data": {
                 "items": [
                   {
@@ -967,7 +958,7 @@
           "url": "https://bookings.revchilltech.com/api/v1",
           "apiKey": ""
         },
-         "facility": [
+        "facility": [
           {
             "id": "meeting_room",
             "type": "meeting_room",
@@ -1041,7 +1032,6 @@
               ]
             }
           },
-         
           {
             "id": "lounge",
             "type": "lounge",
@@ -1061,8 +1051,7 @@
               ]
             }
           },
-
-           {
+          {
             "id": "canal-view",
             "type": "canal-view",
             "name": "Hotel apartment canal view",
@@ -1081,7 +1070,7 @@
               ]
             }
           },
-           {
+          {
             "id": "gym",
             "type": "gym",
             "name": "Royal Gym",
@@ -1100,7 +1089,7 @@
               ]
             }
           },
-           {
+          {
             "id": "lounge",
             "type": "lounge",
             "name": "Babati Restaurant and Shisha Lounge",
@@ -1120,7 +1109,7 @@
               ]
             }
           },
-           {
+          {
             "id": "jaccuzi",
             "type": "jaccuzi",
             "name": "Jacuzzi",
@@ -1129,12 +1118,9 @@
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-Jacuzzi-qv8a5t2uo7mewn7itgb51gqpnyc75eqb881colqpoc.jpg",
             "learnMoreLabel": "",
             "icon": "pool",
-            "details": {
-             
-            }
+            "details": {}
           },
-
-           {
+          {
             "id": "sauna",
             "type": "sauna",
             "name": "Sauna",
@@ -1143,52 +1129,46 @@
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental8784-qv7w9xiq51bum3b2qvmoj3uwu460o596u2afu4wwos.jpg",
             "learnMoreLabel": "",
             "icon": "pool",
-            "details": {
-             
-            }
+            "details": {}
           },
           {
-  "id": "steam_room",
-  "type": "steam_room",
-  "name": "Steam Room",
-  "heading": "",
-  "description": "Get ready to steam, sweat, and relax like royalty at our luxurious steam room in Royal Continental Suites Dubai.",
-  "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Steam-Room-qv8aa5426pk0fwwvibr7jdd89wz4n5xr5obycjbczg.jpg",
-  "learnMoreLabel": "",
-  "icon": "cloud",
-  "details": {}
-}, 
-{
-  "id": "ev_charger",
-  "type": "ev_charger",
-  "name": "Electric Vehicle Charger",
-  "heading": "",
-  "description": "Charge up and stay powered with our convenient electric vehicle charging facilities at Royal Continental Suites.",
-  "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/abandoned-electric-vehicle-charging-station-elect-2023-11-27-05-15-25-utc-qrxkon7u5z5inwjdock83hmrqhft355lbnfljh6iew.jpg",
-  "learnMoreLabel": "",
-  "icon": "bolt",
-  "details": {}
-},
-
-{
-  "id": "limousine_service",
-  "type": "limousine_service",
-  "name": "Limousine Service",
-  "heading": "",
-  "description": "Arrive in style with our exclusive limousine service, offering comfort, luxury, and convenience at Royal Continental Suites.",
-  "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Limousine-Service-qrxkon7u5z5inwjdock83hmrqhft355lbnfljh6iew.jpg",
-  "learnMoreLabel": "",
-  "icon": "directions_car",
-  "details": {}
-}
-          
+            "id": "steam_room",
+            "type": "steam_room",
+            "name": "Steam Room",
+            "heading": "",
+            "description": "Get ready to steam, sweat, and relax like royalty at our luxurious steam room in Royal Continental Suites Dubai.",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Steam-Room-qv8aa5426pk0fwwvibr7jdd89wz4n5xr5obycjbczg.jpg",
+            "learnMoreLabel": "",
+            "icon": "cloud",
+            "details": {}
+          },
+          {
+            "id": "ev_charger",
+            "type": "ev_charger",
+            "name": "Electric Vehicle Charger",
+            "heading": "",
+            "description": "Charge up and stay powered with our convenient electric vehicle charging facilities at Royal Continental Suites.",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/abandoned-electric-vehicle-charging-station-elect-2023-11-27-05-15-25-utc-qrxkon7u5z5inwjdock83hmrqhft355lbnfljh6iew.jpg",
+            "learnMoreLabel": "",
+            "icon": "bolt",
+            "details": {}
+          },
+          {
+            "id": "limousine_service",
+            "type": "limousine_service",
+            "name": "Limousine Service",
+            "heading": "",
+            "description": "Arrive in style with our exclusive limousine service, offering comfort, luxury, and convenience at Royal Continental Suites.",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Limousine-Service-qrxkon7u5z5inwjdock83hmrqhft355lbnfljh6iew.jpg",
+            "learnMoreLabel": "",
+            "icon": "directions_car",
+            "details": {}
+          }
         ],
-         "promotion": [
-          
+        "promotion": [
           {
             "id": "gym-offer",
             "name": "Gym Offer",
-           
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/06/RCS-Fitness-2_1_2.jpg",
             "phone": "+971 56 8178372",
             "buttonText": "",
@@ -1196,14 +1176,11 @@
             "details": {
               "title": "Gym & Pool Membership",
               "fullDescription": "LADIES’ PACKAGE: 1 MONTH / 3 MONTH / 6 MONTH / 1 YEAR Packages & COUPLE’S PACKAGE: 1 MONTH / 3 MONTH / 6 MONTH / 1 YEAR Packages"
-              
             }
           },
-
-            {
+          {
             "id": "meeting-room-offer",
             "name": "Meeting Room Offer",
-           
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2025/04/Sustainable-meeting-room-business-bay.jpg",
             "phone": "+971 56 8178372",
             "buttonText": "",
@@ -1213,10 +1190,9 @@
               "fullDescription": "Avail 10% Discount on coffee break menu. Experience eco-friendly meetings with our Green Meeting Room Package – sustainable, stylish, and smart for the planet!"
             }
           },
-           {
+          {
             "id": "meeting-room-offer",
             "name": "Meeting Room Offer",
-           
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/04/Corporate-meeting-space-3_4-1.jpg",
             "phone": "+971 56 8178372",
             "buttonText": "",
@@ -1226,10 +1202,9 @@
               "fullDescription": "The Half-Day Package includes flexible refreshment options with 1 coffee break priced at AED 80 per person or 2 coffee breaks at AED 120 per person, along with a Banquet Rental Package available at AED 1,500 per day for up to a maximum of 7 hours, making it an ideal choice for meetings, events, and small gatherings."
             }
           },
-           {
+          {
             "id": "beauty-wellness-offer",
             "name": "Beauty & Wellness Offer",
-           
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/06/4-may.jpg",
             "phone": "+971 56 8178372",
             "buttonText": "",
@@ -1242,7 +1217,6 @@
           {
             "id": "dining-offer",
             "name": "Dining Offer",
-           
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Babati-Restaurant-and-Shisha-Lounge-4-qv8zqqghh5frm44wekhd4885hydnbwn0hc483ceb0g.jpg",
             "phone": "+971 56 8178372",
             "buttonText": "",
