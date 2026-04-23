@@ -35,10 +35,17 @@ class _RoomScreenState extends State<RoomScreen> {
   Map<String, dynamic>? _propertyVideos;
   Map<String, dynamic>? _loyaltyConfig;
 
-  @override
+@override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    
+    // ✅ Reactive: Refresh when HotelController hotel changes
+    ever(Get.find<HotelController>().selectedHotel, (_) {
+      _loadedPropertyCode = '';
+      _loadDataFromHotelController();
+    });
+    
     _loadDataFromHotelController();
   }
 
@@ -427,12 +434,18 @@ class _RoomScreenState extends State<RoomScreen> {
         children: [
           // ── STATUS BAR SAFE AREA ──────────────────────────────────────
           SizedBox(height: MediaQuery.of(context).padding.top),
-
-          // ── SEARCH WIDGET (pinned at top, outside scroll) ─────────────
-          SearchWidget(
-            update: true,
-            showEditText: true,
-            onModifySearch: _onSearchModified,
+          
+          // ── SEARCH WIDGET ─────────────────────────────────────────────
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+              minHeight: 80,
+            ),
+            child: SearchWidget(
+              update: true,
+              showEditText: true,
+              onModifySearch: _onSearchModified,
+            ),
           ),
 
           // ── BODY ──────────────────────────────────────────────────────
