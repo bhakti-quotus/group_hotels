@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
 import 'package:royalcontinent/group/controllers/api_controller.dart';
-import 'package:royalcontinent/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:royalcontinent/group/controllers/search_controller.dart'
+    as search_ctrl;
 import 'package:royalcontinent/group/controllers/hotel_controller.dart';
 import 'dart:convert';
 import 'payment_page.dart';
@@ -866,7 +867,9 @@ class _BookingPageState extends State<BookingPage>
               if (value == null || value.isEmpty) {
                 return 'Please enter an email address';
               }
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+              if (!RegExp(
+                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+              ).hasMatch(value)) {
                 return 'Please enter a valid email address';
               }
               return null;
@@ -1362,110 +1365,127 @@ class _BookingPageState extends State<BookingPage>
   // ─── Business Logic (unchanged) ───────────────────────────────────────────────
 
   void _proceedToPayment() {
-  if (!_formKey.currentState!.validate()) {
-    _showSnackbar('Please fill in all required fields');
-    return;
-  }
-  
-  // Debug: Check propertyCode
-  print('=== PROCEED TO PAYMENT DEBUG ===');
-  print('widget.propertyCode: ${widget.propertyCode}');
-  print('widget.propertyId: ${widget.propertyId}');
-  print('widget.room["propertyCode"]: ${widget.room['propertyCode']}');
-  print('================================');
-  
-  // Ensure we have a valid propertyCode
-  String finalPropertyCode = widget.propertyCode;
-  if (finalPropertyCode.isEmpty) {
-    // Try to get from room data
-    if (widget.room['propertyCode'] != null && widget.room['propertyCode'].toString().isNotEmpty) {
-      finalPropertyCode = widget.room['propertyCode'].toString();
-      print('Using propertyCode from room: $finalPropertyCode');
-    } else {
-      // Try to get from hotel controller
-      final hotelController = Get.find<HotelController>();
-      final hotel = hotelController.getSelectedHotel();
-      if (hotel != null && hotel['code'] != null && hotel['code'].toString().isNotEmpty) {
-        finalPropertyCode = hotel['code'].toString();
-        print('Using propertyCode from hotel controller: $finalPropertyCode');
+    if (!_formKey.currentState!.validate()) {
+      _showSnackbar('Please fill in all required fields');
+      return;
+    }
+
+    // Debug: Check propertyCode
+    print('=== PROCEED TO PAYMENT DEBUG ===');
+    print('widget.propertyCode: ${widget.propertyCode}');
+    print('widget.propertyId: ${widget.propertyId}');
+    print('widget.room["propertyCode"]: ${widget.room['propertyCode']}');
+    print('================================');
+
+    // Ensure we have a valid propertyCode
+    String finalPropertyCode = widget.propertyCode;
+    if (finalPropertyCode.isEmpty) {
+      // Try to get from room data
+      if (widget.room['propertyCode'] != null &&
+          widget.room['propertyCode'].toString().isNotEmpty) {
+        finalPropertyCode = widget.room['propertyCode'].toString();
+        print('Using propertyCode from room: $finalPropertyCode');
       } else {
-        print('WARNING: No valid propertyCode found!');
+        // Try to get from hotel controller
+        final hotelController = Get.find<HotelController>();
+        final hotel = hotelController.getSelectedHotel();
+        if (hotel != null &&
+            hotel['code'] != null &&
+            hotel['code'].toString().isNotEmpty) {
+          finalPropertyCode = hotel['code'].toString();
+          print('Using propertyCode from hotel controller: $finalPropertyCode');
+        } else {
+          print('WARNING: No valid propertyCode found!');
+        }
       }
     }
-  }
-  
-  List<Map<String, dynamic>> guestDetails = [];
-  // Add adults
-  for (var controllers in _adultControllers) {
-    guestDetails.add({
-      'type': 'adult',
-      'firstName': controllers['firstName']?.text ?? '',
-      'lastName': controllers['lastName']?.text ?? '',
-      'dateOfBirth': controllers['dob']?.text ?? '',
-    });
-  }
-  // Add children  
-  for (var controllers in _childControllers) {
-    final dob = controllers['dob']?.text ?? '';
-    guestDetails.add({
-      'type': 'child',
-      'firstName': controllers['firstName']?.text ?? '',
-      'lastName': controllers['lastName']?.text ?? '',
-      'dob': dob,
-      'age': dob.isNotEmpty ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365) : 0
-    });
-  }
 
-  final numberOfNights = _calculateNights();
+    List<Map<String, dynamic>> guestDetails = [];
+    // Add adults
+    for (var controllers in _adultControllers) {
+      guestDetails.add({
+        'type': 'adult',
+        'firstName': controllers['firstName']?.text ?? '',
+        'lastName': controllers['lastName']?.text ?? '',
+        'dateOfBirth': controllers['dob']?.text ?? '',
+      });
+    }
+    // Add children
+    for (var controllers in _childControllers) {
+      final dob = controllers['dob']?.text ?? '';
+      guestDetails.add({
+        'type': 'child',
+        'firstName': controllers['firstName']?.text ?? '',
+        'lastName': controllers['lastName']?.text ?? '',
+        'dob': dob,
+        'age': dob.isNotEmpty
+            ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365)
+            : 0,
+      });
+    }
 
-  final bookingDetails = {
-    'startDate': widget.startDate,
-    'endDate': widget.endDate,
-    'propertyCode': finalPropertyCode, // Use the validated property code
-    'hotelName': widget.hotelName,
-    'roomTypeCode': widget.room['invTypeCode'] ?? widget.room['roomTypeCode'] ?? widget.room['room_type'] ?? '',
-    'numberOfRooms': 1,
-    'currency': widget.ratePlan['currencyCode'] ?? 'USD',
-    'email': _emailController.text.trim(),
-    'phone': _phoneController.text.trim(),
-    'guests': {
-      'rooms': 1,
-      'adults': widget.adults,
-      'children': widget.children,
-    },
-    'guestDetails': guestDetails,
-    'ratePlanCode': widget.ratePlan['ratePlanCode'],
-    'paymentMethod': 'pay_at_hotel',
-    'bookingSource': 'direct',
-    'selectedPromotions': widget.discountApplied ? ['10% Discount'] : [],
-    'selectedAddons': _selectedAddons.map((addon) {
-      final price = (addon['price'] as num?) ?? 0;
-      final quantity = (addon['quantity'] as num?) ?? 1;
-      final dates = addon['dates'] as List? ?? [];
-      return {
-        'addonId': addon['id'] ?? '',
-        'addonName': addon['name'] ?? '',
-        'addonCode': addon['addonCode'] ?? '',
-        'availabilityId': addon['availabilityId'] ?? '',
-        'date': dates.isNotEmpty ? dates[0] : widget.startDate,
-        'price': price,
-        'quantity': quantity,
-        'totalPrice': price * quantity,
-        'type': addon['postingRhythm'] ?? 'per_stay',
-      };
-    }).toList(),
-    'promoCode': null,
-  };
+    final numberOfNights = _calculateNights();
 
-  Get.to(
-    () => PaymentPage(
-      priceData: _priceData!,
-      paymentData: {},
-      bookingDetails: bookingDetails,
-      propertyId: widget.propertyId,
-    ),
-  );
-}
+    final searchController = Get.find<search_ctrl.AppSearchController>();
+    final roomsArray = searchController.searchPayload['guests']['roomsArray'];
+
+    final bookingDetails = {
+      'startDate': widget.startDate,
+      'endDate': widget.endDate,
+      'propertyCode': finalPropertyCode,
+      'hotelName': widget.hotelName,
+      'roomTypeCode':
+          widget.room['invTypeCode'] ??
+          widget.room['roomTypeCode'] ??
+          widget.room['room_type'] ??
+          '',
+      'numberOfRooms': 1,
+      'finalPrice': _priceData, // ← ADDED
+      'currency':
+          widget.ratePlan['currencyCode'] ??
+          _priceData?['currencyCode'] ??
+          'USD',
+      'email': _emailController.text.trim(),
+      'phone': _phoneController.text.trim(),
+      'guests': {
+        'rooms': 1,
+        'adults': widget.adults,
+        'children': widget.children,
+        'roomsArray': roomsArray, // ← ADDED
+      },
+      'guestDetails': guestDetails,
+      'ratePlanCode': widget.ratePlan['ratePlanCode'],
+      'paymentMethod': 'pay_at_hotel',
+      'bookingSource': 'direct',
+      'selectedPromotions': widget.discountApplied ? ['10% Discount'] : [],
+      'selectedAddons': _selectedAddons.map((addon) {
+        final price = (addon['price'] as num?) ?? 0;
+        final quantity = (addon['quantity'] as num?) ?? 1;
+        final dates = addon['dates'] as List? ?? [];
+        return {
+          'addonId': addon['id'] ?? '',
+          'addonName': addon['name'] ?? '',
+          'addonCode': addon['addonCode'] ?? '',
+          'availabilityId': addon['availabilityId'] ?? '',
+          'date': dates.isNotEmpty ? dates[0] : widget.startDate,
+          'price': price,
+          'quantity': quantity,
+          'totalPrice': price * quantity,
+          'type': addon['postingRhythm'] ?? 'per_stay',
+        };
+      }).toList(),
+      'promoCode': null,
+    };
+
+    Get.to(
+      () => PaymentPage(
+        priceData: _priceData!,
+        paymentData: {},
+        bookingDetails: bookingDetails,
+        propertyId: widget.propertyId,
+      ),
+    );
+  }
 
   String _formatDateForApi(String date) {
     try {
