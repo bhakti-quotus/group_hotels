@@ -366,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             final outletItems = _getOutletItems(widget.config);
                             final hotelName =
                                 widget.config['name'] as String? ??
-                                'Royal Continental Hotel';
+                                'Horizon Bay Resort';
                             Get.toNamed(
                               route,
                               arguments: {

@@ -94,66 +94,82 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     super.dispose();
   }
 
-  Future<void> _loadBookingDetails({
-    String? bookingCode,
-    String? propertyCode,
-  }) async {
-    final code = bookingCode ?? _searchController.text.trim();
-    String prop = propertyCode ?? widget.propertyCode ?? '';
-    if (prop.isEmpty) {
-      // Fallback: load from config
-      prop = (_config['code'] as String?) ?? '';
-    }
+Future<void> _loadBookingDetails({
+  String? bookingCode,
+  String? propertyCode,
+}) async {
+  final code = bookingCode ?? _searchController.text.trim();
+  String prop = propertyCode ?? widget.propertyCode ?? '';
+  if (prop.isEmpty) {
+    // Fallback: load from config
+    prop = (_config['code'] as String?) ?? '';
+  }
 
-    if (code.isEmpty) return;
+  if (code.isEmpty) return;
 
+  if (!mounted) return;
+  setState(() {
+    _isLoading = true;
+    _errorMessage = null;
+    _hasSearched = true;
+    _bookingData = null;
+  });
+  _animController.reset();
+
+  try {
+    final result = await _apiController.fetchBookingDetails(
+      bookingCode: code,
+      propertyCode: prop,
+    );
     if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _hasSearched = true;
-      _bookingData = null;
-    });
-    _animController.reset();
 
-    try {
-      final result = await _apiController.fetchBookingDetails(
-        bookingCode: code,
-        propertyCode: prop,
-      );
-      if (!mounted) return;
+    // DEBUG: Print the API response
+    print('========== API RESPONSE ==========');
+    print('Full result: $result');
+    print('Success: ${result['success']}');
+    if (result['success'] == true) {
+      print('Booking Data: ${result['data']}');
+      print('CheckIn Date in data: ${result['data']['checkInDate']}');
+      print('CheckOut Date in data: ${result['data']['checkOutDate']}');
+      print('All keys in data: ${result['data'].keys}');
+    }
+    print('==================================');
 
-      if (result['success'] == true) {
-        setState(() {
-          _bookingData = result['data'];
-          _isLoading = false;
-        });
-        _animController.forward();
-      } else {
-        setState(() {
-          _errorMessage = result['error'] ?? 'No booking found for this code.';
-          _isLoading = false;
-        });
-        _animController.forward();
-      }
-    } catch (e) {
-      if (!mounted) return;
+    if (result['success'] == true) {
       setState(() {
-        _errorMessage = 'Something went wrong. Please try again.';
+        _bookingData = result['data'];
+        _isLoading = false;
+      });
+      _animController.forward();
+    } else {
+      setState(() {
+        _errorMessage = result['error'] ?? 'No booking found for this code.';
         _isLoading = false;
       });
       _animController.forward();
     }
+  } catch (e) {
+    print('Error loading booking: $e');
+    if (!mounted) return;
+    setState(() {
+      _errorMessage = 'Something went wrong. Please try again.';
+      _isLoading = false;
+    });
+    _animController.forward();
   }
+}
 
-  String _formatDate(String? d) {
-    if (d == null) return '—';
-    try {
-      return DateFormat('MMM dd, yyyy').format(DateTime.parse(d));
-    } catch (_) {
-      return d;
-    }
+String _formatDate(String? d) {
+  if (d == null) return '—';
+  try {
+    // Parse the ISO date string (e.g., "2026-05-07T00:00:00.000Z")
+    DateTime date = DateTime.parse(d);
+    return DateFormat('MMM dd, yyyy').format(date);
+  } catch (e) {
+    print('Error formatting date "$d": $e');
+    return d;
   }
+}
 
   String _formatDateTime(String? d) {
     if (d == null) return '—';
@@ -826,66 +842,77 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
 
   // ── Stay Dates ─────────────────────────────────────────────────────────────
 
-  Widget _buildStayDates(Map<String, dynamic> booking, Map<String, dynamic> finalPrice) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColor.primary.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColor.primary.withOpacity(0.1)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'CHECK-IN',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColor.primary.withOpacity(0.6), letterSpacing: 1),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _formatDate(booking['checkInDate']),
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColor.primary),
-                ),
-              ],
-            ),
-          ),
-          Column(
+Widget _buildStayDates(Map<String, dynamic> booking, Map<String, dynamic> finalPrice) {
+  // Use reservationStartDate and reservationEndDate instead of checkInDate/checkOutDate
+  String? checkInDate = booking['reservationStartDate'] ?? 
+                         booking['checkInDate'] ?? 
+                         booking['check_in_date'] ?? 
+                         booking['arrivalDate'];
+                         
+  String? checkOutDate = booking['reservationEndDate'] ?? 
+                          booking['checkOutDate'] ?? 
+                          booking['check_out_date'] ?? 
+                          booking['departureDate'];
+  
+  return Container(
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: AppColor.primary.withOpacity(0.04),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: AppColor.primary.withOpacity(0.1)),
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(color: AppColor.primary, borderRadius: BorderRadius.circular(20)),
-                child: Text(
-                  '${finalPrice['numberOfNights'] ?? 1}N',
-                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
-                ),
+              Text(
+                'CHECK-IN',
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColor.primary.withOpacity(0.6), letterSpacing: 1),
               ),
               const SizedBox(height: 4),
-              Icon(Icons.arrow_forward_rounded, size: 16, color: AppColor.primary.withOpacity(0.4)),
+              Text(
+                _formatDate(checkInDate),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColor.primary),
+              ),
             ],
           ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'CHECK-OUT',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColor.primary.withOpacity(0.6), letterSpacing: 1),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _formatDate(booking['checkOutDate']),
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColor.primary),
-                ),
-              ],
+        ),
+        Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(color: AppColor.primary, borderRadius: BorderRadius.circular(20)),
+              child: Text(
+                '${finalPrice['numberOfNights'] ?? 1}N',
+                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+              ),
             ),
+            const SizedBox(height: 4),
+            Icon(Icons.arrow_forward_rounded, size: 16, color: AppColor.primary.withOpacity(0.4)),
+          ],
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'CHECK-OUT',
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColor.primary.withOpacity(0.6), letterSpacing: 1),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _formatDate(checkOutDate),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColor.primary),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _statChip(IconData icon, String value, String label) {
     return Expanded(

@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'royalcontinent',
+      title: 'horizon bay resort',
       initialRoute: AppRoutes.splash,
       getPages: AppRoutes.routes,
     );

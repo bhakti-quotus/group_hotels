@@ -655,85 +655,210 @@ class _BookingPageState extends State<BookingPage>
 
   // ─── Sections ─────────────────────────────────────────────────────────────────
 
-  Widget _buildGuestSection() {
-    return _buildRoyalCard(
-      sectionTitle: 'GUEST INFORMATION',
-      sectionIcon: Icons.person_outline_rounded,
-      child: Column(
-        children: [
-          // Adults
-          if (widget.adults > 0) ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                'ADULTS (${widget.adults})',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColor.primary.withOpacity(0.7),
-                ),
+Widget _buildGuestSection() {
+  return _buildRoyalCard(
+    sectionTitle: 'GUEST INFORMATION',
+    sectionIcon: Icons.person_outline_rounded,
+    child: Column(
+      children: [
+        // Adults
+        if (widget.adults > 0) ...[
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text(
+              'ADULTS (${widget.adults})',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppColor.primary.withOpacity(0.7),
               ),
+              textAlign: TextAlign.left, // FORCED LEFT ALIGNMENT
             ),
-            ...List.generate(widget.adults, (index) {
-              return Column(
-                children: [
-                  if (index > 0)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 1,
-                            width: 24,
-                            color: AppColor.primary.withOpacity(0.15),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'GUEST ${index + 1}',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: AppColor.primary.withOpacity(0.5),
-                              letterSpacing: 2,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Container(
-                              height: 1,
-                              color: AppColor.primary.withOpacity(0.15),
-                            ),
-                          ),
-                        ],
+          ),
+          ...List.generate(widget.adults, (index) {
+            final isPrimary = (index == 0); // First adult is primary
+            return Column(
+              children: [
+                // Guest label for ALL adults (including primary)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12, top: 10),
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 1,
+                        width: 24,
+                        color: AppColor.primary.withOpacity(0.15),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'GUEST ${index + 1}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColor.primary.withOpacity(0.5),
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          color: AppColor.primary.withOpacity(0.15),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildElegantField(
+                        controller: _adultControllers[index]['firstName']!,
+                        label: isPrimary ? 'First Name *' : 'First Name',
+                        icon: Icons.badge_outlined,
+                        validator: isPrimary ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'First name is required for primary guest';
+                          }
+                          return null;
+                        } : null, // No validation for non-primary adults
                       ),
                     ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildElegantField(
+                        controller: _adultControllers[index]['lastName']!,
+                        label: isPrimary ? 'Last Name *' : 'Last Name',
+                        icon: Icons.badge_outlined,
+                        validator: isPrimary ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Last name is required for primary guest';
+                          }
+                          return null;
+                        } : null, // No validation for non-primary adults
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                InkWell(
+                  onTap: () => _selectDate(
+                    context,
+                    _adultControllers[index]['dob']!,
+                    true,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  child: IgnorePointer(
+                    child: _buildElegantField(
+                      controller: _adultControllers[index]['dob']!,
+                      label: 'Date of Birth', // No asterisk for anyone
+                      icon: Icons.cake_outlined,
+                      readOnly: true,
+                      validator: null, // No validation for anyone
+                    ),
+                  ),
+                ),
+                if (!isPrimary) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColor.primary.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 12,
+                          color: AppColor.primary.withOpacity(0.5),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Only primary guest (*) details are required. Others optional.',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: AppColor.primary.withOpacity(0.5),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            );
+          }),
+        ],
+        // Children
+        if (widget.children > 0) ...[
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text(
+              'CHILDREN (${widget.children})',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppColor.primary.withOpacity(0.7),
+              ),
+              textAlign: TextAlign.left, // FORCED LEFT ALIGNMENT
+            ),
+          ),
+          ...List.generate(widget.children, (index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 1,
+                          width: 24,
+                          color: AppColor.primary.withOpacity(0.15),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'CHILD ${index + 1}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: AppColor.primary,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            color: AppColor.primary.withOpacity(0.15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   Row(
                     children: [
                       Expanded(
                         child: _buildElegantField(
-                          controller: _adultControllers[index]['firstName']!,
+                          controller: _childControllers[index]['firstName']!,
                           label: 'First Name',
-                          icon: Icons.badge_outlined,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'First name is required';
-                            }
-                            return null;
-                          },
+                          icon: Icons.child_care_outlined,
+                          validator: null, // Children are optional
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildElegantField(
-                          controller: _adultControllers[index]['lastName']!,
+                          controller: _childControllers[index]['lastName']!,
                           label: 'Last Name',
-                          icon: Icons.badge_outlined,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Last name is required';
-                            }
-                            return null;
-                          },
+                          icon: Icons.child_care_outlined,
+                          validator: null, // Children are optional
                         ),
                       ),
                     ],
@@ -742,114 +867,29 @@ class _BookingPageState extends State<BookingPage>
                   InkWell(
                     onTap: () => _selectDate(
                       context,
-                      _adultControllers[index]['dob']!,
-                      true,
+                      _childControllers[index]['dob']!,
+                      false,
                     ),
                     borderRadius: BorderRadius.circular(10),
                     child: IgnorePointer(
                       child: _buildElegantField(
-                        controller: _adultControllers[index]['dob']!,
+                        controller: _childControllers[index]['dob']!,
                         label: 'Date of Birth',
                         icon: Icons.cake_outlined,
                         readOnly: true,
+                        validator: null, // Children are optional
                       ),
                     ),
                   ),
                 ],
-              );
-            }),
-          ],
-          // Children
-          if (widget.children > 0) ...[
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                'CHILDREN (${widget.children})',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColor.primary.withOpacity(0.7),
-                ),
               ),
-            ),
-            ...List.generate(widget.children, (index) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'CHILD ${index + 1}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const Spacer(),
-                        // Add remove button if needed later
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildElegantField(
-                            controller: _childControllers[index]['firstName']!,
-                            label: 'First Name',
-                            icon: Icons.child_care_outlined,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'First name is required';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildElegantField(
-                            controller: _childControllers[index]['lastName']!,
-                            label: 'Last Name',
-                            icon: Icons.child_care_outlined,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Last name is required';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    InkWell(
-                      onTap: () => _selectDate(
-                        context,
-                        _childControllers[index]['dob']!,
-                        false,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      child: IgnorePointer(
-                        child: _buildElegantField(
-                          controller: _childControllers[index]['dob']!,
-                          label: 'Date of Birth',
-                          icon: Icons.cake_outlined,
-                          readOnly: true,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ],
+            );
+          }),
         ],
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
 
   Widget _buildContactSection() {
     return _buildRoyalCard(
@@ -1364,128 +1404,165 @@ class _BookingPageState extends State<BookingPage>
 
   // ─── Business Logic (unchanged) ───────────────────────────────────────────────
 
-  void _proceedToPayment() {
-    if (!_formKey.currentState!.validate()) {
-      _showSnackbar('Please fill in all required fields');
-      return;
+void _proceedToPayment() {
+  // Custom validation for primary adult only
+  bool isValid = true;
+  
+  // Validate primary adult (first adult)
+  if (_adultControllers.isNotEmpty) {
+    final primaryFirstName = _adultControllers[0]['firstName']?.text ?? '';
+    final primaryLastName = _adultControllers[0]['lastName']?.text ?? '';
+   // final primaryDob = _adultControllers[0]['dob']?.text ?? '';
+    
+    if (primaryFirstName.isEmpty) {
+      _showSnackbar('Primary guest first name is required');
+      isValid = false;
+    } else if (primaryLastName.isEmpty) {
+      _showSnackbar('Primary guest last name is required');
+      isValid = false;
+    // } else if (primaryDob.isEmpty) {
+    //   _showSnackbar('Primary guest date of birth is required');
+    //   isValid = false;
     }
-
-    // Debug: Check propertyCode
-    print('=== PROCEED TO PAYMENT DEBUG ===');
-    print('widget.propertyCode: ${widget.propertyCode}');
-    print('widget.propertyId: ${widget.propertyId}');
-    print('widget.room["propertyCode"]: ${widget.room['propertyCode']}');
-    print('================================');
-
-    // Ensure we have a valid propertyCode
-    String finalPropertyCode = widget.propertyCode;
-    if (finalPropertyCode.isEmpty) {
-      // Try to get from room data
-      if (widget.room['propertyCode'] != null &&
-          widget.room['propertyCode'].toString().isNotEmpty) {
-        finalPropertyCode = widget.room['propertyCode'].toString();
-        print('Using propertyCode from room: $finalPropertyCode');
+  } else {
+    _showSnackbar('At least one adult is required');
+    isValid = false;
+  }
+  
+  // Validate email
+  final email = _emailController.text.trim();
+  if (email.isEmpty) {
+    _showSnackbar('Email address is required');
+    isValid = false;
+  } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+    _showSnackbar('Please enter a valid email address');
+    isValid = false;
+  }
+  
+  // Validate phone
+  if (_phoneController.text.trim().isEmpty) {
+    _showSnackbar('Phone number is required');
+    isValid = false;
+  }
+  
+  if (!isValid) return;
+  
+  // Debug: Check propertyCode
+  print('=== PROCEED TO PAYMENT DEBUG ===');
+  print('widget.propertyCode: ${widget.propertyCode}');
+  print('widget.propertyId: ${widget.propertyId}');
+  print('widget.room["propertyCode"]: ${widget.room['propertyCode']}');
+  print('================================');
+  
+  // Ensure we have a valid propertyCode
+  String finalPropertyCode = widget.propertyCode;
+  if (finalPropertyCode.isEmpty) {
+    // Try to get from room data
+    if (widget.room['propertyCode'] != null &&
+        widget.room['propertyCode'].toString().isNotEmpty) {
+      finalPropertyCode = widget.room['propertyCode'].toString();
+      print('Using propertyCode from room: $finalPropertyCode');
+    } else {
+      // Try to get from hotel controller
+      final hotelController = Get.find<HotelController>();
+      final hotel = hotelController.getSelectedHotel();
+      if (hotel != null &&
+          hotel['code'] != null &&
+          hotel['code'].toString().isNotEmpty) {
+        finalPropertyCode = hotel['code'].toString();
+        print('Using propertyCode from hotel controller: $finalPropertyCode');
       } else {
-        // Try to get from hotel controller
-        final hotelController = Get.find<HotelController>();
-        final hotel = hotelController.getSelectedHotel();
-        if (hotel != null &&
-            hotel['code'] != null &&
-            hotel['code'].toString().isNotEmpty) {
-          finalPropertyCode = hotel['code'].toString();
-          print('Using propertyCode from hotel controller: $finalPropertyCode');
-        } else {
-          print('WARNING: No valid propertyCode found!');
-        }
+        print('WARNING: No valid propertyCode found!');
       }
     }
-
-    List<Map<String, dynamic>> guestDetails = [];
-    // Add adults
-    for (var controllers in _adultControllers) {
-      guestDetails.add({
-        'type': 'adult',
-        'firstName': controllers['firstName']?.text ?? '',
-        'lastName': controllers['lastName']?.text ?? '',
-        'dateOfBirth': controllers['dob']?.text ?? '',
-      });
-    }
-    // Add children
-    for (var controllers in _childControllers) {
-      final dob = controllers['dob']?.text ?? '';
-      guestDetails.add({
-        'type': 'child',
-        'firstName': controllers['firstName']?.text ?? '',
-        'lastName': controllers['lastName']?.text ?? '',
-        'dob': dob,
-        'age': dob.isNotEmpty
-            ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365)
-            : 0,
-      });
-    }
-
-    final numberOfNights = _calculateNights();
-
-    final searchController = Get.find<search_ctrl.AppSearchController>();
-    final roomsArray = searchController.searchPayload['guests']['roomsArray'];
-
-    final bookingDetails = {
-      'startDate': widget.startDate,
-      'endDate': widget.endDate,
-      'propertyCode': finalPropertyCode,
-      'hotelName': widget.hotelName,
-      'roomTypeCode':
-          widget.room['invTypeCode'] ??
-          widget.room['roomTypeCode'] ??
-          widget.room['room_type'] ??
-          '',
-      'numberOfRooms': 1,
-      'finalPrice': _priceData, // ← ADDED
-      'currency':
-          widget.ratePlan['currencyCode'] ??
-          _priceData?['currencyCode'] ??
-          'USD',
-      'email': _emailController.text.trim(),
-      'phone': _phoneController.text.trim(),
-      'guests': {
-        'rooms': 1,
-        'adults': widget.adults,
-        'children': widget.children,
-        'roomsArray': roomsArray, // ← ADDED
-      },
-      'guestDetails': guestDetails,
-      'ratePlanCode': widget.ratePlan['ratePlanCode'],
-      'paymentMethod': 'pay_at_hotel',
-      'bookingSource': 'direct',
-      'selectedPromotions': widget.discountApplied ? ['10% Discount'] : [],
-      'selectedAddons': _selectedAddons.map((addon) {
-        final price = (addon['price'] as num?) ?? 0;
-        final quantity = (addon['quantity'] as num?) ?? 1;
-        final dates = addon['dates'] as List? ?? [];
-        return {
-          'addonId': addon['id'] ?? '',
-          'addonName': addon['name'] ?? '',
-          'addonCode': addon['addonCode'] ?? '',
-          'availabilityId': addon['availabilityId'] ?? '',
-          'date': dates.isNotEmpty ? dates[0] : widget.startDate,
-          'price': price,
-          'quantity': quantity,
-          'totalPrice': price * quantity,
-          'type': addon['postingRhythm'] ?? 'per_stay',
-        };
-      }).toList(),
-      'promoCode': null,
-    };
-
-    Get.to(
-      () => PaymentPage(
-        priceData: _priceData!,
-        paymentData: {},
-        bookingDetails: bookingDetails,
-        propertyId: widget.propertyId,
-      ),
-    );
   }
+  
+  List<Map<String, dynamic>> guestDetails = [];
+  // Add adults (including optional non-primary ones)
+  for (var controllers in _adultControllers) {
+    guestDetails.add({
+      'type': 'adult',
+      'firstName': controllers['firstName']?.text ?? '',
+      'lastName': controllers['lastName']?.text ?? '',
+      'dateOfBirth': controllers['dob']?.text ?? '',
+    });
+  }
+  // Add children
+  for (var controllers in _childControllers) {
+    final dob = controllers['dob']?.text ?? '';
+    guestDetails.add({
+      'type': 'child',
+      'firstName': controllers['firstName']?.text ?? '',
+      'lastName': controllers['lastName']?.text ?? '',
+      'dob': dob,
+      'age': dob.isNotEmpty
+          ? (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365)
+          : 0,
+    });
+  }
+  
+  final numberOfNights = _calculateNights();
+  
+  final searchController = Get.find<search_ctrl.AppSearchController>();
+  final roomsArray = searchController.searchPayload['guests']['roomsArray'];
+  
+  final bookingDetails = {
+    'startDate': widget.startDate,
+    'endDate': widget.endDate,
+    'propertyCode': finalPropertyCode,
+    'hotelName': widget.hotelName,
+    'roomTypeCode':
+        widget.room['invTypeCode'] ??
+        widget.room['roomTypeCode'] ??
+        widget.room['room_type'] ??
+        '',
+    'numberOfRooms': 1,
+    'finalPrice': _priceData, // ← ADDED
+    'currency':
+        widget.ratePlan['currencyCode'] ??
+        _priceData?['currencyCode'] ??
+        'USD',
+    'email': _emailController.text.trim(),
+    'phone': _phoneController.text.trim(),
+    'guests': {
+      'rooms': 1,
+      'adults': widget.adults,
+      'children': widget.children,
+      'roomsArray': roomsArray, // ← ADDED
+    },
+    'guestDetails': guestDetails,
+    'ratePlanCode': widget.ratePlan['ratePlanCode'],
+    'paymentMethod': 'pay_at_hotel',
+    'bookingSource': 'direct',
+    'selectedPromotions': widget.discountApplied ? ['10% Discount'] : [],
+    'selectedAddons': _selectedAddons.map((addon) {
+      final price = (addon['price'] as num?) ?? 0;
+      final quantity = (addon['quantity'] as num?) ?? 1;
+      final dates = addon['dates'] as List? ?? [];
+      return {
+        'addonId': addon['id'] ?? '',
+        'addonName': addon['name'] ?? '',
+        'addonCode': addon['addonCode'] ?? '',
+        'availabilityId': addon['availabilityId'] ?? '',
+        'date': dates.isNotEmpty ? dates[0] : widget.startDate,
+        'price': price,
+        'quantity': quantity,
+        'totalPrice': price * quantity,
+        'type': addon['postingRhythm'] ?? 'per_stay',
+      };
+    }).toList(),
+    'promoCode': null,
+  };
+  
+  Get.to(
+    () => PaymentPage(
+      priceData: _priceData!,
+      paymentData: {},
+      bookingDetails: bookingDetails,
+      propertyId: widget.propertyId,
+    ),
+  );
+}
 
   String _formatDateForApi(String date) {
     try {

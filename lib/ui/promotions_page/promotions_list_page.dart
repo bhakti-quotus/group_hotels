@@ -62,7 +62,7 @@ class PromotionListPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "Royal Continental Hotel",
+                  "Horizon Bay Resort",
                   style: TextStyle(
                     color: Colors.grey[700],
                     fontWeight: FontWeight.w400,

@@ -1,22 +1,22 @@
 {
-  "id": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
-  "code": "BQQYBF",
-  "name": "Royal Continental Hotels & Suits",
-  "slug": "royal-continental-hotel                                    ",
+  "id": "d4c7a2d5-ea05-4b65-b8a4-41930980ec3c",
+  "code": "LM8IN8",
+  "name": "Horizon Bay Resort",
+  "slug": "horizon-bay-resort",
   "type": "GROUP",
-  "apkName": "Royal Continental Hotels & Suits",
+  "apkName": "Horizon Bay Resort",
   "parentGroupId": null,
   "createdAt": "2025-12-24T09:24:10.259Z",
   "updatedAt": "2025-12-24T09:24:10.259Z",
   "childHotels": [
     {
-      "id": "199bca6e-548d-4f7e-b5d2-a5c674bd7c3e",
-      "code": "BQQYBF",
-      "name": "Royal Continental Hotel",
-      "slug": "royal-continental-hotel                                    ",
+      "id": "e11eb778-886e-411e-9a36-665174eb19ad",
+      "code": "LM8IN8",
+      "name": "Horizon Bay Resort",
+      "slug": "horizon-bay-resort",
       "type": "STANDALONE",
-      "apkName": "Royal Continental Hotel",
-      "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+      "apkName": "Horizon Bay Resort",
+      "parentGroupId": "d4c7a2d5-ea05-4b65-b8a4-41930980ec3c",
       "createdAt": "2025-12-24T10:28:14.699Z",
       "updatedAt": "2025-12-24T10:48:21.121Z",
       "childHotels": [],
@@ -28,12 +28,12 @@
         "createdAt": "2025-12-24T10:28:22.672Z",
         "updatedAt": "2026-01-08T06:00:26.700Z",
         "branding": {
-          "logo": "http://res.cloudinary.com/dttazo51h/image/upload/v1770792032/SwiftRooms-Images/j35tviz01xqupjojviiy.png",
+          "logo": "https://res.cloudinary.com/dqnnyeem6/image/upload/v1778050146/SwiftRooms-Images/HorizonBay-preview_g5nmn1.png",
           "primaryColor": "#0D5399",
           "secondaryColor": "#d67816",
           "backgroundColor": "#FFFFFF",
           "fontFamily": "Inter",
-          "splashImage": "http://res.cloudinary.com/dttazo51h/image/upload/v1770792032/SwiftRooms-Images/j35tviz01xqupjojviiy.png"
+          "splashImage": "https://res.cloudinary.com/dqnnyeem6/image/upload/v1778050146/SwiftRooms-Images/HorizonBay-preview_g5nmn1.png"
         },
         "navigation": {
           "type": "bottom",
@@ -90,8 +90,8 @@
                   "label": "Book Now",
                   "route": "/rooms"
                 },
-                "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhY44_vOtS2mELTR3igjPvcXJUuMSqJapuDyJ2GXr76VQ6wOPdp5XNnfYXyxj6CSvQsQDjtFLhd5WskoN-ghF8WP1SfjuOlRXUpu70F7apjZj_vTL-hdC_J0YHCuAgZLohNaWcCYwwah5qV/s1600/Royal+Continental+Hotel+Dubai_20170325_059.JPG",
-                "title": "Welcome to Royal Continental Hotels",
+                "image": "https://pix8.agoda.net/hotelImages/109306/-1/0aa5f6211da218918963bcdec80e0cfc.jpg?ca=25&ce=0&s=1024x",
+                "title": "Welcome to Horizon Bay Resort",
                 "subtitle": "Experience Luxury"
               },
               "type": "heroBanner"
@@ -135,8 +135,8 @@
             {
               "data": {
                 "images": [
-                  "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Royal-Continental-4-Star-Luxury-Business-Hotel-in-Dubai.jpg",
-                  "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/WAKE-BAKE-CAFE-2-qv7il4ov1ypzpv4mcv24agp0zp4b4uvbqxc41nlev0jpg",
+                  "https://bookwedgo-prod.s3.amazonaws.com/Mandapam_Images/65ef8512-a84.jpg",
+                  "https://cf.bstatic.com/xdata/images/hotel/max1024x768/770548004.jpg?k=51f369903e1bb4abadfeab56569403d13dcdc4ff6afb1c7ad92fbc688799b5c3&o=",
                   "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-2-qv7j4j2y3va1c4y62qxx92giczi0zyvw2y1vm8twfw.jpg",
                   "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Oasis-Restaurant-restaurant-dubai-deira-2-qv7gp519kss7oeihj0hll9z5oxeq37ue1cnnxaj0hs.jpg"
                 ]
@@ -239,7 +239,7 @@
         },
         "about": {
           "title": "Built on Trust & Comfort",
-          "description": "Royal Continental Hotel Dubai (specifically in Deira City Centre) is a 4-star, modern property near Dubai International Airport and the Metro, known for being a clean, comfortable, and well-located choice for both business and leisure travelers. Key features include spacious rooms, a rooftop pool, a 24-hour halal restaurant, and a spa. ",
+          "description": "Horizon Bay Resort is a 4-star, modern property near Bangalore International Airport and the Metro, known for being a clean, comfortable, and well-located choice for both business and leisure travelers. Key features include spacious rooms, a rooftop pool, a 24-hour halal restaurant, and a spa. ",
           "images": [
             "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/4-Star-Luxury-Business-Hotel-in-Dubai1.jpg",
             "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Royal-Continental6702.jpg",
@@ -257,23 +257,23 @@
         "contact": {
           "email": "lostsanctuary@gmail.com",
           "phone": "+918249611167",
-          "mapUrl": "google.com/maps/place/Royal+Continental+Hotel/@25.2526957,55.3355213,15z/data=!4m2!3m1!1s0x0:0xef84f0bb38bb9db?sa=X&ved=1t:2428&ictx=111",
-          "address": "Book Rooms at Royal Continental Hotel Deira, Dubai",
+          "mapUrl": "google.com/maps/place/Horizon+Bay+Resort/@12.9716,77.5946,15z/data=!4m2!3m1!1s0x0:0x0?sa=X&ved=1t:2428&ictx=111",
+          "address": "Book Rooms at Horizon Bay Resort, Bangalore",
           "latitude": 0,
           "longitude": 0
         },
         "footer": {
           "links": [],
           "social": {
-            "instagram": "https://www.instagram.com/royalcontinentaldubai/?hl=en",
-            "facebook": "https://www.facebook.com/RoyalContinentalHotels/",
-            "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
-            "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
+            "instagram": "https://www.instagram.com/horizonbayresort/?hl=en",
+            "facebook": "https://www.facebook.com/HorizonBayResort/",
+            "linkedin": "https://www.linkedin.com/company/horizonbayresort",
+            "youtube": "https://www.youtube.com/@horizonbayresort/videos"
           },
-          "copyright": "© Copyright Royal Continental Hotel Dubai"
+          "copyright": "© Copyright Horizon Bay Resort, Bangalore"
         },
         "extranet": {
-          "url": "https://bookings.revchilltech.com/api/v1",
+          "url": "https://bookings-revchilltech.trip-swift.ai/api/v1",
           "apiKey": ""
         },
         "facility": [
@@ -281,23 +281,23 @@
             "id": "meeting_room",
             "type": "meeting_room",
             "name": "Meeting Rooms",
-            "heading": "A VENUE FOR ALL KINDS OF MEETINGS AND EVENTS IN DUBAI",
+            "heading": "A VENUE FOR ALL KINDS OF MEETINGS AND EVENTS IN BANGALORE",
             "description": "Meetings, Business Facilities and Services",
             "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/18-1-qrxkokeggw7ylomp4jhhdfjuhj4fcyogfxbnq7qk3k.jpg",
             "learnMoreLabel": "Learn More",
             "icon": "meeting_room",
             "details": {
               "title": "Meeting Room Details",
-              "fullDescription": "From industry conferences to business events, Royal Continental provides a venue for all occasions in Deira. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. Elevate your business meetings with our exquisite meeting room experience. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations.",
+              "fullDescription": "From industry conferences to business events, Horizon Bay Resort provides a venue for all occasions in Bangalore. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. Elevate your business meetings with our exquisite meeting room experience. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations.",
               "wpNumber": "+971 523536563",
               "callNumber": "+971 4 203 5000",
               "locations": [
                 {
                   "id": "location_1",
                   "name": "Al Diwan",
-                  "location": "Located on the Ground Floor Royal Continental Hotel, Deira, Dubai, the Al Diwan Room is a perfect venue for meetings and training sessions",
+                  "location": "Located on the Ground Floor Horizon Bay Resort, Bangalore, the Al Diwan Room is a perfect venue for meetings and training sessions",
                   "sqm": "74 sqm",
-                  "description": "Book Meeting Rooms in Dubai from Royal Continental Hotel Deira – Hotel Near to Airport ensures you remain seamlessly connected through our free building-wide Wi-Fi internet service, complemented by a complete range of business support services. Our Business Centre caters to all your equipment and connectivity needs, while Al Diwan, the cutting-edge conference facility provides the ideal venue for meetings and corporate events which makes the hotel a Luxury Business hotel in Dubai.",
+                  "description": "Book Meeting Rooms in Bangalore from Horizon Bay Resort Bangalore – Hotel Near to Airport ensures you remain seamlessly connected through our free building-wide Wi-Fi internet service, complemented by a complete range of business support services. Our Business Centre caters to all your equipment and connectivity needs, while Al Diwan, the cutting-edge conference facility provides the ideal venue for meetings and corporate events which makes the hotel a Luxury Business hotel in Bangalore.",
                   "wpNumber": "+971 523536563",
                   "callNumber": "+971 4 203 5000",
                   "photos": [
@@ -354,9 +354,9 @@
                 {
                   "id": "location_2",
                   "name": "Executive Lounge",
-                  "location": "Located on the Second Floor of Royal Continental Hotel, Deira, Dubai, the Executive Lounge is a perfect venue for meetings and training sessions",
+                  "location": "Located on the Second Floor of Horizon Bay Resort, Bangalore, the Executive Lounge is a perfect venue for meetings and training sessions",
                   "sqm": "59 sqm",
-                  "description": "Royal Continental Hotel – Hotel Near to Airport ensures you remain seamlessly connected through our free building-wide Wi-Fi internet service, complemented by a complete range of business support services. Our Business Centre caters to all your equipment and connectivity needs, while Executive Lounge provides the ideal venue for meetings and corporate events which makes the hotel a Luxury Business hotel in Dubai.",
+                  "description": "Horizon Bay Resort – Hotel Near to Airport ensures you remain seamlessly connected through our free building-wide Wi-Fi internet service, complemented by a complete range of business support services. Our Business Centre caters to all your equipment and connectivity needs, while Executive Lounge provides the ideal venue for meetings and corporate events which makes the hotel a Luxury Business hotel in Bangalore.",
                   "wpNumber": "+971 4 203 5000",
                   "callNumber": "+971 4 203 5000",
                   "photos": [
@@ -413,9 +413,9 @@
                 {
                   "id": "location_3",
                   "name": "Pool Party Area",
-                  "location": "Take your event to the next level at the exclusive Pool Party Area in Royal Continental Hotel. With a lavish Executive Lounge and stunning pool area, it’s the perfect venue for any party or celebration.",
+                  "location": "Take your event to the next level at the exclusive Pool Party Area in Horizon Bay Resort. With a lavish Executive Lounge and stunning pool area, it’s the perfect venue for any party or celebration.",
                   "sqm": "80",
-                  "description": "Elevate your celebrations at the exclusive Pool Party Area of Royal Continental Hotel, where luxury meets unforgettable experiences. Featuring a stunning poolside ambiance and access to a lavish Executive Lounge, this premium venue is designed to impress. Whether you're hosting a birthday bash, corporate gathering, or a private celebration, the elegant setting, vibrant atmosphere, and top-tier amenities create the perfect backdrop for every occasion. Celebrate in style and make every moment extraordinary.",
+                  "description": "Elevate your celebrations at the exclusive Pool Party Area of Horizon Bay Resort, where luxury meets unforgettable experiences. Featuring a stunning poolside ambiance and access to a lavish Executive Lounge, this premium venue is designed to impress. Whether you're hosting a birthday bash, corporate gathering, or a private celebration, the elegant setting, vibrant atmosphere, and top-tier amenities create the perfect backdrop for every occasion. Celebrate in style and make every moment extraordinary.",
                   "wpNumber": "+971 523536563",
                   "callNumber": "+971 4 203 5000",
                   "photos": [
@@ -439,7 +439,7 @@
             "icon": "restaurant",
             "details": {
               "title": "Oasis Restaurant",
-              "fullDescription": "Royal Continental features dining options to satisfy your culinary needs 24 hours a day, 7 days a week, whether you choose to select from our extensive in-room dining menu, or one of our two outlets. Oasis Restaurant Deira, Dubai, our all-day dining venue, offering sumptuous multi-cuisine buffets for breakfast, lunch and dinner. Royal Continental Hotel reflects and upholds Arab cultural values throughout its facilities, and therefore does not serve any alcoholic beverages or pork items.",
+              "fullDescription": "Horizon Bay Resort features dining options to satisfy your culinary needs 24 hours a day, 7 days a week, whether you choose to select from our extensive in-room dining menu, or one of our two outlets. Oasis Restaurant Bangalore, our all-day dining venue, offering sumptuous multi-cuisine buffets for breakfast, lunch and dinner. Horizon Bay Resort reflects and upholds Arab cultural values throughout its facilities, and therefore does not serve any alcoholic beverages or pork items.",
               "menuPdfUrl": "https://royalcontinentalhotels.com/Oasis-Restaurant-Menu.pdf",
               "wpNumber": "",
               "callNumber": "",
@@ -479,7 +479,7 @@
             "icon": "pool",
             "details": {
               "title": "Swimming Pool",
-              "fullDescription": "The Swimming Pool at Royal Continental Hotel is the perfect oasis for those seeking a tranquil escape after a hectic day. Nestled on the pool deck level, this serene spot boasts stunning views and a laid-back atmosphere that instantly puts you at ease. As you kick off your shoes and dip your toes into the refreshing water, you can unwind to the soothing sounds of chilled lounge music playing in the background. Sip on delicious mocktails or smoothies as you bask in the warm sun, indulging in fresh fruit and snacks to keep you energized. And when hunger strikes, tantalize your taste buds with mouth-watering food options that are sure to satisfy any craving. The Swimming Pool at Royal Continental Hotel provides a luxurious haven where you can truly unwind and recharge amidst luxury surroundings.",
+              "fullDescription": "The Swimming Pool at Horizon Bay Resort is the perfect oasis for those seeking a tranquil escape after a hectic day. Nestled on the pool deck level, this serene spot boasts stunning views and a laid-back atmosphere that instantly puts you at ease. As you kick off your shoes and dip your toes into the refreshing water, you can unwind to the soothing sounds of chilled lounge music playing in the background. Sip on delicious mocktails or smoothies as you bask in the warm sun, indulging in fresh fruit and snacks to keep you energized. And when hunger strikes, tantalize your taste buds with mouth-watering food options that are sure to satisfy any craving. The Swimming Pool at Horizon Bay Resort provides a luxurious haven where you can truly unwind and recharge amidst luxury surroundings.",
               "photos": [
                 "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Royal-Continental-swimming-pool1-qv7id7vuksumkfod95fmk1u97g6yq2irrrn2zczs9k.jpg",
                 "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Royal-Continental-swimming-pool-1-qv7i91hmdiyds46d70gskjfyspow5t3qc54jzgqfe8.jpg"
@@ -497,7 +497,7 @@
             "icon": "local_cafe",
             "details": {
               "title": "Wake & Bake Cafe",
-              "fullDescription": "Step into the inviting atmosphere of Wake & Bake Café at Royal Continental Hotel, where the rich aroma of freshly brewed coffee fills the air and entices customers to start their day on a flavorful note. As you enter the café, you are greeted by friendly baristas who expertly craft your favorite espresso-based beverages with precision and care. The cozy seating area offers a relaxing space to enjoy your drink while soaking in the vibrant energy of this bustling coffee shop.",
+              "fullDescription": "Step into the inviting atmosphere of Wake & Bake Café at Horizon Bay Resort, where the rich aroma of freshly brewed coffee fills the air and entices customers to start their day on a flavorful note. As you enter the café, you are greeted by friendly baristas who expertly craft your favorite espresso-based beverages with precision and care. The cozy seating area offers a relaxing space to enjoy your drink while soaking in the vibrant energy of this bustling coffee shop.",
               "menuPdfUrl": "https://royalcontinentalhotels.com/wake-bake-cafe-menu.pdf",
               "wpNumber": "",
               "callNumber": "",
@@ -519,7 +519,7 @@
             "icon": "fitness_center",
             "details": {
               "title": "Fitness Center",
-              "fullDescription": "The Gym at Royal Continental Hotel offers guests the perfect opportunity to stay active and fit while away from home. Equipped with modern technology and a variety of exercise equipment, this gym is designed to help you achieve clear and effective results. Whether you prefer cardio workouts, strength training with free weights, running on machines, or using resistance equipment, there is something for everyone here. With top-of-the-line facilities and dedicated staff members ready to assist you in reaching your fitness goals, staying healthy during your stay has never been easier at the Gym at Royal Continental Hotel.",
+              "fullDescription": "The Gym at Horizon Bay Resort offers guests the perfect opportunity to stay active and fit while away from home. Equipped with modern technology and a variety of exercise equipment, this gym is designed to help you achieve clear and effective results. Whether you prefer cardio workouts, strength training with free weights, running on machines, or using resistance equipment, there is something for everyone here. With top-of-the-line facilities and dedicated staff members ready to assist you in reaching your fitness goals, staying healthy during your stay has never been easier at the Gym at Horizon Bay Resort.",
               "menuPdfUrl": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/Orchid-Brochure.pdf",
               "photos": [
                 "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-2-qv7j4j315i8jwk07ryfe05qekhkwdgy06y0yyshzh4.jpg",
@@ -538,7 +538,7 @@
             "icon": "spa",
             "details": {
               "title": "Orchid Spa",
-              "fullDescription": "Orchid Spa & Beauty Salon is your exclusive beauty destination for all your Hair, Nail, Face & body treatments. Set in Royal Continental Hotel Dubai, we welcome you into a calming atmosphere where you can unwind, de-stress & get a fabulous makeover! At Orchid Spa, with six indulgent spa treatment rooms, a sauna and a Moroccan hammam, complete relaxation is only ever a few floors away.",
+              "fullDescription": "Orchid Spa & Beauty Salon is your exclusive beauty destination for all your Hair, Nail, Face & body treatments. Set in Horizon Bay Resort, we welcome you into a calming atmosphere where you can unwind, de-stress & get a fabulous makeover! At Orchid Spa, with six indulgent spa treatment rooms, a sauna and a Moroccan hammam, complete relaxation is only ever a few floors away.",
               "wpNumber": "+971 4 203 5001",
               "callNumber": "+971 4 203 5001",
               "rate-cardPdfUrl": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/Orchid-Brochure.pdf",
@@ -610,7 +610,7 @@
             "buttonRoute": "",
             "details": {
               "title": "Stay with Us & Savor for Less!",
-              "fullDescription": "Book your room at Royal Continental Hotel and enjoy 10% off on all Food & Beverages throughout your stay."
+              "fullDescription": "Book your room at Horizon Bay Resort and enjoy 10% off on all Food & Beverages throughout your stay."
             }
           },
           {
@@ -622,7 +622,7 @@
             "buttonRoute": "/rooms",
             "details": {
               "title": "Unwind with Our Shisha Combo Offer",
-              "fullDescription": "Sip, Puff, Repeat – An Indulgent Experience Awaits. Enjoy your favorite shisha flavor paired with a refreshing juice, smoothie, or hot beverage. A perfect blend of comfort and relaxation — exclusively at Royal Continental Hotel, Deira for AED 59"
+              "fullDescription": "Sip, Puff, Repeat – An Indulgent Experience Awaits. Enjoy your favorite shisha flavor paired with a refreshing juice, smoothie, or hot beverage. A perfect blend of comfort and relaxation — exclusively at Horizon Bay Resort, Bangalore for AED 59"
             }
           },
           {
@@ -646,20 +646,20 @@
             "buttonRoute": "",
             "details": {
               "title": "Conference Meeting Package",
-              "fullDescription": "Royal Continental Hotel is the perfect address to stage business meetings & corporate events, pairing state-of-the-art audiovisual facilities with impeccable service and powerful connectivity."
+              "fullDescription": "Horizon Bay Resort is the perfect address to stage business meetings & corporate events, pairing state-of-the-art audiovisual facilities with impeccable service and powerful connectivity."
             }
           }
         ]
       }
     },
     {
-      "id": "f0795175-a1ad-495e-811a-d68661669594",
-      "code": "SGI1EW",
-      "name": "Royal Continental Hotel Suites",
-      "slug": "royal-continental-suites",
+      "id": "e2f7013d-384e-4372-95e0-bbad30519018",
+      "code": "OC0YIV",
+      "name": "Horizon City Business Hotel Bangalore",
+      "slug": "horizon-city-business-hotel-bangalore",
       "type": "STANDALONE",
-      "apkName": "Royal Continental Suites",
-      "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+      "apkName": "Horizon Bay Resort",
+      "parentGroupId": "d4c7a2d5-ea05-4b65-b8a4-41930980ec3c",
       "createdAt": "2025-12-24T10:28:14.699Z",
       "updatedAt": "2025-12-24T10:48:21.121Z",
       "childHotels": [],
@@ -671,12 +671,12 @@
         "createdAt": "2025-12-24T10:28:22.672Z",
         "updatedAt": "2026-01-08T06:00:26.700Z",
         "branding": {
-          "logo": "http://res.cloudinary.com/dttazo51h/image/upload/v1770808172/SwiftRooms-Images/e4smfwvxsxgsxyslnhna.png",
-          "primaryColor": "#0D5399",
+          "logo": "https://res.cloudinary.com/dqnnyeem6/image/upload/v1778050317/SwiftRooms-Images/HorizonCity-preview_tse84p.png",
+          "primaryColor": "#3F51B5",
           "secondaryColor": "#d67816",
           "backgroundColor": "#FFFFFF",
           "fontFamily": "Inter",
-          "splashImage": "http://res.cloudinary.com/dttazo51h/image/upload/v1770808172/SwiftRooms-Images/e4smfwvxsxgsxyslnhna.png"
+          "splashImage": "https://res.cloudinary.com/dqnnyeem6/image/upload/v1778050317/SwiftRooms-Images/HorizonCity-preview_tse84p.png"
         },
         "navigation": {
           "type": "bottom",
@@ -729,7 +729,7 @@
           {
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7583-qv7zfsoyh8q6nhj9i5vfg5ps5os9z2swu18uxa72cg.jpg",
             "title": "Babati Restaurant And Café",
-            "description": "Experience the vibrant flavors of Lebanon at Babati Restaurant And Café, located in the heart of Business Bay. Let us take you on a culinary journey with our innovative and authentic Lebanese cuisine, all while enjoying stunning views of the Dubai Water Canal."
+            "description": "Experience the vibrant flavors of Lebanon at Babati Restaurant And Café, located in the heart of Business Bay. Let us take you on a culinary journey with our innovative and authentic Lebanese cuisine, all while enjoying stunning views of the Bangalore Water Canal."
           },
           {
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Rukn-Raihan-Gents-Spa-qvlb34cwrce4b9s7gk4ejb5dq2ccqhvrvcq59lrgkg.jpg",
@@ -744,7 +744,7 @@
           {
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Bay-Mini-Mart-qv8zkznx9vyoiph8g406lb1zytd8f7g9ecfe5qwiw0.jpg",
             "title": "Royal Bay Mini Mart",
-            "description": "Experience convenience and quality at ROYAL BAY MINI MART, your 24/7 go-to store for essential cupboard items and fresh produce. Located at Royal Continental Suites Hotel Apartments."
+            "description": "Experience convenience and quality at ROYAL BAY MINI MART, your 24/7 go-to store for essential cupboard items and fresh produce. Located at Horizon City Business Hotel Apartments."
           },
           {
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Monarch-Laundry-qvlb5vzsvs6ihxrhar6uvm08owp9eevbl1vm4xnq8w.jpg",
@@ -754,7 +754,7 @@
           {
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Limousine-Service-1-qrxkon7wloptfbik63m3sjhhfbev4rluhr43tblzfk.jpg",
             "title": "Limousine Service",
-            "description": "Arrive in style with our luxurious LIMOUSINE SERVICE at Royal Continental Suites Hotel Apartments. From private airport transfers to chauffeured services, we’ve got you covered for a seamless and comfortable ride."
+            "description": "Arrive in style with our luxurious LIMOUSINE SERVICE at Horizon City Business Hotel Apartments. From private airport transfers to chauffeured services, we’ve got you covered for a seamless and comfortable ride."
           }
         ],
         "home": {
@@ -765,8 +765,8 @@
                   "label": "Book Now",
                   "route": "/rooms"
                 },
-                "image": "https://img.easemytrip.com/EMTHOTEL-1838502/23/na/l/15917985_18.jpg",
-                "title": "Royal Continental Hotel Suites",
+                "image": "https://r1imghtlak.mmtcdn.com/59e566f7-7f71-491a-8579-546448528419.jpeg?&output-quality=75&downsize=375:218&crop=375:218;0,16&output-format=jpg",
+                "title": "Welcome to Horizon City Business Hotel Bangalore",
                 "subtitle": "Experience Luxury"
               },
               "type": "heroBanner"
@@ -810,8 +810,8 @@
             {
               "data": {
                 "images": [
-                  "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Cover-ImageRCS.jpg",
-                  "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-qv7udf2afh4ltltct4k7a3v4cni8ktojtadlvcpvsw.jpg",
+                  "https://static.wixstatic.com/media/11ee0c_82b4d3f1521945f9991f22bf517b286f~mv2.png/v1/fill/w_844,h_488,al_c,q_90,enc_avif,quality_auto/Blue%20Horizon-resort-shivapur-topview.png",
+                  "https://media-cdn.tripadvisor.com/media/photo-s/02/e6/1b/74/palm-meadows-club.jpg",
                   "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-Apartment-with-Dubai-Canal-view-.jpg",
                   "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/swimming-pool-1-qrxkom9zz5606goir6u2jkgxxwby90mcosq5l16meg.jpg"
                 ]
@@ -919,8 +919,8 @@
           ]
         },
         "about": {
-          "title": "Family Hotel Apartments with Dubai Canal view",
-          "description": "Royal Continental Suites, Dubai, is an ideal starting point from which to discover the city’s dynamic energy, where modern architecture stands side-by-side with traditional souk markets. Strategically located on Business Bay, Marasi Drive Downtown, and minutes away from Dubai Mall and City Walk, the hotel apartment offers spacious rooms with stunning views of the Burj Khalifa and Business Bay Canal. Levantine cuisine dining options and a pool offering unobstructed views of the Burj Khalifa complete the experience. Royal Continental Suites in Dubai offers the perfect blend of comfort and convenience as a family hotel apartment in Business Bay, ideal for both leisure and business stays.\n\nRoyal Continental Suites provides the discerning traveler with impeccable accommodation and service in relaxed contemporary surroundings, perfectly suited to both a short city break or an extended vacation. We pride ourselves on offering a unique and technologically-advanced experience through our innovative in-room hospitality facilities.",
+          "title": "Family Hotel Apartments with Bangalore Canal view",
+          "description": "Horizon City Business Hotel Bangalore, is an ideal starting point from which to discover the city’s dynamic energy, where modern architecture stands side-by-side with traditional souk markets. Strategically located on Business Bay, Marasi Drive Downtown, and minutes away from Bangalore Mall and City Walk, the hotel apartment offers spacious rooms with stunning views of Business Bay Canal. Levantine cuisine dining options and a pool offering unobstructed views of the complete the experience. Horizon City Business Hotel in Bangalore offers the perfect blend of comfort and convenience as a family hotel apartment in Business Bay, ideal for both leisure and business stays.\n\nHorizon City Business Hotel provides the discerning traveler with impeccable accommodation and service in relaxed contemporary surroundings, perfectly suited to both a short city break or an extended vacation. We pride ourselves on offering a unique and technologically-advanced experience through our innovative in-room hospitality facilities.",
           "images": [
             "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental8713-qv7w0wakgcyx9b3mo0dztxufhpx4btdnk3bcsvkm0g.jpg",
             "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7266-qv7w10zrej5cvcwswkf4oenqgn9yeawb8qks79dn5c.jpg",
@@ -940,7 +940,7 @@
           "email": "lostsanctuary@gmail.com",
           "phone": "+918249611167",
           "mapUrl": "https://www.google.com/maps/place/Royal+Continental+Suites/@25.1829866,55.2834542,15z/data=!4m2!3m1!1s0x0:0xe2701bd9c8898a5a?sa=X&ved=1t:2428&ictx=111",
-          "address": "Book Apartments at Royal Continental Hotel Suites in Business Bay, Dubai",
+          "address": "Book Apartments at  Horizon Bay Resort, Bangalore",
           "latitude": 0,
           "longitude": 0
         },
@@ -952,10 +952,10 @@
             "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
             "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
           },
-          "copyright": "© Copyright Royal Continental Suites Dubai"
+          "copyright": "© Copyright Horizon City Business Hotel Bangalore"
         },
         "extranet": {
-          "url": "https://bookings.revchilltech.com/api/v1",
+          "url": "https://bookings-revchilltech.trip-swift.ai/api/v1",
           "apiKey": ""
         },
         "facility": [
@@ -963,23 +963,23 @@
             "id": "meeting_room",
             "type": "meeting_room",
             "name": "Meeting Rooms",
-            "heading": "A VENUE FOR ALL KINDS OF MEETINGS AND EVENTS IN THE HEART OF DUBAI",
+            "heading": "A VENUE FOR ALL KINDS OF MEETINGS AND EVENTS IN THE HEART OF BUSINESS BAY",
             "description": "",
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/AL-MARASI-meeting-room-in-Dubai1.jpg",
             "learnMoreLabel": "Learn More",
             "icon": "meeting_room",
             "details": {
               "title": "",
-              "fullDescription": "From industry conferences to business events, Royal Continental Suites provides a venue for all occasions. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our state-of-the-art meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. We will help your clients have an experience they won’t forget ever, without having to worry about making any arrangements. We offer two meeting rooms each with an impressive capacity of 24 which are very well designed and spacious state of the art meeting rooms where the interiors are refurbished and very finely furnished. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations.",
+              "fullDescription": "From industry conferences to business events, Horizon City Business Hotel Bangalore provides a venue for all occasions. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our state-of-the-art meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. We will help your clients have an experience they won’t forget ever, without having to worry about making any arrangements. We offer two meeting rooms each with an impressive capacity of 24 which are very well designed and spacious state of the art meeting rooms where the interiors are refurbished and very finely furnished. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations.",
               "wpNumber": "+971 523536563",
               "callNumber": "+971 4 203 5000",
               "locations": [
                 {
                   "id": "location_1",
                   "name": "AL MARASI",
-                  "location": "Royal Continental Suites, the Al Marasi Room is a perfect venue for meetings and training sessions for up to 24 delegates.",
+                  "location": "Horizon City Business Hotel Bangalore, the Al Marasi Room is a perfect venue for meetings and training sessions for up to 24 delegates.",
                   "sqm": "38 sqm",
-                  "description": "From industry conferences to business events, Royal Continental Suites provides a venue for all occasions. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our state-of-the-art meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. We will help your clients have an experience they won’t forget ever, without having to worry about making any arrangements. We offer two meeting rooms each with an impressive capacity of 24 which are very well designed and spacious state of the art meeting rooms where the interiors are refurbished and very finely furnished. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations",
+                  "description": "From industry conferences to business events, Horizon City Business Hotel Bangalore provides a venue for all occasions. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our state-of-the-art meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. We will help your clients have an experience they won’t forget ever, without having to worry about making any arrangements. We offer two meeting rooms each with an impressive capacity of 24 which are very well designed and spacious state of the art meeting rooms where the interiors are refurbished and very finely furnished. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations",
                   "wpNumber": "+971 523536563",
                   "callNumber": "+971 4 203 5000",
                   "photos": [
@@ -1035,15 +1035,15 @@
           {
             "id": "lounge",
             "type": "lounge",
-            "name": "Royal Continental Suites Lounge",
-            "heading": "Royal Continental Suites Lounge",
+            "name": "Horizon City Business Hotel",
+            "heading": "Horizon City Business Hotel",
             "description": "",
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental7347.jpg",
             "learnMoreLabel": "Learn More",
             "icon": "pool",
             "details": {
               "title": "",
-              "fullDescription": "The Royal Continental Suites hotel’s lobby lounge is a haven of comfort and luxury for guests seeking a relaxing retreat. The elegant interiors feature plush furnishings in rich hues, complemented by tasteful decor and artwork that exude sophistication.",
+              "fullDescription": "The Horizon City Business Hotel’s lobby lounge is a haven of comfort and luxury for guests seeking a relaxing retreat. The elegant interiors feature plush furnishings in rich hues, complemented by tasteful decor and artwork that exude sophistication.",
               "photos": [
                 "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental-Suites-Lounge-4.jpg",
                 "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental-Suites-Lounge-1.jpg",
@@ -1061,8 +1061,8 @@
             "learnMoreLabel": "Learn More",
             "icon": "pool",
             "details": {
-              "title": "Rooms with Dubai Canal View",
-              "fullDescription": "Experience the ultimate luxury living at Royal Continental Suites, where you can have an amazing Canal View with Burj Khalifa as your backdrop. Imagine waking up to the stunning sight of the iconic Dubai skyline right outside your window. Royal Continental Suites offers a stunning choice for travelers seeking a hotel apartment with a canal view. This property features elegantly designed accommodations that overlook the picturesque canal, providing guests with a serene and scenic backdrop. Each hotel apartment with a canal view at Royal Continental Suites is thoughtfully appointed to ensure maximum comfort and luxury, allowing guests to enjoy both the beauty of the water and the convenience of modern amenities. Whether you’re staying for business or leisure, the breathtaking canal views enhance the experience, making Royal Continental Suites a standout choice for those seeking a memorable stay.",
+              "title": "Rooms with Bangalore Canal View",
+              "fullDescription": "Experience the ultimate luxury living at Horizon City Business Hotel Bangalore, where you can have an amazing Canal View with the iconic Bangalore skyline as your backdrop. Imagine waking up to the stunning sight of the skyline right outside your window. Horizon City Business Hotel offers a stunning choice for travelers seeking a hotel apartment with a canal view. This property features elegantly designed accommodations that overlook the picturesque canal, providing guests with a serene and scenic backdrop. Each hotel apartment with a canal view at Horizon City Business Hotel is thoughtfully appointed to ensure maximum comfort and luxury, allowing guests to enjoy both the beauty of the water and the convenience of modern amenities. Whether you’re staying for business or leisure, the breathtaking canal views enhance the experience, making Horizon City Business Hotel a standout choice for those seeking a memorable stay.",
               "photos": [
                 "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-apartment-with-canal-view-dubai.jpg",
                 "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-apartment-with-dubai-canal-view1.jpg",
@@ -1081,7 +1081,7 @@
             "icon": "pool",
             "details": {
               "title": "",
-              "fullDescription": "At Royal Continental Suites, guests can enjoy access to the luxurious Royal GYM services. This state-of-the-art fitness center offers top-of-the-line equipment and amenities for those looking to stay active during their stay. From cardio machines to free weights, there is something for every type of workout enthusiast.",
+              "fullDescription": "At Horizon City Business Hotel Bangalore, guests can enjoy access to the luxurious Royal GYM services. This state-of-the-art fitness center offers top-of-the-line equipment and amenities for those looking to stay active during their stay. From cardio machines to free weights, there is something for every type of workout enthusiast.",
               "photos": [
                 "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-GYM-2-1024x683.jpg",
                 "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-GYM-3-1024x683.jpg",
@@ -1100,7 +1100,7 @@
             "icon": "pool",
             "details": {
               "title": "",
-              "fullDescription": "At Babati, our mission is to bring a unique interpretation of Lebanese cuisine to Dubai. Located in Business Bay with mesmerizing views of the Dubai Water Canal, our restaurant in Dubai is a dining destination that offers a taste of true Levantine cuisine with its characteristic blend of fresh herbs and flavorful spices. Lebanese cuisine has always found its unique place in the broader umbrella of Levantine cuisine. Our chefs have made it their mission to bring out the charm of Lebanese cuisine using modern techniques and high-quality ingredients. Acquaint your tastebuds with a plethora of flavours and textures that you have never enjoyed before!",
+              "fullDescription": "At Babati, our mission is to bring a unique interpretation of Lebanese cuisine to Bangalore. Located in Business Bay with mesmerizing views of the Bangalore Water Canal, our restaurant in Banglore is a dining destination that offers a taste of true Levantine cuisine with its characteristic blend of fresh herbs and flavorful spices. Lebanese cuisine has always found its unique place in the broader umbrella of Levantine cuisine. Our chefs have made it their mission to bring out the charm of Lebanese cuisine using modern techniques and high-quality ingredients. Acquaint your tastebuds with a plethora of flavours and textures that you have never enjoyed before!",
               "photos": [
                 "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Babati-Restaurant-and-Shisha-Lounge--qv8zr4jyo3l75nqxjfassaaywvd2a7knaen5tbura8.jpg",
                 "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7594-qv8zr0slwrg1v7we5doaib94jbvlff5pxw17w80bz4.jpg",
@@ -1114,7 +1114,7 @@
             "type": "jaccuzi",
             "name": "Jacuzzi",
             "heading": "",
-            "description": "Come relax in our luxurious jacuzzi at Royal Continental Suites. Let the warm bubbles take you on you stay.",
+            "description": "Come relax in our luxurious jacuzzi at Horizon City Business Hotel. Let the warm bubbles take you on you stay.",
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-Jacuzzi-qv8a5t2uo7mewn7itgb51gqpnyc75eqb881colqpoc.jpg",
             "learnMoreLabel": "",
             "icon": "pool",
@@ -1125,7 +1125,7 @@
             "type": "sauna",
             "name": "Sauna",
             "heading": "",
-            "description": "Pamper yourself like royality and leave feeling refreshed and rejuvenated at our Sauna in Royal Continental Suites.",
+            "description": "Pamper yourself like royality and leave feeling refreshed and rejuvenated at our Sauna in Horizon City Business Hotel.",
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental8784-qv7w9xiq51bum3b2qvmoj3uwu460o596u2afu4wwos.jpg",
             "learnMoreLabel": "",
             "icon": "pool",
@@ -1136,7 +1136,7 @@
             "type": "steam_room",
             "name": "Steam Room",
             "heading": "",
-            "description": "Get ready to steam, sweat, and relax like royalty at our luxurious steam room in Royal Continental Suites Dubai.",
+            "description": "Get ready to steam, sweat, and relax like royalty at our luxurious steam room in Horizon City Business Hotel Bangalore.",
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Steam-Room-qv8aa5426pk0fwwvibr7jdd89wz4n5xr5obycjbczg.jpg",
             "learnMoreLabel": "",
             "icon": "cloud",
@@ -1147,7 +1147,7 @@
             "type": "ev_charger",
             "name": "Electric Vehicle Charger",
             "heading": "",
-            "description": "Charge up and stay powered with our convenient electric vehicle charging facilities at Royal Continental Suites.",
+            "description": "Charge up and stay powered with our convenient electric vehicle charging facilities at Horizon City Business Hotel.",
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/abandoned-electric-vehicle-charging-station-elect-2023-11-27-05-15-25-utc-qrxkon7u5z5inwjdock83hmrqhft355lbnfljh6iew.jpg",
             "learnMoreLabel": "",
             "icon": "bolt",
@@ -1158,7 +1158,7 @@
             "type": "limousine_service",
             "name": "Limousine Service",
             "heading": "",
-            "description": "Arrive in style with our exclusive limousine service, offering comfort, luxury, and convenience at Royal Continental Suites.",
+            "description": "Arrive in style with our exclusive limousine service, offering comfort, luxury, and convenience at Horizon City Business Hotel.",
             "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Limousine-Service-qrxkon7u5z5inwjdock83hmrqhft355lbnfljh6iew.jpg",
             "learnMoreLabel": "",
             "icon": "directions_car",
@@ -1211,7 +1211,7 @@
             "buttonRoute": "",
             "details": {
               "title": "Lili's House Beauty Salon",
-              "fullDescription": "Look good, feel good. Get 20% discount on all services at Lili’s House Beauty Salon located at Royal Continental Suites by presenting a screenshot or soft copy of this page. "
+              "fullDescription": "Look good, feel good. Get 20% discount on all services at Lili’s House Beauty Salon located at Horizon City Business Hotel by presenting a screenshot or soft copy of this page. "
             }
           },
           {
@@ -1223,7 +1223,7 @@
             "buttonRoute": "",
             "details": {
               "title": "Babati Restaurant",
-              "fullDescription": "Savor exquisite flavors at Babati Restaurant, nestled within Royal Continental Suites in Business Bay. Indulge in culinary delights that transcend taste, ambiance, and hospitality. Discover a gastronomic journey unlike any other."
+              "fullDescription": "Savor exquisite flavors at Babati Restaurant, nestled within Horizon City Business Hotel in Business Bay. Indulge in culinary delights that transcend taste, ambiance, and hospitality. Discover a gastronomic journey unlike any other."
             }
           }
         ]
@@ -1232,44 +1232,44 @@
   ],
   "config": {
     "id": "d8448efb-0cfe-4b8a-be9f-47575c313998",
-    "hotelId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+    "hotelId": "d4c7a2d5-ea05-4b65-b8a4-41930980ec3c",
     "version": "1.0.0     ",
     "status": "DRAFT",
     "createdAt": "2025-12-24T09:24:23.203Z",
     "updatedAt": "2026-01-09T08:55:01.332Z",
     "childHotels": [
       {
-        "id": "199bca6e-548d-4f7e-b5d2-a5c674bd7c3e",
-        "code": "BQQYBF",
-        "name": "Royal Continental Hotel",
-        "slug": "royal-continental-hotel",
+        "id": "e11eb778-886e-411e-9a36-665174eb19ad",
+        "code": "LM8IN8",
+        "name": "Horizon Bay Resort",
+        "slug": "horizon-bay-resort",
         "type": "STANDALONE",
-        "apkName": "Royal Continental Hotel",
-        "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+        "apkName": "Horizon Bay Resort",
+        "parentGroupId": "d4c7a2d5-ea05-4b65-b8a4-41930980ec3c",
         "createdAt": "2025-12-24T10:28:14.699Z",
         "updatedAt": "2025-12-24T10:48:21.121Z",
         "childHotels": []
       },
       {
-        "id": "f0795175-a1ad-495e-811a-d68661669594",
-        "code": "SGI1EW",
-        "name": "Royal Continental Hotel Suites",
-        "slug": "royal-continental-suites",
+        "id": "e2f7013d-384e-4372-95e0-bbad30519018",
+        "code": "OC0YIV",
+        "name": "Horizon City Business Hotel",
+        "slug": "horizon-city-business-hotel",
         "type": "STANDALONE",
-        "apkName": "Royal Continental Suites",
-        "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+        "apkName": "Horizon City Business Hotel",
+        "parentGroupId": "d4c7a2d5-ea05-4b65-b8a4-41930980ec3c",
         "createdAt": "2025-12-24T10:28:14.699Z",
         "updatedAt": "2025-12-24T10:48:21.121Z",
         "childHotels": []
       }
     ],
     "branding": {
-      "logo": "https://royalcontinentalhotels.com/wp-content/uploads/2024/07/RCHS_3-W-550x237.png",
+      "logo": "https://res.cloudinary.com/dqnnyeem6/image/upload/v1778050146/SwiftRooms-Images/HorizonBay-preview_g5nmn1.png",
       "primaryColor": "#000000",
-      "secondaryColor": "#ad9064",
+      "secondaryColor": "#C47D0D",
       "backgroundColor": "#FFFFFF",
       "fontFamily": "Inter",
-      "splashImage": "https://royalcontinentalhotels.com/wp-content/uploads/2024/07/RCHS_3-W-550x237.png"
+      "splashImage": "https://res.cloudinary.com/dqnnyeem6/image/upload/v1778050146/SwiftRooms-Images/HorizonBay-preview_g5nmn1.png"
     },
     "navigation": {
       "type": "bottom",
@@ -1319,9 +1319,9 @@
               "label": "Book Now",
               "route": "/hotels"
             },
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Cover-ImageRCS-1-copy.jpg",
-            "title": "Welcome to Royal Continental Hotels & Suits",
-            "subtitle": "STAY IN THE HEART OF DUBAI"
+            "image": "https://res.klook.com/klook-hotel/image/upload/fl_lossy.progressive,w_1200,h_800,c_fill,q_85/trip/220h0r000000gwepaE111_R_550_412_R5.jpg",
+            "title": "Welcome to Horizon Bay Resort",
+            "subtitle": "STAY IN THE HEART OF BANGLAORE"
           },
           "type": "heroBanner"
         },
@@ -1347,10 +1347,10 @@
         {
           "data": {
             "images": [
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-qv7udf2afh4ltltct4k7a3v4cni8ktojtadlvcpvsw.jpg",
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/rch-hotel-1-qrxkoma16zydc2rc8z258e7pbz4ocv74nrusaha1qw.jpg",
+              "https://pix10.agoda.net/geo/poi/32881/2_32881.jpg?ca=6&ce=1&s=414x232",
+              "https://pix10.agoda.net/hotelImages/234476/-1/770a2ad5c007bf4fe37389a4408a149f.jpg?ca=9&ce=1&s=414x232",
               "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Gym-qrxkom9zz5606goir6u2jkgxxwby90mcosq5l16meg.jpg",
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/01/happy-family-walking-in-dubai-with-burj-khalifa-sk-2023-11-27-04-52-19-utc.jpg"
+              "https://pix10.agoda.net/geo/poi/1443155/2_1443155.jpg?ca=6&ce=1&s=414x232&ar=16x9"
             ]
           },
           "type": "galleryPreview"
@@ -1404,8 +1404,8 @@
       ]
     },
     "about": {
-      "title": "About Royal Continental, Dubai",
-      "description": "Set in two ideal locations, Royal Continental Hotel Deira City Center, a Dubai Airport Hotel, and Royal Continental Suites Business Bay at the strand of Dubai Canal and near Dubai Downtown, both offer business travelers and holidaymakers a stylish and welcoming haven. With a variety of rooms and suites to meet all requirements and tastes, as well as a host of business and leisure facilities, dining outlets, and amenities, Royal Continental Hotel and Suites provide the discerning traveler with impeccable accommodation and service in relaxed contemporary surroundings. Suited to both short city breaks or an extended vacation, we pride ourselves on offering a unique and technologically advanced experience through our innovative in-room hospitality facilities and tastefully appointed units. Whether you need a hotel room or a fully furnished apartment, we have it for you. Experience uncompromising yet affordable luxury and comfort at Royal Continental Hotel, the Best Luxury Business Hotel near airport, and at Royal Continental Suites, a modern and classy Deluxe Hotel Apartment right in the heart of Dubai’s business and entertainment areas.",
+      "title": "About Horizon Bay Resort, Banglore",
+      "description": "Set in two ideal locations, Horizon Bay Resort City Center, a bangalore Airport Hotel, and Horizon City Business Hotel at the strand of Bangalore Canal and near Bangalore Downtown, both offer business travelers and holidaymakers a stylish and welcoming haven. With a variety of rooms and suites to meet all requirements and tastes, as well as a host of business and leisure facilities, dining outlets, and amenities, Horizon Bay Resort and Suites provide the discerning traveler with impeccable accommodation and service in relaxed contemporary surroundings. Suited to both short city breaks or an extended vacation, we pride ourselves on offering a unique and technologically advanced experience through our innovative in-room hospitality facilities and tastefully appointed units. Whether you need a hotel room or a fully furnished apartment, we have it for you. Experience uncompromising yet affordable luxury and comfort at Horizon Bay Resort, the Best Luxury Business Hotel near airport, and at Horizon Bay Resort, a modern and classy Deluxe Hotel Apartment right in the heart of Bangalore’s business and entertainment areas.",
       "images": [
         "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental9194-qv7w0qnjbcr7bnbtkxy8ez9nxeox1mr9jbefx7sz1s.jpg",
         "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-qv7udf2afh4ltltct4k7a3v4cni8ktojtadlvcpvsw.jpg",
@@ -1421,10 +1421,10 @@
       "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
     },
     "contact": {
-      "email": "info@royalcontinentalhotels.com",
+      "email": "info@horizonbayresort.com",
       "phone": "+971 4 203 5000",
       "mapUrl": "https://www.google.com/maps/place/Royal+Continental+Hotel/@25.2526957,55.3355213,15z/data=!4m2!3m1!1s0x0:0xef84f0bb38bb9db?sa=X&ved=1t:2428&ictx=111",
-      "address": "P.O. Box 182166, Deira, Dubai, UAE",
+      "address": "P.O. Box 182166, Bangalore",
       "latitude": 0,
       "longitude": 0
     },
@@ -1435,7 +1435,7 @@
         "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
         "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
       },
-      "copyright": "© Copyright Royal Continental Hotel Dubai"
+      "copyright": "© Copyright Horizon Bay Resort, Bangalore"
     },
     "promotion": [
       {

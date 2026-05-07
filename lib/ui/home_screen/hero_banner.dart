@@ -197,8 +197,8 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                 // Logo with frosted pill
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 7,
+                    horizontal: 1,
+                    vertical: 2,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.45),
@@ -211,7 +211,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                   child: widget.logoUrl.isNotEmpty
                       ? Image.network(
                           widget.logoUrl,
-                          height: 28,
+                          height: 35,
                           fit: BoxFit.contain,
                           errorBuilder: (_, __, ___) => const Icon(
                             Icons.hotel,

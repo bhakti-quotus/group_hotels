@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: const Color.fromARGB(255, 255, 254, 254),
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -76,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Container(
                       width: 30,
                       height: 1,
-                      color: const Color(0xFFC9A96E).withOpacity(0.6),
+                      color: const Color.fromARGB(255, 247, 169, 25).withOpacity(0.6),
                     ),
                     const SizedBox(width: 12),
                     Text(
@@ -84,7 +84,7 @@ class _SplashScreenState extends State<SplashScreen>
                       style: TextStyle(
                         fontSize: 10,
                         letterSpacing: 4,
-                        color: const Color(0xFFC9A96E).withOpacity(0.7),
+                        color: const Color.fromARGB(255, 247, 169, 25).withOpacity(0.7),
                         fontWeight: FontWeight.w400,
                         fontFamily: BrandingColors.fontFamily,
                       ),
@@ -93,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Container(
                       width: 30,
                       height: 1,
-                      color: const Color(0xFFC9A96E).withOpacity(0.6),
+                      color: const Color.fromARGB(255, 247, 169, 25).withOpacity(0.6),
                     ),
                   ],
                 ),
@@ -108,7 +108,7 @@ class _SplashScreenState extends State<SplashScreen>
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFC9A96E).withOpacity(0.12),
+                      color: const Color.fromARGB(255, 247, 169, 25).withOpacity(0.12),
                       blurRadius: 60,
                       spreadRadius: 20,
                     ),
@@ -167,24 +167,24 @@ class _SplashScreenState extends State<SplashScreen>
 
                       // Hotel name
                       Text(
-                        'ROYAL CONTINENTAL',
+                        'HORIZON BAY RESORT',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 22,
                           letterSpacing: 6,
-                          color: const Color(0xFFC9A96E),
+                          color: const Color.fromARGB(255, 247, 169, 25),
                           fontWeight: FontWeight.w600,
                           fontFamily: BrandingColors.fontFamily,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'HOTELS & SUITES',
+                        'HOTELS & RESORTS',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
                           letterSpacing: 5,
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.black.withOpacity(0.5),
                           fontWeight: FontWeight.w300,
                           fontFamily: BrandingColors.fontFamily,
                         ),
@@ -198,7 +198,7 @@ class _SplashScreenState extends State<SplashScreen>
                         style: TextStyle(
                           fontSize: 16,
                           height: 1.6,
-                          color: Colors.white.withOpacity(0.65),
+                          color: Colors.black.withOpacity(0.65),
                           fontWeight: FontWeight.w300,
                           fontFamily: BrandingColors.fontFamily,
                         ),

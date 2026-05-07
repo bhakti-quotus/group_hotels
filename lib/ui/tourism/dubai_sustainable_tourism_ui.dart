@@ -113,7 +113,7 @@ class DubaiSustainableTourismPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Text(
-                            '🌿  AT ROYAL CONTINENTAL HOTELS DUBAI',
+                            '🌿  AT HORIZON BAY RESORT BANGALORE',
                             style: TextStyle(
                               color: AppColors.gold,
                               fontSize: 9,
@@ -136,7 +136,7 @@ class DubaiSustainableTourismPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Royal Continental interweaves sustainability\nthroughout the complete customer experience.',
+                          'Horizon Bay Resort interweaves sustainability\nthroughout the complete customer experience.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.white.withOpacity(0.75),
@@ -213,7 +213,7 @@ class _MissionSection extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'If you are looking for a Luxury Business 4-star hotel near Dubai International Airport, near to Deira City Centre, near to Dubai Metro, Royal Continental Hotel is the best option for you.',
+            'If you are looking for a Luxury Business 4-star hotel near Bangalore International Airport, near to Bangalore City Centre, near to Bangalore Metro, Horizon Bay Resort is the best option for you.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.black, fontSize: 12, height: 1.6),
           ),
@@ -411,13 +411,13 @@ class _PolicySection extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'Royal Continental Hotels strive to be a sustainable organization, sustaining the natural environment on which our business operations depend, and considering long-term environmental and social impacts of all the projects and operations for which we are responsible.',
+            'Horizon Bay Resort strive to be a sustainable organization, sustaining the natural environment on which our business operations depend, and considering long-term environmental and social impacts of all the projects and operations for which we are responsible.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.black, fontSize: 13, height: 1.7),
           ),
           const SizedBox(height: 14),
           Text(
-            'To achieve this vision, Royal Continental Hotels will implement a sustainability strategy to demonstrate a positive economic, environmental and social impact from all our activities as per the part of DST initiation by DTCM.',
+            'To achieve this vision, Horizon Bay Resort will implement a sustainability strategy to demonstrate a positive economic, environmental and social impact from all our activities as per the part of DST initiation by DTCM.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.black, fontSize: 13, height: 1.7),
           ),
@@ -832,7 +832,7 @@ class _Footer extends StatelessWidget {
         children: [
           const Icon(Icons.eco, color: AppColors.accentGreen, size: 32),
           const SizedBox(height: 14),
-          const Text('Royal Continental Hotels Dubai',
+          const Text('Horizon Bay Resort Bangalore',
               style: TextStyle(color: AppColors.white, fontSize: 15, fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
           Text('Committed to a Sustainable Future',
@@ -841,7 +841,7 @@ class _Footer extends StatelessWidget {
           Divider(color: AppColors.white.withOpacity(0.15)),
           const SizedBox(height: 12),
           Text(
-            '© 2024 Royal Continental Hotels Dubai.\nAll rights reserved.',
+            '© 2024 Horizon Bay Resort Bangalore.\nAll rights reserved.',
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.white.withOpacity(0.4), fontSize: 11, height: 1.6),
           ),

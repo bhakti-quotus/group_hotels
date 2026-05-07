@@ -15,7 +15,7 @@ class OutletPage extends StatelessWidget {
         ? outlets
         : (item != null && item.isNotEmpty ? [item] : []);
     final pageTitle = args['title'] as String? ?? 'Outlets';
-    final hotelName = args['hotelName'] as String? ?? 'Royal Continental Hotel';
+    final hotelName = args['hotelName'] as String? ?? 'Horizon Bay Resort';
 
     return Scaffold(
       backgroundColor: Colors.white,

@@ -51,7 +51,7 @@ class ApiController extends GetxController {
       final response = await http
           .post(
             Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/booking-engine/fetch-rooms',
+              'https://bookings-revchilltech.trip-swift.ai/api/v1/booking-engine/fetch-rooms',
             ),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
@@ -100,7 +100,7 @@ class ApiController extends GetxController {
       final response = await http
           .post(
             Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/booking-engine/pricing/get-price',
+              'https://bookings-revchilltech.trip-swift.ai/api/v1/booking-engine/pricing/get-price',
             ),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
@@ -150,7 +150,7 @@ class ApiController extends GetxController {
       final response = await http
           .get(
             Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/property-management/property/$propertyId/payment-details',
+              'https://bookings-revchilltech.trip-swift.ai/api/v1/property-management/property/$propertyId/payment-details',
             ),
             headers: {'Content-Type': 'application/json'},
           )
@@ -174,54 +174,70 @@ class ApiController extends GetxController {
 
   // ----------------------------------------------------------
 
-  Future<Map<String, dynamic>> completeBooking(
-    Map<String, dynamic> payload,
-  ) async {
-    await _ensureConfigLoaded();
+Future<Map<String, dynamic>> completeBooking(
+  Map<String, dynamic> payload,
+) async {
+  await _ensureConfigLoaded();
 
-    try {
-     // print('=== COMPLETE BOOKING DEBUG ===');
-     // print('Payload being sent: ${json.encode(payload)}');
+  try {
+    print('=== COMPLETE BOOKING REQUEST ===');
+    print('Payload: ${json.encode(payload)}');
 
-      final response = await http
-          .post(
-            Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations',
-            ),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode(payload),
-          )
-          .timeout(const Duration(seconds: 15));
+    final response = await http
+        .post(
+          Uri.parse(
+            'https://bookings-revchilltech.trip-swift.ai/api/v1/reservations',
+          ),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(payload),
+        )
+        .timeout(const Duration(seconds: 15));
 
-      //print('Status code: ${response.statusCode}');
-      //print('Response body: ${response.body}');
+    print('Status Code: ${response.statusCode}');
+    print('Raw Body: ${response.body}');
 
-      final decoded = json.decode(response.body);
-
-      if ((response.statusCode == 200 || response.statusCode == 201) &&
-          decoded['success'] == true) {
-        try {
-         // print('Saving to Hive...');
-          await hiveService.saveBooking(decoded);
-         // print('Hive save successful');
-          return {'success': true, 'data': decoded['data']};
-        } catch (hiveError) {
-         // print('Hive save failed: $hiveError');
-          // Still return success since API call worked
-          return {'success': true, 'data': decoded['data']};
-        }
-      }
-
+    final contentType = response.headers['content-type'] ?? '';
+    if (!contentType.contains('application/json')) {
       return {
         'success': false,
-        'error': decoded['message'] ?? 'Failed to complete booking',
+        'error': 'Server error (HTTP ${response.statusCode}): non-JSON response',
       };
-    } catch (e) {
-     // print('Exception in completeBooking: $e');
-      return {'success': false, 'error': 'Error: $e'};
     }
+
+    Map<String, dynamic> decoded;
+    try {
+      decoded = json.decode(response.body);
+    } catch (parseError) {
+      return {
+        'success': false,
+        'error': 'Invalid server response (HTTP ${response.statusCode})',
+      };
+    }
+
+    print('Decoded: ${json.encode(decoded)}');
+
+    if ((response.statusCode == 200 || response.statusCode == 201) &&
+        decoded['success'] == true) {
+      try {
+        await hiveService.saveBooking(decoded);
+      } catch (hiveError) {
+        print('Hive save failed (non-critical): $hiveError');
+      }
+      return {'success': true, 'data': decoded['data']};
+    }
+
+    return {
+      'success': false,
+      'error': decoded['message'] ?? decoded['error'] ?? 
+          'Failed to complete booking (HTTP ${response.statusCode})',
+    };
+  } catch (e, stackTrace) {
+    print('EXCEPTION in completeBooking: $e\n$stackTrace');
+    return {'success': false, 'error': 'Error: $e'};
   }
-  // ----------------------------------------------------------
+}
+
+ // ----------------------------------------------------------
 
   Future<Map<String, dynamic>> checkInReservation(
     String reservationCode,
@@ -407,7 +423,7 @@ class ApiController extends GetxController {
       };
 
       final uri = Uri.parse(
-        'https://bookings.revchilltech.com/api/v1/addon/addon-datewise/available',
+        'https://bookings-revchilltech.trip-swift.ai/api/v1/addon/addon-datewise/available',
       ).replace(queryParameters: queryParams);
 
      // print('Addon API URL: $uri');
@@ -443,7 +459,7 @@ class ApiController extends GetxController {
 
     try {
       final uri = Uri.parse(
-        'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations/$bookingCode',
+        'https://bookings-revchilltech.trip-swift.ai/api/v1/reservations/$bookingCode',
       ).replace(queryParameters: {'propertyCode': propertyCode});
 
      // print('Fetching booking details from: $uri');
@@ -488,7 +504,7 @@ class ApiController extends GetxController {
       final response = await http
           .patch(
             Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations/update/$bookingCode',
+              'https://bookings-revchilltech.trip-swift.ai/api/v1/reservations/update/$bookingCode',
             ),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
@@ -531,7 +547,7 @@ class ApiController extends GetxController {
       final response = await http
           .put(
             Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations/cancel/$reservationId',
+              'https://bookings-revchilltech.trip-swift.ai/api/v1/reservations/cancel/$reservationId',
             ),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),

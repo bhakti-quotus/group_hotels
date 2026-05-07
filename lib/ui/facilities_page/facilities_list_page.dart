@@ -62,7 +62,7 @@ class FacilitiesListPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "Royal Continental Hotel",
+                  "Horizon Bay Resort",
                   style: TextStyle(
                     color: Colors.grey[700],
                     fontWeight: FontWeight.w400,
@@ -113,7 +113,7 @@ class FacilitiesListPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'of Royal Continental Hotel',
+                          'of Horizon Bay Hotel',
                           style: TextStyle(
                             color: AppColor.primary,
                             fontSize: 20,

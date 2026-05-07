@@ -1,4 +1,4 @@
-package com.example.royal_continent
+package com.example.horizon_bay
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -283,8 +283,8 @@ class _HotelCardState extends State<HotelCard>
                       right: 10,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
+                          horizontal: 1,
+                          vertical: 1,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.92),
@@ -292,7 +292,7 @@ class _HotelCardState extends State<HotelCard>
                         ),
                         child: Image.network(
                           branding['logo'],
-                          height: 24,
+                          height: 30,
                           fit: BoxFit.contain,
                           errorBuilder: (_, __, ___) =>
                               const Icon(Icons.hotel, size: 20),
