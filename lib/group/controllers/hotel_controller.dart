@@ -6,7 +6,10 @@ class HotelController extends GetxController {
   Rx<Map<String, dynamic>?> selectedHotel = Rx<Map<String, dynamic>?>(null);
   RxBool isRegistered = false.obs;
 
-  // Store the entire group config (or latest root-level config)
+  // NEW — full flat list of child hotels, set by SearchWidget._loadConfig
+  // so RoomsListWidget can read it reactively via Obx
+  final RxList<dynamic> childHotels = <dynamic>[].obs;
+
   void setConfig(Map<String, dynamic> config, {bool isRoot = false}) {
     currentConfig.value = config;
     if (isRoot || rootConfig.value == null) {
@@ -14,49 +17,30 @@ class HotelController extends GetxController {
     }
   }
 
-  Map<String, dynamic>? getConfig() {
-    return currentConfig.value;
-  }
+  Map<String, dynamic>? getConfig() => currentConfig.value;
 
-  Map<String, dynamic>? getRootConfig() {
-    return rootConfig.value;
-  }
+  Map<String, dynamic>? getRootConfig() => rootConfig.value;
 
-  bool hasChildHotels() {
-    return (currentConfig.value?['childHotels'] as List<dynamic>?)
-            ?.isNotEmpty ==
-        true;
-  }
+  bool hasChildHotels() =>
+      (currentConfig.value?['childHotels'] as List<dynamic>?)?.isNotEmpty ==
+      true;
 
-  bool hasSelectedHotel() {
-    return selectedHotel.value != null;
-  }
+  bool hasSelectedHotel() => selectedHotel.value != null;
 
-  void clearSelectedHotel() {
-    selectedHotel.value = null;
-  }
+  void clearSelectedHotel() => selectedHotel.value = null;
 
-  // Store selected child hotel's complete data (including id, name, type, config, etc.)
   void setSelectedHotel(Map<String, dynamic> hotel) {
     selectedHotel.value = hotel;
   }
 
-  // Get selected child hotel's complete data
-  Map<String, dynamic>? getSelectedHotel() {
-    return selectedHotel.value;
-  }
+  Map<String, dynamic>? getSelectedHotel() => selectedHotel.value;
 
-  // Get the config of the selected hotel
-  Map<String, dynamic>? getSelectedHotelConfig() {
-    return selectedHotel.value?['config'] as Map<String, dynamic>?;
-  }
+  Map<String, dynamic>? getSelectedHotelConfig() =>
+      selectedHotel.value?['config'] as Map<String, dynamic>?;
 
-  // Get list of child hotels
-  List<dynamic>? getChildHotels() {
-    return currentConfig.value?['childHotels'] as List<dynamic>?;
-  }
+  List<dynamic>? getChildHotels() =>
+      currentConfig.value?['childHotels'] as List<dynamic>?;
 
-  // Select a child hotel by ID and store its complete data
   void selectHotelById(String hotelId) {
     final childHotels = getChildHotels();
     if (childHotels != null) {
@@ -67,5 +51,10 @@ class HotelController extends GetxController {
         }
       }
     }
+  }
+
+  // NEW — called by SearchWidget._loadConfig after reading config.json
+  void setChildHotels(List<dynamic> hotels) {
+    childHotels.assignAll(hotels);
   }
 }

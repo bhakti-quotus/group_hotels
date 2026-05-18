@@ -187,25 +187,29 @@ class _BookingPageState extends State<BookingPage>
       }
 
       if (_selectedAddons.isNotEmpty) {
-        final List<Map<String, dynamic>> parsedAddons = [];
-        for (var addon in _selectedAddons) {
-          parsedAddons.add({
-            "addOnId": addon['id'] ?? '',
-            "availability": [
-              {
-                "date": "${widget.startDate}T00:00:00.000Z",
-                "quantity": addon['quantity'] ?? 1,
-              },
-            ],
-          });
-        }
-        payload['parsedAddons'] = parsedAddons;
+        payload['parsedAddons'] = _buildParsedAddons(_selectedAddons);
+      }
+
+      final includedAddons = _extractIncludedAddonIds(widget.ratePlan);
+      if (includedAddons.isNotEmpty) {
+        payload['includedAddons'] = includedAddons;
       }
 
       // Add guestDistribution from fetchRoomsAPI searchCriteria.guests equivalent (roomsArray)
       final searchController = Get.find<search_ctrl.AppSearchController>();
       payload['guestDistribution'] =
           searchController.searchPayload['guests']['roomsArray'];
+
+      // Add child ages at root level
+      List<int> childAges = [];
+      for (var controllers in _childControllers) {
+        final dob = controllers['dob']?.text ?? '';
+        if (dob.isNotEmpty) {
+          final age = (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365);
+          childAges.add(age);
+        }
+      }
+      payload['childAges'] = childAges;
 
       final result = await Get.find<ApiController>().getPrice(payload);
 
@@ -231,6 +235,84 @@ class _BookingPageState extends State<BookingPage>
   }
 
   // Helper method for pretty printing
+
+
+  List<Map<String, dynamic>> _buildParsedAddons(
+    List<Map<String, dynamic>> addons,
+  ) {
+    final grouped = <String, Map<String, dynamic>>{};
+
+    for (final addon in addons) {
+      final addOnId = (addon['id'] ?? addon['addOnId'] ?? '').toString();
+      final selectedDate =
+          addon['selectedDate'] ?? addon['date'] ?? (addon['dates'] is List ? (addon['dates'] as List).cast<String?>().firstWhere((d) => d != null, orElse: () => null) : null);
+      if (addOnId.isEmpty || selectedDate == null) continue;
+
+      final quantity = addon['quantity'] as int? ?? 1;
+      final dateString = selectedDate.toString();
+
+      final entry = grouped.putIfAbsent(addOnId, () {
+        return {
+          'addOnId': addOnId,
+          'availability': <Map<String, dynamic>>[],
+        };
+      });
+
+      (entry['availability'] as List<Map<String, dynamic>>).add({
+        'date': _formatAddonDate(dateString),
+        'quantity': quantity,
+      });
+    }
+
+    return grouped.values.toList();
+  }
+
+  String _formatAddonDate(String raw) {
+    try {
+      final date = DateTime.parse(raw);
+      final dateOnly = DateTime.utc(date.year, date.month, date.day);
+      return '${dateOnly.toIso8601String().split('T')[0]}T00:00:00.000Z';
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  List<String> _extractIncludedAddonIds(Map<String, dynamic> ratePlan) {
+    final addonIds = <String>{};
+
+    void addId(dynamic value) {
+      if (value == null) return;
+      final id = value is String ? value : value is num ? value.toString() : null;
+      if (id != null && id.isNotEmpty) {
+        addonIds.add(id);
+      }
+    }
+
+    void collectFromAddonList(dynamic listValue) {
+      if (listValue is! List) return;
+      for (final item in listValue) {
+        if (item is Map<String, dynamic>) {
+          addId(item['id'] ?? item['addOnId'] ?? item['addonId']);
+          if (item['addon'] is Map<String, dynamic>) {
+            addId((item['addon'] as Map<String, dynamic>)['id'] ??
+                (item['addon'] as Map<String, dynamic>)['addOnId'] ??
+                (item['addon'] as Map<String, dynamic>)['addonId']);
+          }
+        }
+      }
+    }
+
+    if (ratePlan['comboLevel'] is Map<String, dynamic>) {
+      final comboLevel = ratePlan['comboLevel'] as Map<String, dynamic>;
+      collectFromAddonList(comboLevel['addons']);
+      collectFromAddonList(comboLevel['addOns']);
+    }
+
+    collectFromAddonList(ratePlan['addons']);
+    collectFromAddonList(ratePlan['addOns']);
+
+    return addonIds.toList();
+  }
   void _prettyPrintJson(dynamic json) {
     try {
       String prettyString = const JsonEncoder.withIndent('  ').convert(json);
@@ -386,7 +468,7 @@ class _BookingPageState extends State<BookingPage>
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => {Get.back(), Get.back()},
+onPressed: () => Get.back(),
                     icon: const Icon(
                       Icons.arrow_back_ios_new_rounded,
                       color: Colors.white,

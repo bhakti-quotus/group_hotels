@@ -185,6 +185,17 @@ class _ModifyBookingPageState extends State<ModifyBookingPage>
       payload['guestDistribution'] =
           searchController.searchPayload['guests']?['roomsArray'] ?? [];
 
+      // Add child ages at root level
+      List<int> childAges = [];
+      for (var child in _newChildren) {
+        final dob = child['dateOfBirth'];
+        if (dob != null && dob is String && dob.isNotEmpty) {
+          final age = (DateTime.now().difference(DateTime.parse(dob)).inDays ~/ 365);
+          childAges.add(age);
+        }
+      }
+      payload['childAges'] = childAges;
+
       final result = await _apiController.getPrice(payload);
 
       if (result['success'] == true && mounted) {

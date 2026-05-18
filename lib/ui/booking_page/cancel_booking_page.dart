@@ -78,13 +78,10 @@ class _CancelBookingPageState extends State<CancelBookingPage>
         ? _selectedChip!
         : _reasonController.text.trim();
 
-    if (reason.isEmpty) {
-      _showSnackbar(
-        'Please select or enter a cancellation reason',
-        isError: true,
-      );
-      return;
-    }
+    // Requirement: during cancel, reason is NOT mandatory.
+    // If user provided a quick reason chip, use it; otherwise take free text.
+    final reasonText = _selectedChip != null ? _selectedChip! : _reasonController.text.trim();
+
     if (_bookingData == null) {
       _showSnackbar('No booking data found', isError: true);
       return;
@@ -93,15 +90,59 @@ class _CancelBookingPageState extends State<CancelBookingPage>
     setState(() => _isLoading = true);
 
     try {
-      final String reservationId = _bookingData!['id'] ?? '';
+      // Backend might send reservation id under different keys.
+      final String reservationId = () {
+        String? findInMap(Map<String, dynamic> map) {
+          for (final key in ['id', 'reservationId', 'reservation_id']) {
+            final v = map[key];
+            if (v == null) continue;
+            final s = v.toString();
+            if (s.isNotEmpty) return s;
+          }
+          return null;
+        }
+
+        // Flat keys (what your list API returns)
+        final direct = findInMap(Map<String, dynamic>.from(_bookingData!));
+        if (direct != null && direct.isNotEmpty) return direct;
+
+        // Common nested shapes from detail APIs: { data: { id } } or { reservation: { id } }
+        final data = _bookingData!['data'];
+        if (data is Map<String, dynamic>) {
+          final nested = findInMap(data);
+          if (nested != null && nested.isNotEmpty) return nested;
+        }
+
+        final reservation = _bookingData!['reservation'];
+        if (reservation is Map<String, dynamic>) {
+          final nested = findInMap(reservation);
+          if (nested != null && nested.isNotEmpty) return nested;
+        }
+
+        // Last resort: look for any nested key named like an id
+        for (final key in ['id', 'reservationId', 'reservation_id']) {
+          final v = _bookingData![key];
+          if (v != null) {
+            final s = v.toString();
+            if (s.isNotEmpty) return s;
+          }
+        }
+
+        return '';
+      }();
+
       if (reservationId.isEmpty) {
-        _showSnackbar('Reservation ID not found', isError: true);
+        _showSnackbar(
+          'Reservation ID not found in booking data',
+          isError: true,
+        );
         setState(() => _isLoading = false);
         return;
       }
 
+      // If user didn't enter/select anything, send a default reason.
       final details = _reasonController.text.trim();
-      final fullReason = details.isNotEmpty ? '$reason — $details' : reason;
+      final fullReason = details.isNotEmpty ? '$reasonText — $details' : reasonText;
 
       final Map<String, dynamic> payload = {
         'reason': fullReason,

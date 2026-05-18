@@ -2038,7 +2038,7 @@ class _PaymentPageState extends State<PaymentPage>
         DateTime? dayDate;
         try {
           dayDate = DateTime.parse(
-            widget.bookingDetails['startDate'],
+            widget.bookingDetails['reservationStartDate'] ?? widget.bookingDetails['startDate'] ?? '',
           ).add(Duration(days: entry.key));
         } catch (_) {}
 
@@ -2064,6 +2064,8 @@ class _PaymentPageState extends State<PaymentPage>
           rawPrice['additionalGuestCharges'] ?? 0,
         ),
         'totalTaxAmount': _toDouble(rawPrice['taxedAmount'] ?? 0),
+         'dailyBrakeDown':
+            rawDailyBreakdown, 
         'dailyPriceBrakeDown':
             rawDailyBreakdown, // original raw inside finalPrice
         // 'dailyBreakdown': dailyBreakdown,         // enriched inside finalPrice
@@ -2089,21 +2091,18 @@ class _PaymentPageState extends State<PaymentPage>
       };
 
       final bookingDetails = {
-        'startDate': widget.bookingDetails['startDate'],
-        'endDate': widget.bookingDetails['endDate'],
+        'reservationStartDate': widget.bookingDetails['reservationStartDate'] ?? widget.bookingDetails['startDate'],
+        'reservationEndDate': widget.bookingDetails['reservationEndDate'] ?? widget.bookingDetails['endDate'],
         'propertyCode': finalPropertyCode,
         'hotelName': widget.bookingDetails['hotelName'],
-        'roomTypeCode': widget.bookingDetails['roomTypeCode'],
+        'roomName': widget.bookingDetails['roomName'] ?? widget.bookingDetails['roomTypeCode'] ?? '',
+        'roomTypeCode': widget.bookingDetails['roomTypeCode'] ?? '',
         'numberOfRooms': numberOfRooms,
         'finalPrice': finalPrice,
-        'dailyBreakdown': dailyBreakdown, // enriched at bookingDetails level
-        'promoCode': widget.bookingDetails['promoCode'],
-        'currency':
-            widget.bookingDetails['currency'] ??
-            rawPrice['currencyCode'] ??
-            'USD',
-        'email': widget.bookingDetails['email'] ?? '',
-        'phone': widget.bookingDetails['phone'] ?? '',
+        'promoCode': widget.bookingDetails['promoCode'] ?? '',
+        'currencyCode': widget.bookingDetails['currencyCode'] ?? widget.bookingDetails['currency'] ?? rawPrice['currencyCode'] ?? 'USD',
+        'bookingUserEmail': widget.bookingDetails['bookingUserEmail'] ?? widget.bookingDetails['email'] ?? '',
+        'bookingUserPhone': widget.bookingDetails['bookingUserPhone'] ?? widget.bookingDetails['phone'] ?? '',
         'guests': guests,
         'guestDetails': widget.bookingDetails['guestDetails'] ?? [],
         'ratePlanCode': widget.bookingDetails['ratePlanCode'] ?? '',
@@ -2111,14 +2110,13 @@ class _PaymentPageState extends State<PaymentPage>
         'bookingSource': widget.bookingDetails['bookingSource'] ?? 'direct',
         'selectedPromotions': widget.bookingDetails['selectedPromotions'] ?? [],
         'selectedAddons': widget.bookingDetails['selectedAddons'] ?? [],
+        'platforms': widget.bookingDetails['platforms'] ?? 'web',
+        'isLoyalityGuest': widget.bookingDetails['isLoyalityGuest'] ?? false,
       };
 
       final payload = {
-        'data': {
-          'bookingDetails': bookingDetails,
-          'bankDetails': _fetchedPaymentData,
-          'guestDetails': widget.bookingDetails['guestDetails'] ?? [],
-        },
+        ...bookingDetails,
+        'bankDetails': _fetchedPaymentData ?? {},
       };
 
       print('=== COMPLETE BOOKING PAYLOAD ===');

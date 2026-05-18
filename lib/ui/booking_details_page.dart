@@ -147,16 +147,16 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   }
 
   String _formatDate(String? d) {
-    if (d == null) return '—';
+    if (d == null || d.isEmpty) return '—';
     try {
-      return DateFormat('MMM dd, yyyy').format(DateTime.parse(d));
+      return DateFormat('MMM dd, yyyy').format(DateTime.parse(d).toLocal());
     } catch (_) {
       return d;
     }
   }
 
   String _formatDateTime(String? d) {
-    if (d == null) return '—';
+    if (d == null || d.isEmpty) return '—';
     try {
       return DateFormat(
         'MMM dd, yyyy  •  hh:mm a',
@@ -206,6 +206,34 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     if (status?.toLowerCase() == 'cancelled') return false;
     if (status?.toLowerCase() == 'checked_out') return false;
     return true;
+  }
+
+  // Helper to get pricing data with correct field names
+  Map<String, dynamic>? _getPricingData() {
+    if (_bookingData == null) return null;
+    // The API uses "PricingBrakeDown" (note the spelling)
+    return _bookingData!['PricingBrakeDown'] as Map<String, dynamic>?;
+  }
+
+  List<dynamic> _getDailyBreakdown() {
+    final pricing = _getPricingData();
+    if (pricing == null) return [];
+    // API uses "DailyPriceBrakeDown"
+    return pricing['DailyPriceBrakeDown'] as List? ?? [];
+  }
+
+  List<dynamic> _getTaxBreakdown() {
+    final pricing = _getPricingData();
+    if (pricing == null) return [];
+    // API uses "taxBrakeDown"
+    return pricing['taxBrakeDown'] as List? ?? [];
+  }
+
+  List<dynamic> _getPromoBreakdown() {
+    final pricing = _getPricingData();
+    if (pricing == null) return [];
+    // API uses "promotionBrakeDown"
+    return pricing['promotionBrakeDown'] as List? ?? [];
   }
 
   @override
@@ -306,7 +334,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                     )?.then((result) {
                       // Refresh booking details after modification
                       if (result != null && result['success'] == true) {
-                        // Reload booking details from API to get updated data
                         final code = widget.bookingCode ?? _searchController.text.trim();
                         final prop = widget.propertyCode ?? '';
                         if (code.isNotEmpty && prop.isNotEmpty) {
@@ -645,13 +672,24 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
 
   Widget _buildDetails() {
     final booking = _bookingData!;
-    final finalPrice = booking['finalPrice'] as Map<String, dynamic>? ?? {};
+    final pricing = _getPricingData();
+    
+    // Get values from pricing or fallback to booking level
+    final totalAmount = pricing?['totalAmount'] ?? booking['amount'] ?? 0;
+    final amountBeforeTax = pricing?['amountBeforeTax'] ?? 0;
+    final taxedAmount = pricing?['taxedAmount'] ?? 0;
+    final totalAddonAmount = pricing?['totalAddonAmount'] ?? 0;
+    final totalPromotionAmount = pricing?['totalPromotionAmount'] ?? 0;
+    final currencyCode = pricing?['currencyCode'] ?? booking['currencyCode'] ?? 'USD';
+    final numberOfNights = _getNumberOfNights(booking);
+    
     final primaryGuest = booking['primaryGuest'] as Map<String, dynamic>?;
     final guests = booking['guests'] as List? ?? [];
     final addOns = booking['addOns'] as List? ?? [];
-    final dailyBreakdown = finalPrice['dailyBreakdown'] as List? ?? [];
-    final taxBreakdown = finalPrice['taxBrakeDown'] as List? ?? [];
-    final promoBreakdown = finalPrice['promotionBrakeDown'] as List? ?? [];
+    
+    final dailyBreakdown = _getDailyBreakdown();
+    final taxBreakdown = _getTaxBreakdown();
+    final promoBreakdown = _getPromoBreakdown();
 
     return FadeTransition(
       opacity: _fadeAnim,
@@ -671,8 +709,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 child: Column(
                   children: [
                     _infoTile('Hotel', booking['hotelName'] ?? '—', icon: Icons.business_rounded),
-                    _infoTile('Room Type', booking['roomTypeCode'] ?? '—', icon: Icons.bed_rounded),
-                    _infoTile('Rate Plan', booking['ratePlanCode'] ?? '—', icon: Icons.local_offer_rounded),
+                    _infoTile('Room Type', booking['roomName'] ?? booking['roomTypeCode'] ?? '—', icon: Icons.bed_rounded),
+                    _infoTile('Rate Plan', booking['ratePlanName'] ?? booking['ratePlanCode'] ?? '—', icon: Icons.local_offer_rounded),
                     _infoTile('Property Code', booking['propertyCode'] ?? '—', icon: Icons.pin_drop_rounded, isLast: true),
                   ],
                 ),
@@ -684,11 +722,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 title: 'Stay Details',
                 child: Column(
                   children: [
-                    _buildStayDates(booking, finalPrice),
+                    _buildStayDates(booking, numberOfNights),
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        _statChip(Icons.nights_stay_rounded, '${finalPrice['numberOfNights'] ?? 1}', 'Night(s)'),
+                        _statChip(Icons.nights_stay_rounded, '$numberOfNights', 'Night(s)'),
                         const SizedBox(width: 12),
                         _statChip(Icons.people_rounded, '${guests.length}', 'Guest(s)'),
                       ],
@@ -719,7 +757,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               _buildCard(
                 icon: Icons.receipt_long_rounded,
                 title: 'Price Breakdown',
-                child: _buildPriceSection(finalPrice, booking, dailyBreakdown, taxBreakdown, promoBreakdown),
+                child: _buildPriceSection(
+                  totalAmount: totalAmount,
+                  amountBeforeTax: amountBeforeTax,
+                  taxedAmount: taxedAmount,
+                  totalAddonAmount: totalAddonAmount,
+                  totalPromotionAmount: totalPromotionAmount,
+                  currencyCode: currencyCode,
+                  booking: booking,
+                  dailyBreakdown: dailyBreakdown,
+                  taxBreakdown: taxBreakdown,
+                  promoBreakdown: promoBreakdown,
+                ),
               ),
 
               // Extra bottom padding when action bar is visible
@@ -729,6 +778,19 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
         ),
       ),
     );
+  }
+
+  int _getNumberOfNights(Map<String, dynamic> booking) {
+    final startDate = booking['reservationStartDate'];
+    final endDate = booking['reservationEndDate'];
+    if (startDate == null || endDate == null) return 1;
+    try {
+      final start = DateTime.parse(startDate);
+      final end = DateTime.parse(endDate);
+      return end.difference(start).inDays;
+    } catch (_) {
+      return 1;
+    }
   }
 
   // ── Hero Banner ────────────────────────────────────────────────────────────
@@ -826,7 +888,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
 
   // ── Stay Dates ─────────────────────────────────────────────────────────────
 
-  Widget _buildStayDates(Map<String, dynamic> booking, Map<String, dynamic> finalPrice) {
+  Widget _buildStayDates(Map<String, dynamic> booking, int numberOfNights) {
+    final checkInDate = booking['reservationStartDate'] ?? booking['checkInDate'];
+    final checkOutDate = booking['reservationEndDate'] ?? booking['checkOutDate'];
+    
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -846,7 +911,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _formatDate(booking['checkInDate']),
+                  _formatDate(checkInDate),
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColor.primary),
                 ),
               ],
@@ -858,7 +923,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(color: AppColor.primary, borderRadius: BorderRadius.circular(20)),
                 child: Text(
-                  '${finalPrice['numberOfNights'] ?? 1}N',
+                  '$numberOfNights N',
                   style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -876,7 +941,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _formatDate(booking['checkOutDate']),
+                  _formatDate(checkOutDate),
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColor.primary),
                 ),
               ],
@@ -982,7 +1047,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                   Icon(Icons.person_outline_rounded, size: 16, color: AppColor.primary),
                   const SizedBox(width: 8),
                   Expanded(child: Text(name.isNotEmpty ? name : 'Guest', style: const TextStyle(fontSize: 14))),
-                  if (g['dateOfBirth'] != null)
+                  if (g['dateOfBirth'] != null && g['dateOfBirth'].toString().isNotEmpty)
                     Text(_formatDate(g['dateOfBirth']), style: TextStyle(fontSize: 12, color: Colors.grey[500])),
                 ],
               ),
@@ -1023,14 +1088,16 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(addon['name'] ?? 'Add-on', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                    Text(_formatDate(addon['date']), style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                    if (addon['date'] != null)
+                      Text(_formatDate(addon['date']), style: TextStyle(fontSize: 12, color: Colors.grey[500])),
                   ],
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('×${addon['quantity']}', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                  if (addon['quantity'] != null)
+                    Text('×${addon['quantity']}', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
                   Text(
                     '${addon['currencyCode'] ?? 'USD'} ${addon['unitPrice']}',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColor.primary),
@@ -1046,13 +1113,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
 
   // ── Price Section ──────────────────────────────────────────────────────────
 
-  Widget _buildPriceSection(
-    Map<String, dynamic> finalPrice,
-    Map<String, dynamic> booking,
-    List dailyBreakdown,
-    List taxBreakdown,
-    List promoBreakdown,
-  ) {
+  Widget _buildPriceSection({
+    required double totalAmount,
+    required double amountBeforeTax,
+    required double taxedAmount,
+    required double totalAddonAmount,
+    required double totalPromotionAmount,
+    required String currencyCode,
+    required Map<String, dynamic> booking,
+    required List dailyBreakdown,
+    required List taxBreakdown,
+    required List promoBreakdown,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1067,7 +1139,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           _sectionLabel('Taxes & Fees'),
           const SizedBox(height: 8),
           ...taxBreakdown.map(
-            (t) => _priceRow(t['name'] ?? 'Tax', '${t['currencyCode'] ?? 'USD'} ${(t['taxedAmount'] ?? 0.0).toStringAsFixed(2)}'),
+            (t) => _priceRow(t['name'] ?? 'Tax', '$currencyCode ${(t['taxedAmount'] ?? 0.0).toStringAsFixed(2)}'),
           ),
           const SizedBox(height: 8),
         ],
@@ -1090,7 +1162,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                   const SizedBox(width: 8),
                   Expanded(child: Text(p['name'] ?? 'Promotion', style: TextStyle(fontSize: 13, color: Colors.green[800]))),
                   Text(
-                    '-${p['currencyCode'] ?? 'USD'} ${(p['discountAmount'] ?? 0.0).toStringAsFixed(2)}',
+                    '-$currencyCode ${(p['discountAmount'] ?? 0.0).toStringAsFixed(2)}',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.green[700]),
                   ),
                 ],
@@ -1109,18 +1181,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           ),
           child: Column(
             children: [
-              _priceRow('Subtotal', '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['amountBeforeTax'] ?? 0).toStringAsFixed(2)}'),
+              _priceRow('Subtotal', '$currencyCode ${amountBeforeTax.toStringAsFixed(2)}'),
               const SizedBox(height: 6),
-              _priceRow('Taxes & Fees', '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['taxedAmount'] ?? 0).toStringAsFixed(2)}'),
-              if ((finalPrice['totalAddonAmount'] ?? 0) > 0) ...[
+              _priceRow('Taxes & Fees', '$currencyCode ${taxedAmount.toStringAsFixed(2)}'),
+              if (totalAddonAmount > 0) ...[
                 const SizedBox(height: 6),
-                _priceRow('Add-ons', '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['totalAddonAmount'] ?? 0).toStringAsFixed(2)}'),
+                _priceRow('Add-ons', '$currencyCode ${totalAddonAmount.toStringAsFixed(2)}'),
               ],
-              if ((finalPrice['totalPromotionAmount'] ?? 0) > 0) ...[
+              if (totalPromotionAmount > 0) ...[
                 const SizedBox(height: 6),
                 _priceRow(
                   'Discount',
-                  '-${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['totalPromotionAmount'] ?? 0).toStringAsFixed(2)}',
+                  '-$currencyCode ${totalPromotionAmount.toStringAsFixed(2)}',
                   valueColor: Colors.green[700],
                 ),
               ],
@@ -1133,7 +1205,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                 children: [
                   const Text('Total Amount', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                   Text(
-                    '${finalPrice['currencyCode'] ?? 'USD'} ${(finalPrice['totalAmount'] ?? 0).toStringAsFixed(2)}',
+                    '$currencyCode ${totalAmount.toStringAsFixed(2)}',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColor.primary),
                   ),
                 ],
@@ -1155,13 +1227,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               _infoTile('Payment Method', booking['paymentMethod']?.replaceAll('_', ' ').toUpperCase() ?? 'N/A', icon: Icons.credit_card_rounded),
               _infoTile(
                 'Paid Amount',
-                '${booking['currencyCode'] ?? 'USD'} ${(booking['paidAmount'] ?? 0).toStringAsFixed(2)}',
+                '$currencyCode ${(booking['paidAmount'] ?? 0).toStringAsFixed(2)}',
                 icon: Icons.check_circle_outline_rounded,
                 valueColor: Colors.green[700],
               ),
               _infoTile(
                 'Extra to Pay',
-                '${booking['currencyCode'] ?? 'USD'} ${(booking['extraAmountToPay'] ?? 0).toStringAsFixed(2)}',
+                '$currencyCode ${(booking['extraAmountToPay'] ?? 0).toStringAsFixed(2)}',
                 icon: Icons.pending_outlined,
                 valueColor: (booking['extraAmountToPay'] ?? 0) > 0 ? Colors.orange[700] : Colors.green[700],
                 isLast: (booking['refundAmount'] ?? 0) <= 0,
@@ -1169,7 +1241,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               if ((booking['refundAmount'] ?? 0) > 0)
                 _infoTile(
                   'Refund Amount',
-                  '${booking['currencyCode'] ?? 'USD'} ${(booking['refundAmount'] ?? 0).toStringAsFixed(2)}',
+                  '$currencyCode ${(booking['refundAmount'] ?? 0).toStringAsFixed(2)}',
                   icon: Icons.replay_rounded,
                   valueColor: Colors.green[700],
                   isLast: true,
@@ -1195,7 +1267,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(day['date'] ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+              Text(_formatDate(day['date']), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
               Text(
                 '${day['currencyCode'] ?? 'USD'} ${(day['totalAmount'] ?? 0.0).toStringAsFixed(2)}',
                 style: TextStyle(fontWeight: FontWeight.w700, color: AppColor.primary, fontSize: 14),
@@ -1207,7 +1279,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Base Rate', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-              Text('${day['currencyCode'] ?? 'USD'} ${(day['baseRate'] ?? 0.0).toStringAsFixed(2)}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+              Text('${day['currencyCode'] ?? 'USD'} ${(day['baseChargesAmount'] ?? 0.0).toStringAsFixed(2)}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
             ],
           ),
           if ((day['additionalChargesAmount'] ?? 0) > 0) ...[
@@ -1299,7 +1371,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
         Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[700])),
         Text(
           value,
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: valueColor ?? const Color(0xFF1A1A2E)),        ),
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: valueColor ?? const Color(0xFF1A1A2E)),
+        ),
       ],
     );
   }

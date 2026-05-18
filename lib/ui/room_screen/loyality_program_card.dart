@@ -50,18 +50,14 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
   bool _videoInitialized = false;
   bool _videoInitializing = false;
   bool _videoError = false;
-
-  /// True once the user taps the play button — hides the custom overlay
   bool _videoStarted = false;
-
   bool _isLoading = false;
+  
   bool get _isProgramJoined => widget.isJoined;
 
-  // ─── Lifecycle ─────────────────────────────────────────────────────────────
   @override
   void initState() {
     super.initState();
-    // Pre-initialise so the player is ready when the user taps play
     if (widget.videoUrl != null && widget.videoUrl!.isNotEmpty) {
       _initVideo();
     }
@@ -74,7 +70,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     super.dispose();
   }
 
-  // ─── Video init ────────────────────────────────────────────────────────────
   Future<void> _initVideo() async {
     if (_videoInitializing || _videoInitialized) return;
     final url = widget.videoUrl;
@@ -86,8 +81,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     });
 
     try {
-      final controller =
-          VideoPlayerController.networkUrl(Uri.parse(url));
+      final controller = VideoPlayerController.networkUrl(Uri.parse(url));
       await controller.initialize();
 
       if (!mounted) {
@@ -100,7 +94,8 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         autoPlay: true,
         looping: false,
         autoInitialize: false,
-        showControlsOnInitialize: false,
+        showControlsOnInitialize: true,
+        showControls: true,
         allowFullScreen: true,
         allowMuting: true,
         materialProgressColors: ChewieProgressColors(
@@ -120,6 +115,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         _chewieController = chewie;
         _videoInitialized = true;
         _videoInitializing = false;
+        _videoStarted = true;
       });
     } catch (e) {
       debugPrint('Video init error: $e');
@@ -132,15 +128,12 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     }
   }
 
-  /// Called when user taps the custom play overlay
   void _onPlayTapped() {
     if (!_videoInitialized || _chewieController == null) return;
     setState(() => _videoStarted = true);
     _videoController!.play();
-    _chewieController!.play();
   }
 
-  // ─── Retry after error ─────────────────────────────────────────────────────
   void _retryVideo() {
     _chewieController?.dispose();
     _videoController?.dispose();
@@ -155,7 +148,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     _initVideo();
   }
 
-  // ─── Join flow ─────────────────────────────────────────────────────────────
   void _openJoinFlow() {
     if (_isProgramJoined) return;
 
@@ -170,8 +162,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
       builder: (dlgCtx) => StatefulBuilder(
         builder: (_, setDlg) => Dialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -185,8 +176,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color:
-                              theme.AppColor.secondary.withOpacity(0.1),
+                          color: theme.AppColor.secondary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(Icons.card_membership_rounded,
@@ -201,12 +191,11 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                                 style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w700,
-                                    color: theme.AppColor.text)),
+                                    color: Colors.black)),
                             Text(
                                 'Unlock ${widget.discountValue}% member discount!',
                                 style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[500])),
+                                    fontSize: 12, color: Colors.grey[500])),
                           ],
                         ),
                       ),
@@ -248,19 +237,19 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                     },
                   ),
                   const SizedBox(height: 24),
+                  // IMPROVED BUTTONS - Better alignment
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      // Cancel Button
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => Navigator.pop(dlgCtx),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 14),
-                            side:
-                                BorderSide(color: Colors.grey[300]!),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: BorderSide(color: Colors.grey[300]!),
                             shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(14)),
+                                borderRadius: BorderRadius.circular(14)),
                           ),
                           child: Text('Cancel',
                               style: TextStyle(
@@ -269,48 +258,40 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                         ),
                       ),
                       const SizedBox(width: 12),
+                      // Join Button - More prominent
                       Expanded(
+                        flex: 2,
                         child: ElevatedButton(
                           onPressed: _isLoading
                               ? null
                               : () async {
-                                  if (!formKey.currentState!
-                                      .validate()) {
+                                  if (!formKey.currentState!.validate()) {
                                     return;
                                   }
-                                  setDlg(
-                                      () => _isLoading = true);
+                                  setDlg(() => _isLoading = true);
 
-                                  final email =
-                                      emailCtrl.text.trim();
+                                  final email = emailCtrl.text.trim();
                                   final name = nameCtrl.text.trim();
-                                  final mobile =
-                                      mobileCtrl.text.trim();
-                                  final propertyId =
-                                      widget.propertyId ?? '';
+                                  final mobile = mobileCtrl.text.trim();
+                                  final propertyId = widget.propertyId ?? '';
 
-                                  final checkResult =
-                                      await _callCheckDiscount(
+                                  final checkResult = await _callCheckDiscount(
                                     email: email,
                                     propertyId: propertyId,
                                   );
 
-                                  if (checkResult['eligible'] ==
-                                      true) {
-                                    setDlg(
-                                        () => _isLoading = false);
+                                  if (checkResult['eligible'] == true) {
+                                    setDlg(() => _isLoading = false);
                                     if (!mounted) return;
                                     Navigator.pop(dlgCtx);
                                     _handleSuccess(
                                       email: email,
-                                      percentage: checkResult[
-                                              'percentage'] as int,
+                                      percentage: checkResult['percentage'] as int,
                                     );
                                     return;
                                   }
 
-                                  final regResult =
-                                      await _callRegister(
+                                  final regResult = await _callRegister(
                                     email: email,
                                     propertyId: propertyId,
                                     guestName: name,
@@ -321,34 +302,29 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                                   if (!mounted) return;
                                   Navigator.pop(dlgCtx);
 
-                                  if (regResult['eligible'] ==
-                                      true) {
+                                  if (regResult['eligible'] == true) {
                                     _handleSuccess(
                                       email: email,
-                                      percentage: regResult[
-                                              'percentage'] as int,
+                                      percentage: regResult['percentage'] as int,
                                     );
                                   } else {
                                     _showErrorSnack(
-                                      regResult['message']
-                                              as String? ??
+                                      regResult['message'] as String? ??
                                           'Something went wrong.',
                                     );
                                   }
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.AppColor.primary,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(14)),
+                                borderRadius: BorderRadius.circular(14)),
                             elevation: 0,
                           ),
                           child: _isLoading
                               ? const SizedBox(
-                                  height: 18,
-                                  width: 18,
+                                  height: 20,
+                                  width: 20,
                                   child: CircularProgressIndicator(
                                     color: Colors.white,
                                     strokeWidth: 2,
@@ -357,7 +333,8 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                               : const Text('Join & Get Discount',
                                   style: TextStyle(
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.white)),
+                                      color: Colors.white,
+                                      fontSize: 14)),
                         ),
                       ),
                     ],
@@ -371,13 +348,11 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     );
   }
 
-  void _handleSuccess(
-      {required String email, required int percentage}) {
+  void _handleSuccess({required String email, required int percentage}) {
     widget.onJoinSuccess?.call(email, percentage);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(children: [
-        const Icon(Icons.check_circle_rounded,
-            color: Colors.white, size: 18),
+        const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
         const SizedBox(width: 10),
         Text('$percentage% member discount applied!',
             style: const TextStyle(
@@ -385,8 +360,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
       ]),
       backgroundColor: Colors.green[700],
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.all(16),
       duration: const Duration(seconds: 3),
     ));
@@ -395,17 +369,13 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
   void _showErrorSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(children: [
-        const Icon(Icons.error_outline_rounded,
-            color: Colors.white, size: 18),
+        const Icon(Icons.error_outline_rounded, color: Colors.white, size: 18),
         const SizedBox(width: 10),
-        Expanded(
-            child: Text(message,
-                style: const TextStyle(color: Colors.white))),
+        Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
       ]),
       backgroundColor: Colors.red[700],
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.all(16),
       duration: const Duration(seconds: 3),
     ));
@@ -418,27 +388,22 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     try {
       final res = await http
           .post(
-            Uri.parse(
-                'https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount'),
+            Uri.parse('https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount'),
             headers: {'Content-Type': 'application/json'},
-            body: json
-                .encode({'email': email, 'propertyId': propertyId}),
+            body: json.encode({'email': email, 'propertyId': propertyId}),
           )
           .timeout(const Duration(seconds: 10));
       if (res.statusCode == 200) {
         final data = json.decode(res.body);
         final msg = (data['message'] as String? ?? '').toLowerCase();
         if (msg.contains('already registered')) {
-          final pct =
-              (data['data']?['discount']?['value'] as num?)?.toInt() ??
-                  10;
+          final pct = (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
           return {'eligible': true, 'percentage': pct};
         }
         if (data['success'] == true && data['data'] != null) {
           final d = data['data'];
           if (d['isLoyaltyMember'] == true) {
-            final pct =
-                (d['discount']?['value'] as num?)?.toInt() ?? 10;
+            final pct = (d['discount']?['value'] as num?)?.toInt() ?? 10;
             return {'eligible': true, 'percentage': pct};
           }
         }
@@ -456,8 +421,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     try {
       final res = await http
           .post(
-            Uri.parse(
-                'https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount'),
+            Uri.parse('https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode({
               'email': email,
@@ -473,15 +437,12 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         final data = json.decode(res.body);
         final msg = (data['message'] as String? ?? '').toLowerCase();
         if (msg.contains('already registered')) {
-          final pct =
-              (data['data']?['discount']?['value'] as num?)?.toInt() ??
-                  10;
+          final pct = (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
           return {'eligible': true, 'percentage': pct};
         }
         if (data['success'] == true) {
           final d = data['data'];
-          final pct =
-              (d?['discount']?['value'] as num?)?.toInt() ?? 10;
+          final pct = (d?['discount']?['value'] as num?)?.toInt() ?? 10;
           return {'eligible': true, 'percentage': pct};
         }
         return {
@@ -495,11 +456,16 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     }
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // BUILD
-  // ═══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
+    final hasVideo = widget.videoUrl != null && widget.videoUrl!.isNotEmpty;
+    final hasTerms = widget.termsText.isNotEmpty;
+    final hasBenefits = widget.benefitsTitle.isNotEmpty;
+    
+    if (!hasVideo && !hasTerms && !hasBenefits) {
+      return const SizedBox.shrink();
+    }
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
@@ -516,37 +482,37 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Video section - now takes full width without any padding
-          _buildVideoSection(),
-          // Content section with padding
+          if (hasVideo) _buildVideoSection(),
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 Divider(color: Colors.grey[200], thickness: 1),
-                const SizedBox(height: 5),
-                if (widget.termsText.isNotEmpty) ...[
-                  _sectionLabel(Icons.verified_outlined,
-                      'Program Terms', const Color(0xFF2E7D32)),
+                const SizedBox(height: 8),
+                
+                if (hasTerms) ...[
+                  _sectionLabel(Icons.verified_outlined, 'Program Terms',
+                      const Color(0xFF2E7D32)),
                   const SizedBox(height: 8),
                   _termsRow(widget.termsText),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   _oneTermLabel(
                       icon: Icons.local_offer_outlined,
                       discountValue: widget.discountValue.toDouble()),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
                 ],
-                if (widget.benefitsTitle.isNotEmpty) ...[
-                  _sectionLabel(Icons.star_outline_rounded,
-                      'Special Benefits', const Color(0xFFB8860B)),
+                
+                if (hasBenefits) ...[
+                  _sectionLabel(Icons.star_outline_rounded, 'Special Benefits',
+                      const Color(0xFFB8860B)),
                   const SizedBox(height: 8),
-                  _benefitsList(
-                      widget.benefitsTitle, widget.benefitsSubtitle),
-                  const SizedBox(height: 14),
+                  _benefitsList(widget.benefitsTitle, widget.benefitsSubtitle),
+                  const SizedBox(height: 16),
                 ],
+                
                 Divider(color: Colors.grey[200], thickness: 1),
                 _buildBottomRow(),
               ],
@@ -557,151 +523,141 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     );
   }
 
-  // ─── Video section - Full width with no margins ───────────────────────────
- Widget _buildVideoSection() {
-  return ClipRRect(
-    borderRadius: const BorderRadius.only(
-      topLeft: Radius.circular(15),
-      topRight: Radius.circular(15),
-    ),
-    child: SizedBox(
-      width: double.infinity,
-      height: 200,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // ── Chewie wrapped in FittedBox for cover zoom effect ──
-          if (_videoInitialized && _chewieController != null)
-            FittedBox(
-              fit: BoxFit.cover,
-              clipBehavior: Clip.hardEdge,
-              child: SizedBox(
-                width: _videoController!.value.size.width,
-                height: _videoController!.value.size.height,
-                child: Chewie(controller: _chewieController!),
-              ),
-            )
-          else if (_videoError)
-            _buildVideoError()
-          else
-            _buildThumbnail(),
+  Widget _buildVideoSection() {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(15),
+        topRight: Radius.circular(15),
+      ),
+      child: Container(
+        width: double.infinity,
+        height: 200,
+        color: Colors.black,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (_videoInitialized && _chewieController != null)
+              ClipRect(
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: _videoController!.value.size.width,
+                    height: _videoController!.value.size.height,
+                    child: Chewie(controller: _chewieController!),
+                  ),
+                ),
+              )
+            else if (_videoError)
+              _buildVideoError()
+            else
+              _buildThumbnail(),
 
-          // ── Custom play overlay (shown until user taps play) ─────
-          if (!_videoStarted && !_videoError)
-            GestureDetector(
-              onTap: _videoInitialized
-                  ? _onPlayTapped
-                  : null, // do nothing while still loading
-              child: Container(
-                color: Colors.transparent,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Thumbnail behind overlay when not yet initialized
-                    if (!_videoInitialized) _buildThumbnail(),
-
-                    // Semi-dark gradient at bottom
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 60,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              Colors.black.withOpacity(0.55),
-                              Colors.transparent,
+            if (!_videoStarted && !_videoError)
+              GestureDetector(
+                onTap: _videoInitialized ? _onPlayTapped : null,
+                child: Container(
+                  color: Colors.transparent,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (!_videoInitialized) _buildThumbnail(),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          height: 60,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                Colors.black.withOpacity(0.55),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Center(
+                        child: AnimatedOpacity(
+                          opacity: _videoInitializing ? 0.5 : 1.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.55),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.8),
+                                width: 2,
+                              ),
+                            ),
+                            child: _videoInitializing
+                                ? const Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.play_arrow_rounded,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 14,
+                        left: 14,
+                        child: Text(
+                          '${widget.propertyName ?? ''} – Property Tour',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            shadows: [
+                              Shadow(
+                                  color: Colors.black45,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 1)),
                             ],
                           ),
                         ),
                       ),
-                    ),
-
-                    // Play button circle
-                    Center(
-                      child: AnimatedOpacity(
-                        opacity: _videoInitializing ? 0.5 : 1.0,
-                        duration: const Duration(milliseconds: 300),
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.55),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.8),
-                              width: 2,
-                            ),
-                          ),
-                          child: _videoInitializing
-                              ? const Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.play_arrow_rounded,
-                                  color: Colors.white,
-                                  size: 32,
-                                ),
-                        ),
-                      ),
-                    ),
-
-                    // Property name label
-                    Positioned(
-                      bottom: 14,
-                      left: 14,
-                      child: Text(
-                        '${widget.propertyName ?? ''} – Property Tour',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          shadows: [
-                            Shadow(
-                                color: Colors.black45,
-                                blurRadius: 4,
-                                offset: Offset(0, 1)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
- Widget _buildThumbnail() {
-  if (widget.videoThumbnail != null &&
-      widget.videoThumbnail!.isNotEmpty) {
-    return Image.network(
-      widget.videoThumbnail!,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
-      errorBuilder: (_, __, ___) => _placeholderBox(),
     );
   }
-  return _placeholderBox();
-}
+
+  Widget _buildThumbnail() {
+    if (widget.videoThumbnail != null && widget.videoThumbnail!.isNotEmpty) {
+      return Image.network(
+        widget.videoThumbnail!,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (_, __, ___) => _placeholderBox(),
+      );
+    }
+    return _placeholderBox();
+  }
+
   Widget _placeholderBox() {
     return Container(
       width: double.infinity,
       height: double.infinity,
       color: Colors.grey[200],
       child: Center(
-        child: Icon(Icons.videocam_outlined,
-            size: 48, color: Colors.grey[400]),
+        child: Icon(Icons.videocam_outlined, size: 48, color: Colors.grey[400]),
       ),
     );
   }
@@ -714,23 +670,19 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline_rounded,
-              size: 40, color: Colors.grey[500]),
+          Icon(Icons.error_outline_rounded, size: 40, color: Colors.grey[500]),
           const SizedBox(height: 8),
           Text('Video unavailable',
-              style:
-                  TextStyle(color: Colors.grey[600], fontSize: 13)),
+              style: TextStyle(color: Colors.grey[600], fontSize: 13)),
           const SizedBox(height: 12),
           GestureDetector(
             onTap: _retryVideo,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: theme.AppColor.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: theme.AppColor.primary.withOpacity(0.3)),
+                border: Border.all(color: theme.AppColor.primary.withOpacity(0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -752,7 +704,6 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     );
   }
 
-  // ─── Other UI helpers ─────────────────────────────────────────
   Widget _buildHeader() {
     return Row(
       children: [
@@ -763,8 +714,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
             margin: const EdgeInsets.only(right: 10),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border:
-                  Border.all(color: Colors.grey[200]!, width: 1.5),
+              border: Border.all(color: Colors.grey[200]!, width: 1.5),
               image: DecorationImage(
                 image: NetworkImage(widget.logoUrl!),
                 fit: BoxFit.cover,
@@ -779,20 +729,16 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                   style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: theme.AppColor.text)),
+                      color: Colors.black)),
               Text('Loyalty Program',
-                  style: TextStyle(
-                      fontSize: 12, color: Colors.grey[500])),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[500])),
             ],
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: _isProgramJoined
-                ? Colors.green
-                : theme.AppColor.secondary,
+            color: _isProgramJoined ? Colors.green : theme.AppColor.secondary,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -800,9 +746,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                 ? '${widget.joinedDiscountPercentage}% OFF ✓'
                 : '${widget.discountValue}% OFF',
             style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 13),
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
           ),
         ),
       ],
@@ -818,31 +762,21 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
             style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: theme.AppColor.text)),
+                color: Colors.black)),
       ],
     );
   }
 
-  Widget _oneTermLabel(
-      {required IconData icon,
-      String? discountText,
-      double? discountValue}) {
+  Widget _oneTermLabel({required IconData icon, double? discountValue}) {
     return Row(
       children: [
         Icon(icon, size: 16, color: theme.AppColor.secondary),
         const SizedBox(width: 6),
-        if (discountText != null)
-          Text(discountText,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: theme.AppColor.secondary,
-                  fontWeight: FontWeight.w600))
-        else if (discountValue != null)
-          Text('${discountValue.toInt()}% members only discount',
-              style: TextStyle(
-                  fontSize: 12,
-                  color: theme.AppColor.secondary,
-                  fontWeight: FontWeight.w600)),
+        Text('${discountValue?.toInt() ?? 0}% members only discount',
+            style: TextStyle(
+                fontSize: 12,
+                color: theme.AppColor.secondary,
+                fontWeight: FontWeight.w600)),
       ],
     );
   }
@@ -851,15 +785,11 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.check_circle_outline,
-            size: 15, color: Color(0xFF2E7D32)),
+        const Icon(Icons.check_circle_outline, size: 15, color: Color(0xFF2E7D32)),
         const SizedBox(width: 6),
         Expanded(
           child: Text(text,
-              style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[700],
-                  height: 1.5)),
+              style: TextStyle(fontSize: 13, color: Colors.grey[700], height: 1.5)),
         ),
       ],
     );
@@ -872,29 +802,22 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.star_outline_rounded,
-                size: 15, color: Color(0xFFB8860B)),
+            const Icon(Icons.star_outline_rounded, size: 15, color: Color(0xFFB8860B)),
             const SizedBox(width: 6),
             Expanded(
               child: Text(title,
-                  style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[700],
-                      height: 1.5)),
+                  style: TextStyle(fontSize: 13, color: Colors.grey[700], height: 1.5)),
             ),
           ],
         ),
         if (subtitle.isNotEmpty) ...[
           const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: theme.AppColor.secondary.withOpacity(0.07),
               borderRadius: BorderRadius.circular(13),
-              border: Border.all(
-                  color:
-                      theme.AppColor.secondary.withOpacity(0.25)),
+              border: Border.all(color: theme.AppColor.secondary.withOpacity(0.25)),
             ),
             child: Text(subtitle,
                 style: TextStyle(
@@ -912,6 +835,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
       children: [
         Row(
           children: [
+            // Original toggle button
             Transform.scale(
               scale: 0.8,
               child: Switch(
@@ -925,6 +849,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                 inactiveTrackColor: Colors.grey[300],
               ),
             ),
+            // Join Program button
             GestureDetector(
               onTap: () {
                 if (!_isProgramJoined) _openJoinFlow();
@@ -979,8 +904,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                   decoration: BoxDecoration(
                     color: Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                        color: Colors.orange.withOpacity(0.4)),
+                    border: Border.all(color: Colors.orange.withOpacity(0.4)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -997,15 +921,13 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                   ),
                 ),
               )
-            else if (widget.logoUrl != null &&
-                widget.logoUrl!.isNotEmpty)
+            else if (widget.logoUrl != null && widget.logoUrl!.isNotEmpty)
               Container(
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                      color: Colors.grey[200]!, width: 1.5),
+                  border: Border.all(color: Colors.grey[200]!, width: 1.5),
                   image: DecorationImage(
                     image: NetworkImage(widget.logoUrl!),
                     fit: BoxFit.cover,
@@ -1022,8 +944,7 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
                 child: RichText(
                   text: TextSpan(
                     text: 'Are you registered? ',
-                    style: TextStyle(
-                        fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     children: [
                       TextSpan(
                         text: 'Identify yourself',
@@ -1043,13 +964,11 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         if (_isProgramJoined) ...[
           const SizedBox(height: 6),
           Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.green.withOpacity(0.07),
               borderRadius: BorderRadius.circular(10),
-              border:
-                  Border.all(color: Colors.green.withOpacity(0.25)),
+              border: Border.all(color: Colors.green.withOpacity(0.25)),
             ),
             child: Row(
               children: [
@@ -1087,12 +1006,9 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: TextStyle(
-            color: theme.AppColor.primary, fontSize: 13),
-        hintStyle:
-            TextStyle(color: Colors.grey[400], fontSize: 13),
-        prefixIcon: Icon(icon,
-            color: theme.AppColor.secondary, size: 20),
+        labelStyle: TextStyle(color: theme.AppColor.primary, fontSize: 13),
+        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+        prefixIcon: Icon(icon, color: theme.AppColor.secondary, size: 20),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey[300]!),
@@ -1103,13 +1019,11 @@ class _LoyaltyProgramCardState extends State<LoyaltyProgramCard> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide:
-              BorderSide(color: theme.AppColor.primary, width: 1.5),
+          borderSide: BorderSide(color: theme.AppColor.primary, width: 1.5),
         ),
         filled: true,
         fillColor: Colors.grey[50],
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 14, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       ),
       validator: validator,
     );

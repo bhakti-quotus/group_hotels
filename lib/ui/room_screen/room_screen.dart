@@ -4,13 +4,13 @@ import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
 import 'package:royalcontinent/group/controllers/hotel_controller.dart';
 import 'package:royalcontinent/group/controllers/api_controller.dart';
-import 'package:royalcontinent/group/controllers/search_controller.dart' as search_ctrl;
+import 'package:royalcontinent/group/controllers/search_controller.dart'
+    as search_ctrl;
 import 'amenities_widget.dart';
 import 'gallery_widget.dart';
 import 'rooms_list_widget.dart';
 import 'search_widget.dart';
 
-/// Main screen that displays rooms, amenities, and gallery for the selected hotel.
 class RoomScreen extends StatefulWidget {
   const RoomScreen({super.key});
 
@@ -35,22 +35,36 @@ class _RoomScreenState extends State<RoomScreen> {
   Map<String, dynamic>? _propertyVideos;
   Map<String, dynamic>? _loyaltyConfig;
 
-@override
+  // Store the ever() worker so we can cancel it in dispose()
+  Worker? _hotelWorker;
+
+  @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    
-    // ✅ Reactive: Refresh when HotelController hotel changes
-    ever(Get.find<HotelController>().selectedHotel, (_) {
-      _loadedPropertyCode = '';
-      _loadDataFromHotelController();
-    });
-    
+
+    // React to hotel changes made externally (e.g. from empty-state picker
+    // in RoomsListWidget) — but skip if same hotel is already loaded
+    _hotelWorker = ever(
+      Get.find<HotelController>().selectedHotel,
+      (hotel) {
+        if (hotel == null) return;
+        final newCode =
+            (hotel['code'] ?? hotel['id'] ?? '').toString();
+        // Only reload if the hotel actually changed
+        if (newCode != _loadedPropertyCode) {
+          _loadedPropertyCode = '';
+          _loadDataFromHotelController();
+        }
+      },
+    );
+
     _loadDataFromHotelController();
   }
 
   @override
   void dispose() {
+    _hotelWorker?.dispose(); // cancel the ever() listener
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
@@ -83,8 +97,9 @@ class _RoomScreenState extends State<RoomScreen> {
         return;
       }
 
-      final currentCode = (selectedHotel['code'] ?? selectedHotel['id'] ?? '')
-          .toString();
+      final currentCode =
+          (selectedHotel['code'] ?? selectedHotel['id'] ?? '')
+              .toString();
 
       if (_loadedPropertyCode == currentCode && data.isNotEmpty) {
         return;
@@ -98,35 +113,34 @@ class _RoomScreenState extends State<RoomScreen> {
         data = Map<String, dynamic>.from(hotelConfig);
         _errorMessage = null;
 
-        final galleryItems = hotelConfig['gallery']?['items'] as List<dynamic>?;
-        gallery = galleryItems?.cast<Map<String, dynamic>>() ?? [];
+        final galleryItems =
+            hotelConfig['gallery']?['items'] as List<dynamic>?;
+        gallery =
+            galleryItems?.cast<Map<String, dynamic>>() ?? [];
 
-        propertyCode =
-            (selectedHotel['code'] ??
-                    hotelConfig['code'] ??
-                    hotelConfig['propertyDetails']?['code'] ??
-                    selectedHotel['id'] ??
-                    '')
-                .toString();
+        propertyCode = (selectedHotel['code'] ??
+                hotelConfig['code'] ??
+                hotelConfig['propertyDetails']?['code'] ??
+                selectedHotel['id'] ??
+                '')
+            .toString();
 
         hotelName = selectedHotel['name']?.toString() ?? '';
         _loadedPropertyCode = propertyCode;
 
-        // Extract loyalty data from hotel config (local config fallback)
         _propertyDetails =
             hotelConfig['propertyDetails'] as Map<String, dynamic>?;
         _propertyVideos =
             hotelConfig['propertyVideos'] as Map<String, dynamic>?;
 
-        // Try to extract loyaltyConfig from local config using the same
-        // nested path that the API uses, falling back to a flat key.
-        final localLoyaltyProgram = _propertyDetails?['loyaltyProgramConfig']
-            as Map<String, dynamic>?;
+        final localLoyaltyProgram =
+            _propertyDetails?['loyaltyProgramConfig']
+                as Map<String, dynamic>?;
         final localCreationConfig =
             localLoyaltyProgram?['CreationLoyaltyConfig']
                 as Map<String, dynamic>?;
-        _loyaltyConfig =
-            localCreationConfig ?? hotelConfig['loyaltyConfig'] as Map<String, dynamic>?;
+        _loyaltyConfig = localCreationConfig ??
+            hotelConfig['loyaltyConfig'] as Map<String, dynamic>?;
       });
 
       if (propertyCode.isNotEmpty) {
@@ -140,24 +154,82 @@ class _RoomScreenState extends State<RoomScreen> {
     }
   }
 
+  /// Fetches rooms from the API.
+  /// Always reads propertyCode fresh from AppSearchController so that
+  /// hotel switches from the empty-state picker are reflected correctly.
   Future<void> _fetchRoomsFromAPI() async {
-    if (propertyCode.isEmpty) {
+    // ── Resolve the current property code ──────────────────────────────
+    // Priority: AppSearchController payload > local propertyCode field
+    final searchController =
+        Get.find<search_ctrl.AppSearchController>();
+
+    String effectivePropertyCode = propertyCode;
+
+    if (searchController.hasSearchPayload()) {
+      final payloadCode =
+          searchController.getSearchPayload()['propertyCode']
+              as String?;
+      if (payloadCode != null && payloadCode.isNotEmpty) {
+        effectivePropertyCode = payloadCode;
+      }
+    }
+
+    if (effectivePropertyCode.isEmpty) {
       setState(() => _errorMessage = 'no_property_code');
       return;
     }
 
-    final searchController = Get.find<search_ctrl.AppSearchController>();
+    // ── Build payload ──────────────────────────────────────────────────
     Map<String, dynamic> payload;
 
     if (searchController.hasSearchPayload()) {
-      payload = searchController.getSearchPayload();
-      payload["propertyCode"] = propertyCode;
+      final rawPayload = Map<String, dynamic>.from(
+          searchController.getSearchPayload());
+      payload = {
+        'propertyCode': effectivePropertyCode,
+        'startDate': rawPayload['startDate'] as String? ?? '',
+        'endDate': rawPayload['endDate'] as String? ?? '',
+        'location': rawPayload['location'] as String? ?? '',
+        'numberOfRooms': rawPayload['numberOfRooms'] as int? ??
+            (rawPayload['guests'] is Map<String, dynamic>
+                ? (rawPayload['guests']['rooms'] as int? ??
+                    (rawPayload['guests']['roomsArray'] as List?)?.length ?? 1)
+                : 1),
+        'guests': rawPayload['guests'] as Map<String, dynamic>? ?? {
+          'adults': 1,
+          'children': 0,
+          'rooms': 1,
+          'roomsArray': [
+            {'adults': 1, 'children': 0, 'childAges': <int>[]},
+          ],
+        },
+        'promocode': rawPayload['promocode'] as String? ?? '',
+      };
     } else {
       final searchPayloadFromConfig =
           data['searchPayload'] as Map<String, dynamic>?;
       if (searchPayloadFromConfig != null) {
-        payload = Map<String, dynamic>.from(searchPayloadFromConfig);
-        payload["propertyCode"] = propertyCode;
+        final rawPayload = Map<String, dynamic>.from(searchPayloadFromConfig);
+        payload = {
+          'propertyCode': effectivePropertyCode,
+          'startDate': rawPayload['startDate'] as String? ?? '',
+          'endDate': rawPayload['endDate'] as String? ?? '',
+          'location': rawPayload['location'] as String? ?? '',
+          'numberOfRooms': rawPayload['numberOfRooms'] as int? ??
+              (rawPayload['guests'] is Map<String, dynamic>
+                  ? (rawPayload['guests']['rooms'] as int? ??
+                      (rawPayload['guests']['roomsArray'] as List?)?.length ?? 1)
+                  : 1),
+          'guests': rawPayload['guests'] as Map<String, dynamic>? ?? {
+            'adults': 1,
+            'children': 0,
+            'rooms': 1,
+            'roomsArray': [
+              {'adults': 1, 'children': 0, 'childAges': <int>[]},
+            ],
+          },
+          'promocode': rawPayload['promocode'] as String? ?? '',
+        };
       } else {
         setState(() => _errorMessage = 'no_search_payload');
         return;
@@ -177,56 +249,41 @@ class _RoomScreenState extends State<RoomScreen> {
       final result = await apiController.fetchRooms(payload);
 
       if (!mounted) return;
-     // print('result');
-     // print(result);
 
       setState(() {
         if (result['success']) {
           final apiData = result['data'] as Map<String, dynamic>;
 
-          // ── Rooms ────────────────────────────────────────────────────
+          // ── Rooms ──────────────────────────────────────────────────
           if (apiData['rooms'] != null) {
             data['rooms'] = apiData['rooms'];
           } else {
-            final selectedHotel =
+            final selected =
                 Get.find<HotelController>().getSelectedHotel();
-            data['rooms'] = selectedHotel?['config']?['rooms'] ?? [];
+            data['rooms'] =
+                selected?['config']?['rooms'] ?? [];
           }
 
-          // ── Property details + loyalty (correct nested path) ─────────
-          //
-          // API shape:
-          //   data.propertyDetails.loyaltyProgramConfig.CreationLoyaltyConfig
-          //   data.propertyDetails.propertyVideos
-          //
+          // ── Property details + loyalty ─────────────────────────────
           if (apiData['propertyDetails'] != null) {
             data['propertyDetails'] = apiData['propertyDetails'];
             _propertyDetails =
                 apiData['propertyDetails'] as Map<String, dynamic>;
 
-            // ✅ Extract loyaltyConfig from the correct nested path
             final loyaltyProgramConfig =
                 _propertyDetails?['loyaltyProgramConfig']
                     as Map<String, dynamic>?;
             final creationLoyaltyConfig =
                 loyaltyProgramConfig?['CreationLoyaltyConfig']
                     as Map<String, dynamic>?;
-
             if (creationLoyaltyConfig != null) {
               _loyaltyConfig = creationLoyaltyConfig;
-              //print('✅ loyaltyConfig loaded: $_loyaltyConfig');
-            } else {
-              //print('⚠️ CreationLoyaltyConfig not found in API response');
             }
 
-            // ✅ Extract propertyVideos from the correct nested path
-            final videos =
-                _propertyDetails?['propertyVideos'] as Map<String, dynamic>?;
+            final videos = _propertyDetails?['propertyVideos']
+                as Map<String, dynamic>?;
             if (videos != null) {
               _propertyVideos = videos;
-             // print('✅ propertyVideos loaded: $_propertyVideos');
-            } else {
-             // print('⚠️ propertyVideos not found in API response');
             }
           }
 
@@ -236,20 +293,19 @@ class _RoomScreenState extends State<RoomScreen> {
               [];
           _errorMessage = rooms.isEmpty ? 'no_rooms' : null;
         } else {
-          final error =
-              result['error']?.toString() ??
+          final error = result['error']?.toString() ??
               result['message']?.toString() ??
               '';
           _errorMessage =
               (error.contains('Property not available') ||
-                  error.contains('Property or configuration not found'))
-              ? 'no_rooms'
-              : 'server_error';
+                      error.contains(
+                          'Property or configuration not found'))
+                  ? 'no_rooms'
+                  : 'server_error';
         }
         _isLoading = false;
       });
     } catch (e) {
-      //print("Error fetching rooms: $e");
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -258,14 +314,40 @@ class _RoomScreenState extends State<RoomScreen> {
     }
   }
 
-  /// Called by SearchWidget's "UPDATE SEARCH" button.
-  /// The widget has already saved the new payload into AppSearchController,
-  /// so we just re-fetch rooms with whatever is in the controller.
-  void _onSearchModified() {
+  /// Called when the user taps "UPDATE SEARCH" in SearchWidget.
+  void _onSearchModified() => _fetchRoomsFromAPI();
+
+  /// Called when the user picks a different hotel from the
+  /// empty-state hotel picker inside RoomsListWidget.
+  /// AppSearchController.searchPayload['propertyCode'] is already
+  /// updated by RoomsListWidget before this fires.
+  void _onHotelSelectedFromEmptyState() {
+    // Sync local propertyCode from the updated payload so the
+    // next _fetchRoomsFromAPI call uses the right code
+    final searchController =
+        Get.find<search_ctrl.AppSearchController>();
+    if (searchController.hasSearchPayload()) {
+      final newCode =
+          searchController.getSearchPayload()['propertyCode']
+              as String?;
+      if (newCode != null && newCode.isNotEmpty) {
+        // Reset _loadedPropertyCode so _loadDataFromHotelController
+        // doesn't short-circuit on same-code guard
+        _loadedPropertyCode = '';
+        propertyCode = newCode;
+
+        // Also update hotelName from HotelController
+        final selected =
+            Get.find<HotelController>().getSelectedHotel();
+        if (selected != null) {
+          hotelName = selected['name']?.toString() ?? hotelName;
+        }
+      }
+    }
     _fetchRoomsFromAPI();
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildScreenEmptyState() {
     if (_errorMessage == null) return const SizedBox.shrink();
 
     String title, message;
@@ -273,14 +355,12 @@ class _RoomScreenState extends State<RoomScreen> {
 
     switch (_errorMessage) {
       case 'no_rooms':
-        title = 'No Rooms Available';
-        message = 'This property currently has no rooms available for booking.';
-        iconData = Icons.hotel_outlined;
-        break;
+        // no_rooms is handled inside RoomsListWidget with hotel picker
+        return const SizedBox.shrink();
       case 'server_error':
         title = 'Something Went Wrong';
         message =
-            'We\'re having trouble loading the rooms. Please try again in a moment.';
+            'We\'re having trouble loading the rooms. Please try again.';
         iconData = Icons.error_outline;
         break;
       case 'config_error':
@@ -330,34 +410,32 @@ class _RoomScreenState extends State<RoomScreen> {
             const SizedBox(height: 8),
             Text(
               message,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
+              style: const TextStyle(
+                  fontSize: 14, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
-            if (_errorMessage == 'server_error' ||
-                _errorMessage == 'no_rooms') ...[
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: () {
-                  setState(() {
-                    _errorMessage = null;
-                    _loadedPropertyCode = '';
-                  });
-                  _loadDataFromHotelController();
-                },
-                icon: const Icon(Icons.refresh),
-                label: Text(
-                  'Try Again',
-                  style: TextStyle(color: BrandingColors.primary),
-                ),
-                style: ElevatedButton.styleFrom(
-                  iconColor: AppColor.primary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  _errorMessage = null;
+                  _loadedPropertyCode = '';
+                });
+                _loadDataFromHotelController();
+              },
+              icon: const Icon(Icons.refresh),
+              label: Text(
+                'Try Again',
+                style: TextStyle(color: BrandingColors.primary),
+              ),
+              style: ElevatedButton.styleFrom(
+                iconColor: AppColor.primary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),
@@ -367,11 +445,14 @@ class _RoomScreenState extends State<RoomScreen> {
   @override
   Widget build(BuildContext context) {
     if (data.isEmpty && !_isLoading && _errorMessage == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+          body: Center(child: CircularProgressIndicator()));
     }
 
     final rooms =
-        (data['rooms'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+        (data['rooms'] as List<dynamic>?)
+            ?.cast<Map<String, dynamic>>() ??
+        [];
 
     HotelController hotelController;
     try {
@@ -386,14 +467,16 @@ class _RoomScreenState extends State<RoomScreen> {
     List<Map<String, dynamic>> amenities = [];
 
     if (selectedHotel != null && selectedHotel['config'] != null) {
-      branding =
-          selectedHotel['config']['branding'] as Map<String, dynamic>? ?? {};
+      branding = selectedHotel['config']['branding']
+              as Map<String, dynamic>? ??
+          {};
       amenities =
           (selectedHotel['config']['amenities'] as List<dynamic>?)
               ?.cast<Map<String, dynamic>>() ??
           [];
     } else if (data.isNotEmpty) {
-      branding = data['branding'] as Map<String, dynamic>? ?? {};
+      branding =
+          data['branding'] as Map<String, dynamic>? ?? {};
       amenities =
           (data['amenities'] as List<dynamic>?)
               ?.cast<Map<String, dynamic>>() ??
@@ -401,44 +484,54 @@ class _RoomScreenState extends State<RoomScreen> {
     }
 
     final primaryColor = branding['primaryColor'] != null
-        ? Color(int.parse(branding['primaryColor'].replaceFirst('#', '0xff')))
+        ? Color(
+            int.parse(
+                branding['primaryColor'].replaceFirst('#', '0xff')))
         : AppColor.primary;
 
     int totalGuests = 1;
     try {
-      final searchController = Get.find<search_ctrl.AppSearchController>();
+      final searchController =
+          Get.find<search_ctrl.AppSearchController>();
       final payload = searchController.hasSearchPayload()
           ? searchController.getSearchPayload()
           : data['searchPayload'] as Map<String, dynamic>?;
       if (payload != null) {
-        final guests = payload['guests'] as Map<String, dynamic>?;
+        final guests =
+            payload['guests'] as Map<String, dynamic>?;
         if (guests != null) {
-          totalGuests =
-              (guests['adults'] as int? ?? 0) +
+          totalGuests = (guests['adults'] as int? ?? 0) +
               (guests['children'] as int? ?? 0);
           if (totalGuests == 0) totalGuests = 1;
         }
       }
     } catch (e) {
-      //print("Error getting total guests: $e");
+      // ignore
     }
+
+    // Decide what to show in the body
+    // no_rooms is passed into RoomsListWidget so it can show the hotel picker
+    final showScreenError = _errorMessage != null &&
+        _errorMessage != 'no_rooms';
 
     return Scaffold(
       backgroundColor: AppColor.background,
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0),
-        child: AppBar(backgroundColor: AppColor.primary, elevation: 0),
+        child: AppBar(
+            backgroundColor: AppColor.primary, elevation: 0),
       ),
       body: Column(
         children: [
-          // ── STATUS BAR SAFE AREA ──────────────────────────────────────
+          // Status bar safe area
           SizedBox(height: MediaQuery.of(context).padding.top),
-          
-          // ── SEARCH WIDGET ─────────────────────────────────────────────
+
+          // Search widget
           ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.8,
+              maxHeight:
+                  MediaQuery.of(context).size.height * 0.8,
               minHeight: 80,
             ),
             child: SearchWidget(
@@ -448,43 +541,47 @@ class _RoomScreenState extends State<RoomScreen> {
             ),
           ),
 
-          // ── BODY ──────────────────────────────────────────────────────
+          // Body
           Expanded(
-            child: _isLoading && rooms.isEmpty
-                ? Center(child: CircularProgressIndicator(color: primaryColor))
-                : _errorMessage != null
-                ? _buildEmptyState()
+            child: showScreenError
+                ? _buildScreenEmptyState()
                 : SingleChildScrollView(
                     controller: _scrollController,
                     child: Column(
                       children: [
-                        // Rooms List with loyalty data
                         RoomsListWidget(
                           rooms: rooms,
                           totalGuests: totalGuests,
                           propertyCode: propertyCode,
                           hotelName: hotelName,
                           roomKeys: {},
-                          errorMessage: _errorMessage,
+                          // Pass 'no_rooms' error only — RoomsListWidget
+                          // handles it with the hotel picker UI.
+                          // All other errors are shown above by
+                          // _buildScreenEmptyState().
+                          errorMessage: _errorMessage == 'no_rooms'
+                              ? null // let RoomsListWidget show picker via empty rooms list
+                              : null,
                           isLoading: _isLoading,
                           onRefresh: _fetchRoomsFromAPI,
                           primaryColor: primaryColor,
-                          propertyId:
-                              data['propertyDetails']?['id']?.toString() ?? '',
-
-                          // ✅ Pass correctly extracted loyalty data
+                          propertyId: data['propertyDetails']?['id']
+                                  ?.toString() ??
+                              '',
                           propertyDetails: _propertyDetails,
                           propertyVideos: _propertyVideos,
                           loyaltyConfig: _loyaltyConfig,
+
+                          // NEW — hotel picker in empty state calls this
+                          onHotelSelected:
+                              _onHotelSelectedFromEmptyState,
                         ),
 
-                        // Amenities
                         if (amenities.isNotEmpty) ...[
                           AmenitiesWidget(amenities: amenities),
                           const SizedBox(height: 12),
                         ],
 
-                        // Gallery
                         if (gallery.isNotEmpty) ...[
                           GalleryWidget(gallery: gallery),
                           const SizedBox(height: 12),

@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../services/hive_service.dart';
 
 class ApiController extends GetxController {
   final HiveService hiveService = Get.find<HiveService>();
 
-  final String _baseUrl = '';
+  String get _baseUrl => dotenv.env['BASE_URL'] ?? 'https://bookings.revchilltech.com/api/v1';
   final String _pmsUrl = '';
 
   bool _configLoaded = false;
@@ -186,7 +187,7 @@ class ApiController extends GetxController {
       final response = await http
           .post(
             Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations',
+              'https://bookings.revchilltech.com/api/v1/reservations',
             ),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
@@ -443,7 +444,7 @@ class ApiController extends GetxController {
 
     try {
       final uri = Uri.parse(
-        'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations/$bookingCode',
+        'https://bookings.revchilltech.com/api/v1/reservations/$bookingCode',
       ).replace(queryParameters: {'propertyCode': propertyCode});
 
      // print('Fetching booking details from: $uri');
@@ -488,7 +489,7 @@ class ApiController extends GetxController {
       final response = await http
           .patch(
             Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations/update/$bookingCode',
+              'https://bookings.revchilltech.com/api/v1/reservations/update/$bookingCode',
             ),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
@@ -531,7 +532,7 @@ class ApiController extends GetxController {
       final response = await http
           .put(
             Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/pms/front-office/reservations/cancel/$reservationId',
+              'https://bookings.revchilltech.com/api/v1/reservations/cancel/$reservationId',
             ),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),

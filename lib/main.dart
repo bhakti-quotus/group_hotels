@@ -9,10 +9,12 @@ import 'package:royalcontinent/group/models/booking_model.dart';
 import 'package:royalcontinent/group/models/chat_message.dart';
 import 'package:royalcontinent/group/services/hive_service.dart';
 import 'package:royalcontinent/group/utils/app_routes.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
   try {
     await Hive.initFlutter();

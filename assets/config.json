@@ -212,10 +212,6 @@
           {
             "icon": "https://cdn-icons-png.flaticon.com/128/5732/5732044.png",
             "label": "Spa"
-          },
-          {
-            "icon": "https://cdn-icons-png.flaticon.com/128/3269/3269935.png",
-            "label": "Casino"
           }
         ],
         "gallery": {
@@ -251,7 +247,7 @@
           "checkIn": "12:00 PM",
           "checkOut": "10:00 AM",
           "cancellation": "Free cancellation upto 2 days before check in . But after that 50% refund.",
-          "petPolicy": "Pets are allowed with some extra charge.",
+         
           "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
         },
         "contact": {

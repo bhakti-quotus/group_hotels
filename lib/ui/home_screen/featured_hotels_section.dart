@@ -44,7 +44,7 @@ class _FeaturedHotelsSectionState extends State<FeaturedHotelsSection> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Choose Accommodation',
+                  'Choose \n Accommodation',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
