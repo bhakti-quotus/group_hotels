@@ -405,43 +405,53 @@ class _BookingPageState extends State<BookingPage>
   Widget build(BuildContext context) {
     final addonsTotal = _calculateAddonsTotal();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F3EE),
-      body: Column(
-        children: [
-          _buildRoyalHeader(),
-          Expanded(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(10, 14, 10, 8),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildGuestSection(),
-                      const SizedBox(height: 10),
-                      _buildContactSection(),
-                      if (_selectedAddons.isNotEmpty) ...[
+    return PopScope(
+      canPop: false,
+  onPopInvokedWithResult: (didPop, result) {
+    if (didPop) return;
+
+    // Same as your custom back button
+    Get.back();
+    Get.back();
+  },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F3EE),
+        body: Column(
+          children: [
+            _buildRoyalHeader(),
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(10, 14, 10, 8),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildGuestSection(),
                         const SizedBox(height: 10),
-                        _buildAddonsSection(addonsTotal),
+                        _buildContactSection(),
+                        if (_selectedAddons.isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          _buildAddonsSection(addonsTotal),
+                        ],
+                        if (_priceData != null) ...[
+                          const SizedBox(height: 10),
+                          _buildPriceSummarySection(addonsTotal),
+                        ],
+                        const SizedBox(height: 24),
                       ],
-                      if (_priceData != null) ...[
-                        const SizedBox(height: 10),
-                        _buildPriceSummarySection(addonsTotal),
-                      ],
-                      const SizedBox(height: 24),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+        bottomNavigationBar: _buildRoyalFooter(),
       ),
-      bottomNavigationBar: _buildRoyalFooter(),
     );
   }
 
@@ -468,7 +478,7 @@ class _BookingPageState extends State<BookingPage>
               child: Row(
                 children: [
                   IconButton(
-onPressed: () => Get.back(),
+onPressed: () => {Get.back(), Get.back()},
                     icon: const Icon(
                       Icons.arrow_back_ios_new_rounded,
                       color: Colors.white,

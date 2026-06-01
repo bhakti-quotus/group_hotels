@@ -51,9 +51,7 @@ class ApiController extends GetxController {
     try {
       final response = await http
           .post(
-            Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/booking-engine/fetch-rooms',
-            ),
+            Uri.parse('$_baseUrl/booking-engine/fetch-rooms'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
           )
@@ -100,9 +98,7 @@ class ApiController extends GetxController {
      // print('=======================================');
       final response = await http
           .post(
-            Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/booking-engine/pricing/get-price',
-            ),
+            Uri.parse('$_baseUrl/booking-engine/pricing/get-price'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
           )
@@ -150,9 +146,7 @@ class ApiController extends GetxController {
      // print("propertyId from controller : $propertyId");
       final response = await http
           .get(
-            Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/property-management/property/$propertyId/payment-details',
-            ),
+            Uri.parse('$_baseUrl/property-management/property/$propertyId/payment-details'),
             headers: {'Content-Type': 'application/json'},
           )
           .timeout(const Duration(seconds: 10));
@@ -186,9 +180,7 @@ class ApiController extends GetxController {
 
       final response = await http
           .post(
-            Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/reservations',
-            ),
+            Uri.parse('$_baseUrl/reservations'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
           )
@@ -407,9 +399,8 @@ class ApiController extends GetxController {
         'ratePlanCode': ratePlanCode,
       };
 
-      final uri = Uri.parse(
-        'https://bookings.revchilltech.com/api/v1/addon/addon-datewise/available',
-      ).replace(queryParameters: queryParams);
+      final uri = Uri.parse('$_baseUrl/addon/addon-datewise/available')
+          .replace(queryParameters: queryParams);
 
      // print('Addon API URL: $uri');
 
@@ -443,9 +434,8 @@ class ApiController extends GetxController {
     await _ensureConfigLoaded();
 
     try {
-      final uri = Uri.parse(
-        'https://bookings.revchilltech.com/api/v1/reservations/$bookingCode',
-      ).replace(queryParameters: {'propertyCode': propertyCode});
+      final uri = Uri.parse('$_baseUrl/reservations/$bookingCode')
+          .replace(queryParameters: {'propertyCode': propertyCode});
 
      // print('Fetching booking details from: $uri');
 
@@ -488,9 +478,7 @@ class ApiController extends GetxController {
 
       final response = await http
           .patch(
-            Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/reservations/update/$bookingCode',
-            ),
+            Uri.parse('$_baseUrl/reservations/update/$bookingCode'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
           )
@@ -531,9 +519,7 @@ class ApiController extends GetxController {
 
       final response = await http
           .put(
-            Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/reservations/cancel/$reservationId',
-            ),
+            Uri.parse('$_baseUrl/reservations/cancel/$reservationId'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode(payload),
           )
