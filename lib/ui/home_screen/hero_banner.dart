@@ -36,29 +36,12 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
   late AnimationController _textController;
   late Animation<double> _textOpacity;
   late Animation<Offset> _textSlide;
-
-  // Auto-slide
-  late PageController _pageController;
-  int _currentPage = 0;
-  Timer? _autoSlideTimer;
-
-  // All images: banner image + gallery images combined
-  late List<String> _allImages;
+  // Single banner image
+  late String _bannerImage;
 
   @override
   void initState() {
     super.initState();
-
-    // Combine banner image + passed images
-    final bannerImg = widget.bannerData['image'] as String?;
-    _allImages = [
-      if (bannerImg != null && bannerImg.isNotEmpty) bannerImg,
-      ...widget.images,
-    ];
-    if (_allImages.isEmpty) _allImages = [''];
-
-    _pageController = PageController();
-
     // Ken Burns
     _zoomController = AnimationController(
       vsync: this,
@@ -85,26 +68,16 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
           ),
         );
 
-    // Auto-slide every 5s
-    if (_allImages.length > 1) {
-      _autoSlideTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-        if (!mounted) return;
-        final next = (_currentPage + 1) % _allImages.length;
-        _pageController.animateToPage(
-          next,
-          duration: const Duration(milliseconds: 700),
-          curve: Curves.easeInOut,
-        );
-      });
-    }
+    // Use only the primary banner image for the hero banner zoom.
+    final bannerImg = widget.bannerData['image'] as String? ?? '';
+    _bannerImage = bannerImg;
   }
 
   @override
   void dispose() {
     _zoomController.dispose();
     _textController.dispose();
-    _pageController.dispose();
-    _autoSlideTimer?.cancel();
+    // No page controller or timers to dispose (single image)
     super.dispose();
   }
 
@@ -132,30 +105,22 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
       height: 340 + topPad,
       child: Stack(
         children: [
-          // ── Sliding background images ──────────────────────────────────
-          PageView.builder(
-            controller: _pageController,
-            physics: const BouncingScrollPhysics(),
-            onPageChanged: (i) => setState(() => _currentPage = i),
-            itemCount: _allImages.length,
-            itemBuilder: (context, index) {
-              return AnimatedBuilder(
-                animation: _zoomAnim,
-                builder: (_, __) => Transform.scale(
-                  scale: index == _currentPage ? _zoomAnim.value : 1.0,
-                  child: _allImages[index].isNotEmpty
-                      ? Image.network(
-                          _allImages[index],
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                          errorBuilder: (_, __, ___) =>
-                              Container(color: AppColor.primary),
-                        )
-                      : Container(color: AppColor.primary),
-                ),
-              );
-            },
+          // ── Single banner image with Ken Burns zoom ─────────────────────
+          AnimatedBuilder(
+            animation: _zoomAnim,
+            builder: (_, __) => Transform.scale(
+              scale: _zoomAnim.value,
+              child: _bannerImage.isNotEmpty
+                  ? Image.network(
+                      _bannerImage,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (_, __, ___) =>
+                          Container(color: AppColor.primary),
+                    )
+                  : Container(color: AppColor.primary),
+            ),
           ),
 
           // ── Multi-layer gradient overlay ───────────────────────────────
@@ -268,29 +233,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
             ),
           ),
 
-          // ── Page dots (bottom-right) ───────────────────────────────────
-          if (_allImages.length > 1)
-            Positioned(
-              bottom: 60,
-              right: 20,
-              child: Row(
-                children: List.generate(_allImages.length, (i) {
-                  final isActive = i == _currentPage;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    width: isActive ? 18 : 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: isActive
-                          ? AppColor.secondary
-                          : Colors.white.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  );
-                }),
-              ),
-            ),
+          // (no page dots; single banner image)
 
           // ── Bottom text content ────────────────────────────────────────
           Positioned(

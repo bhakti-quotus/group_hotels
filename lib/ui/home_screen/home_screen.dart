@@ -4,11 +4,15 @@ import 'package:get/get.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'hero_banner.dart';
 import 'description_section.dart';
+import 'value_section.dart';
 import 'quick_actions_section.dart';
 import 'featured_rooms_section.dart';
 import 'featured_hotels_section.dart';
 import 'gallery_preview_section.dart';
+import '../gallery/gallery_fullscreen_page.dart';
+import '../gallery/gallery_grid_page.dart';
 import '../facilities_page/facility_detail_page.dart';
+import '../gallery/gallery_tabs_page.dart';
 
 class HomeScreen extends StatefulWidget {
   final Map<String, dynamic> config;
@@ -31,12 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Print the ENTIRE config to see what we're working with
-    // print('========== COMPLETE CONFIG ==========');
-    //print(jsonEncode(widget.config));
-    // print('=====================================');
-
     loadData();
     _scrollController.addListener(_onScroll);
   }
@@ -75,28 +73,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void loadData() {
-    // print('========== LOADING DATA ==========');
-
-    // Print all top-level keys in widget.config
-    // print('Top-level keys in widget.config: ${widget.config.keys.toList()}');
-
     // Try to find about data in various possible locations
     Map<String, dynamic>? foundAboutData;
 
     // Location 1: Direct about key
     if (widget.config.containsKey('about')) {
       foundAboutData = widget.config['about'] as Map<String, dynamic>?;
-      // print('Found about at top level: ${foundAboutData != null}');
     }
 
     // Location 2: Inside config key
     if (foundAboutData == null && widget.config.containsKey('config')) {
       final innerConfig = widget.config['config'] as Map<String, dynamic>?;
-      //print('Inner config keys: ${innerConfig?.keys.toList()}');
-
       if (innerConfig != null && innerConfig.containsKey('about')) {
         foundAboutData = innerConfig['about'] as Map<String, dynamic>?;
-        // print('Found about inside config key: ${foundAboutData != null}');
       }
     }
 
@@ -105,20 +94,13 @@ class _HomeScreenState extends State<HomeScreen> {
       final data = widget.config['data'] as Map<String, dynamic>?;
       if (data != null && data.containsKey('about')) {
         foundAboutData = data['about'] as Map<String, dynamic>?;
-        // print('Found about inside data key: ${foundAboutData != null}');
       }
     }
 
     setState(() {
       if (foundAboutData != null) {
         aboutData = foundAboutData;
-        //print('✅ ABOUT DATA LOADED SUCCESSFULLY');
-        // print('   Title: ${aboutData['title']}');
-        // print(
-        //   '   Description preview: ${aboutData['description']?.toString().substring(0, 50)}...',
-        // );
       } else {
-        // print('❌ COULD NOT FIND ABOUT DATA ANYWHERE');
         aboutData = {};
       }
 
@@ -133,8 +115,6 @@ class _HomeScreenState extends State<HomeScreen> {
         logoUrl = widget.config['branding']?['logo'] ?? '';
       }
     });
-
-    // print('==================================');
   }
 
   Map<String, dynamic>? getSectionByType(String type) {
@@ -171,8 +151,26 @@ class _HomeScreenState extends State<HomeScreen> {
       {
         'icon': 'local_offer',
         'label': 'Offers',
-        'route': '/promotions',
+        'route': '/offers',
         'color': '#228B22',
+      },
+      {
+        'icon': 'spa',
+        'label': 'Spa',
+        'route': '/spa',
+        'color': '#FF6F61',
+      },
+      {
+        'icon': 'gift',
+        'label': 'Attractions',
+        'route': '/attractions',
+        'color': '#228B22',
+      },
+      {
+        'icon': 'meeting_room',
+        'label': 'Meetings and Events',
+        'route': '/meetings-events',
+        'color': '#800080',
       },
       {
         'icon': 'spa',
@@ -194,12 +192,150 @@ class _HomeScreenState extends State<HomeScreen> {
     return nestedOutlets ?? [];
   }
 
+  void _handleQuickActionTap(int index, String route, Map<String, dynamic>? quickActions) {
+    if (route.isEmpty) return;
+
+    switch (route) {
+      case '/promotions':
+        final innerConfig = widget.config['config'] as Map<String, dynamic>?;
+        final promotionsData = innerConfig?['promotion'] as List<dynamic>? ?? [];
+        final title = widget.config['name'] as String? ?? 'Promotions';
+        Get.toNamed(
+          '/promotions',
+          arguments: {
+            'promotions': promotionsData,
+            'title': title,
+          },
+        );
+        break;
+
+      case '/facilities':
+        final innerConfig = widget.config['config'] as Map<String, dynamic>?;
+        final facilitiesData = innerConfig?['facility'] as List<dynamic>? ?? [];
+        final title = widget.config['name'] as String? ?? 'Facilities';
+        Get.toNamed(
+          '/facilities',
+          arguments: {
+            'facilities': facilitiesData,
+            'title': title,
+          },
+        );
+        break;
+
+      case '/restaurant':
+        final innerConfig = widget.config['config'] as Map<String, dynamic>?;
+        final restaurantsData = innerConfig?['restaurant'] as List<dynamic>? ?? [];
+        final title = widget.config['name'] as String? ?? 'Restaurant';
+        Get.toNamed(
+          '/restaurant',
+          arguments: {
+            'restaurants': restaurantsData,
+            'title': title,
+          },
+        );
+        break;
+
+      case '/meetings-events':
+        final innerConfig = widget.config['config'] as Map<String, dynamic>?;
+        final meetingsEventsData = innerConfig?['meetingsEvents'] as List<dynamic>? ?? [];
+        final title = widget.config['name'] as String? ?? 'Meetings & Events';
+        Get.toNamed(
+          '/meetings-events',
+          arguments: {
+            'meetingsEvents': meetingsEventsData,
+            'title': title,
+          },
+        );
+        break;
+
+      case '/outlet':
+        final items = quickActions?['data']?['items'] as List<dynamic>? ?? [];
+        final selectedItem = (index >= 0 && index < items.length)
+            ? items[index] as Map<String, dynamic>
+            : <String, dynamic>{};
+        final outletItems = _getOutletItems(widget.config);
+        final hotelName = widget.config['name'] as String? ?? 'Royal Continental Hotel';
+        Get.toNamed(
+          route,
+          arguments: {
+            'outlets': outletItems,
+            'item': selectedItem,
+            'title': selectedItem['name'] as String? ??
+                selectedItem['label'] as String? ??
+                'Outlets',
+            'description': selectedItem['description'] as String? ??
+                selectedItem['details']?['fullDescription'] as String?,
+            'imageUrl': selectedItem['image'] as String?,
+            'hotelName': hotelName,
+          },
+        );
+        break;
+
+      case '/spa':
+        final innerConfig = widget.config['config'] as Map<String, dynamic>?;
+        final spas = innerConfig?['spa'] as List<dynamic>? ??
+            innerConfig?['spas'] as List<dynamic>? ??
+            [];
+        final title = widget.config['name'] as String? ?? 'Spa';
+        Get.toNamed(
+          '/spa',
+          arguments: {
+            'spas': spas,
+            'title': title,
+          },
+        );
+        break;
+
+        case '/attractions':
+          final innerConfig = widget.config['config'] as Map<String, dynamic>?;
+          final attractionsData = innerConfig?['attractions'] as List<dynamic>? ?? [];
+          final title = widget.config['name'] as String? ?? 'Attractions';
+          Get.toNamed(
+            '/attractions',
+            arguments: {
+              'attractions': attractionsData,
+              'title': title,
+            },
+          );
+          break;
+
+      case '/offers':
+        final innerConfig = widget.config['config'] as Map<String, dynamic>?;
+        final offersData = (innerConfig?['offers'] as List<dynamic>?) ??
+            (widget.config['offers'] as List<dynamic>?) ??
+            (innerConfig?['promotion'] as List<dynamic>?) ??
+            [];
+        final title = widget.config['name'] as String? ?? 'Offers';
+        Get.toNamed(
+          '/offers',
+          arguments: {
+            'offers': offersData,
+            'title': title,
+          },
+        );
+        break;
+
+      case '/gallery':
+        final gallerySection = getSectionByType('galleryPreview');
+        final images = (gallerySection?['data']?['images'] as List<dynamic>?) ?? [];
+        final imagesList = images.cast<String>();
+        // open tabs page with group config so user can choose All or each child hotel
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => GalleryTabsPage(groupConfig: widget.config, showTabs: widget.isGroupHome),
+        ));
+        break;
+
+      default:
+        Get.toNamed(route);
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // print('Building HomeScreen - aboutData isEmpty: ${aboutData.isEmpty}');
-
     final heroBanner = getSectionByType('heroBanner');
     final highlights = getSectionByType('highlights');
+    final valuesSection = getSectionByType('values');
     final featuredRooms = getSectionByType('featuredRooms');
     final gallery = getSectionByType('galleryPreview');
     final quickActions = getSectionByType('quickActions');
@@ -244,14 +380,9 @@ class _HomeScreenState extends State<HomeScreen> {
               currentImageIndex: currentImageIndex,
               logoUrl: logoUrl,
             ),
-
             Container(
               decoration: const BoxDecoration(
                 color: AppColor.cardBackground,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
               ),
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -261,9 +392,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (aboutData.isNotEmpty)
                     DescriptionSection(
                       title: aboutData['title'] ?? 'About Us',
-                      //subtitle: subtitle,
-                      description:
-                          aboutData['description'] ??
+                      description: aboutData['description'] ??
                           'Experience comfort, convenience, and thoughtful hospitality...',
                     )
                   else
@@ -297,113 +426,38 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-
                   const SizedBox(height: 24),
-
-                  if (!widget.isGroupHome) ...[
-                    QuickActionsSection(
-                      items: _getQuickActionsItems(quickActions),
-                      onItemTap: (index, route) {
-                        if (route.isNotEmpty) {
-                          if (route == '/promotions') {
-                            final innerConfig =
-                                widget.config['config']
-                                    as Map<String, dynamic>?;
-                            final promotionsData =
-                                innerConfig?['promotion'] as List<dynamic>? ??
-                                [];
-                            final hotelName =
-                                widget.config['name'] as String? ??
-                                'Promotions';
-                            Get.toNamed(
-                              '/promotions',
-                              arguments: {
-                                'promotions': promotionsData,
-                                'title': hotelName,
-                              },
-                            );
-                          } else if (route == '/facilities') {
-                            final innerConfig =
-                                widget.config['config']
-                                    as Map<String, dynamic>?;
-                            final facilitiesData =
-                                innerConfig?['facility'] as List<dynamic>? ??
-                                [];
-                            final hotelName =
-                                widget.config['name'] as String? ??
-                                'Facilities';
-                            Get.toNamed(
-                              '/facilities',
-                              arguments: {
-                                'facilities': facilitiesData,
-                                'title': hotelName,
-                              },
-                            );
-                          } else if (route == '/meetings-events') {
-                            final innerConfig =
-                                widget.config['config']
-                                    as Map<String, dynamic>?;
-                            final facilitiesData =
-                                innerConfig?['facility'] as List<dynamic>? ??
-                                [];
-                            if (facilitiesData.isNotEmpty) {
-                              final firstFacility =
-                                  facilitiesData[0] as Map<String, dynamic>;
-                              Get.to(
-                                () =>
-                                    FacilityDetailPage(facility: firstFacility),
-                              );
-                            }
-                          } else if (route == '/outlet') {
-                            final items =
-                                quickActions?['data']?['items']
-                                    as List<dynamic>? ??
-                                [];
-                            final selectedItem =
-                                (index >= 0 && index < items.length)
-                                ? items[index] as Map<String, dynamic>
-                                : <String, dynamic>{};
-                            final outletItems = _getOutletItems(widget.config);
-                            final hotelName =
-                                widget.config['name'] as String? ??
-                                'Royal Continental Hotel';
-                            Get.toNamed(
-                              route,
-                              arguments: {
-                                'outlets': outletItems,
-                                'item': selectedItem,
-                                'title':
-                                    selectedItem['name'] as String? ??
-                                    selectedItem['label'] as String? ??
-                                    'Outlets',
-                                'description':
-                                    selectedItem['description'] as String? ??
-                                    selectedItem['details']?['fullDescription']
-                                        as String?,
-                                'imageUrl': selectedItem['image'] as String?,
-                                'hotelName': hotelName,
-                              },
-                            );
-                          } else {
-                            Get.toNamed(route);
-                          }
-                        }
-                      },
+                 
+                  QuickActionsSection(
+                    items: _getQuickActionsItems(quickActions),
+                    onItemTap: (index, route) => _handleQuickActionTap(index, route, quickActions),
+                  ),
+                  const SizedBox(height: 24),
+                   if (valuesSection != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ValueSection(
+                          data: valuesSection['data'] as Map<String, dynamic>? ?? {},
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-                  ],
-
+                  const SizedBox(height: 24),
                   if (childHotels != null && childHotels.isNotEmpty)
                     FeaturedHotelsSection(hotels: childHotels)
                   else if (featuredRooms != null)
                     FeaturedRoomsSection(featuredRooms: featuredRooms),
-
                   if (imagesList.isNotEmpty)
                     GalleryPreviewSection(
                       images: imagesList,
                       currentImageIndex: currentImageIndex,
+                      onViewAll: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => GalleryTabsPage(groupConfig: widget.config, showTabs: widget.isGroupHome),
+                        ));
+                      },
                     ),
-
                   const SizedBox(height: 24),
                 ],
               ),

@@ -13,12 +13,10 @@ import '../booking_page/booking_page_new.dart';
 import 'package:royalcontinent/group/controllers/api_controller.dart';
 import 'package:royalcontinent/group/controllers/hotel_controller.dart';
 import 'dart:async';
-import './loyality_program_card.dart'; // Add this import
+import './loyality_program_card.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PERSISTENT DISCOUNT SESSION
-// Static fields survive screen rebuilds and navigation push/pop.
-// Cleared only when the user explicitly taps "Logout".
 // ─────────────────────────────────────────────────────────────────────────────
 
 class DiscountSession {
@@ -146,12 +144,10 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
   bool _isAppBarCollapsed = false;
   final Set<String> _expandedCombos = {};
 
-  // Convenience getters that read from the static session
   bool get _discountApplied => DiscountSession.discountApplied;
   int get _discountPercentage => DiscountSession.discountPercentage;
   String? get _guestEmail => DiscountSession.guestEmail;
 
-  // Loyalty data from API
   Map<String, dynamic>? _loyaltyData;
 
   @override
@@ -174,7 +170,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
       }
     });
 
-    // Extract loyalty data from arguments
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _extractLoyaltyData();
     });
@@ -209,16 +204,27 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     if (mounted) setState(() => _expandedPolicyIndex = null);
   }
 
-  /// No API call — just wipes the static session and rebuilds.
   void _handleLogout() {
     DiscountSession.clear();
     if (mounted) setState(() {});
   }
 
-  /// Applies discount % to a base price.
   double _discounted(double base) {
     if (!_discountApplied) return base;
     return base * (1 - _discountPercentage / 100);
+  }
+
+  // ─── Helper: safely extract roomView string ──────────────────────────────────
+
+  String _extractRoomView(dynamic rawRoomView) {
+    if (rawRoomView == null) return '';
+    if (rawRoomView is String) return rawRoomView;
+    if (rawRoomView is Map<String, dynamic>) {
+      return rawRoomView['MasterRoomView']?['viewName'] as String? ??
+             rawRoomView['viewName'] as String? ??
+             '';
+    }
+    return '';
   }
 
   // ─── Share ───────────────────────────────────────────────────────────────────
@@ -230,9 +236,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         SnackBar(
           content: const Text('Preparing image...'),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 2),
         ),
@@ -244,9 +248,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
           '${tempDir.path}/shared_room_${DateTime.now().millisecondsSinceEpoch}.jpg',
         );
         await file.writeAsBytes(response.bodyBytes);
-        await Share.shareXFiles([
-          XFile(file.path),
-        ], text: 'Check out this beautiful room!');
+        await Share.shareXFiles([XFile(file.path)], text: 'Check out this beautiful room!');
         Future.delayed(
           const Duration(seconds: 30),
           () => file.existsSync() ? file.deleteSync() : null,
@@ -259,17 +261,12 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
             children: [
               Icon(Icons.error_outline_rounded, color: Colors.white, size: 18),
               SizedBox(width: 10),
-              Text(
-                'Failed to share image',
-                style: TextStyle(color: Colors.white),
-              ),
+              Text('Failed to share image', style: TextStyle(color: Colors.white)),
             ],
           ),
           backgroundColor: Colors.red[700],
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 3),
         ),
@@ -327,11 +324,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                             color: AppColor.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(
-                            Icons.policy_rounded,
-                            size: 16,
-                            color: AppColor.primary,
-                          ),
+                          child: Icon(Icons.policy_rounded, size: 16, color: AppColor.primary),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -352,11 +345,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                               color: Colors.grey[100],
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 16,
-                              color: Colors.grey[600],
-                            ),
+                            child: Icon(Icons.close_rounded, size: 16, color: Colors.grey[600]),
                           ),
                         ),
                       ],
@@ -371,11 +360,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                       ),
                       child: Text(
                         description,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[700],
-                          height: 1.6,
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.grey[700], height: 1.6),
                       ),
                     ),
                   ],
@@ -391,19 +376,11 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
   }
 
   // ─── UNIFIED DISCOUNT FLOW ───────────────────────────────────────────────────
-  //
-  // This method is called from:
-  // 1. The rate plan card's "Member Rate Available" banner
-  // 2. The LoyaltyProgramCard's join button
-  //
-  // It shows a single form to collect user details and handles both
-  // registration and discount application in one flow.
 
   void _openDiscountRegistration({
     required String propertyId,
     required String propertyName,
   }) {
-    // Already signed in — discount is already applied
     if (_discountApplied) return;
 
     final emailCtrl = TextEditingController();
@@ -417,9 +394,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
       builder: (dlgCtx) => StatefulBuilder(
         builder: (_, setDlg) => Dialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -437,11 +412,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                           color: AppColor.secondary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
-                          Icons.card_membership_rounded,
-                          color: AppColor.secondary,
-                          size: 22,
-                        ),
+                        child: Icon(Icons.card_membership_rounded, color: AppColor.secondary, size: 22),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -458,10 +429,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                             ),
                             Text(
                               'Sign up to unlock exclusive rates!',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[500],
-                              ),
+                              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                             ),
                           ],
                         ),
@@ -476,8 +444,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                     label: 'Full Name',
                     hint: 'Enter your name',
                     icon: Icons.person_outline_rounded,
-                    validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Required' : null,
+                    validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
                   ),
                   const SizedBox(height: 14),
                   _buildFormField(
@@ -516,16 +483,11 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             side: BorderSide(color: Colors.grey[300]!),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
                           child: Text(
                             'Cancel',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
@@ -542,30 +504,22 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                                   final name = nameCtrl.text.trim();
                                   final mobile = mobileCtrl.text.trim();
 
-                                  // Step 1 — check if already a member
                                   final checkResult = await _callCheckDiscount(
                                     email: email,
                                     propertyId: propertyId,
                                   );
 
                                   if (checkResult['eligible'] == true) {
-                                    // Already a member — close dialog, apply discount
-                                    if (mounted) {
-                                      setState(
-                                        () => _isLoadingDiscount = false,
-                                      );
-                                    }
+                                    if (mounted) setState(() => _isLoadingDiscount = false);
                                     if (!mounted) return;
                                     Navigator.pop(dlgCtx);
                                     _applyDiscount(
                                       email: email,
-                                      percentage:
-                                          checkResult['percentage'] as int,
+                                      percentage: checkResult['percentage'] as int,
                                     );
                                     return;
                                   }
 
-                                  // Step 2 — not a member, register
                                   final regResult = await _callRegister(
                                     email: email,
                                     propertyId: propertyId,
@@ -573,51 +527,34 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                                     mobileNumber: mobile,
                                   );
 
-                                  if (mounted) {
-                                    setState(() => _isLoadingDiscount = false);
-                                  }
+                                  if (mounted) setState(() => _isLoadingDiscount = false);
                                   if (!mounted) return;
                                   Navigator.pop(dlgCtx);
 
                                   if (regResult['eligible'] == true) {
                                     _applyDiscount(
                                       email: email,
-                                      percentage:
-                                          regResult['percentage'] as int,
+                                      percentage: regResult['percentage'] as int,
                                     );
                                   } else {
                                     if (mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
+                                      ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Row(
                                             children: [
-                                              const Icon(
-                                                Icons.error_outline_rounded,
-                                                color: Colors.white,
-                                                size: 18,
-                                              ),
+                                              const Icon(Icons.error_outline_rounded, color: Colors.white, size: 18),
                                               const SizedBox(width: 10),
                                               Expanded(
                                                 child: Text(
-                                                  regResult['message']
-                                                          as String? ??
-                                                      'Something went wrong. Try again.',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                  ),
+                                                  regResult['message'] as String? ?? 'Something went wrong. Try again.',
+                                                  style: const TextStyle(color: Colors.white),
                                                 ),
                                               ),
                                             ],
                                           ),
                                           backgroundColor: Colors.red[700],
                                           behavior: SnackBarBehavior.floating,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                           margin: const EdgeInsets.all(16),
                                           duration: const Duration(seconds: 3),
                                         ),
@@ -628,26 +565,18 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColor.primary,
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             elevation: 0,
                           ),
                           child: _isLoadingDiscount
                               ? const SizedBox(
                                   height: 18,
                                   width: 18,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
+                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                 )
                               : const Text(
                                   'Get Discount',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
+                                  style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
                                 ),
                         ),
                       ),
@@ -662,7 +591,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     );
   }
 
-  /// Check membership (email + propertyId only, no metadata).
   Future<Map<String, dynamic>> _callCheckDiscount({
     required String email,
     required String propertyId,
@@ -670,9 +598,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     try {
       final res = await http
           .post(
-            Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount',
-            ),
+            Uri.parse('https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode({'email': email, 'propertyId': propertyId}),
           )
@@ -683,8 +609,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         final msg = (data['message'] as String? ?? '').toLowerCase();
 
         if (msg.contains('already registered')) {
-          final pct =
-              (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
+          final pct = (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
           return {'eligible': true, 'percentage': pct};
         }
 
@@ -700,7 +625,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     return {'eligible': false};
   }
 
-  /// Register with full metadata.
   Future<Map<String, dynamic>> _callRegister({
     required String email,
     required String propertyId,
@@ -710,9 +634,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     try {
       final res = await http
           .post(
-            Uri.parse(
-              'https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount',
-            ),
+            Uri.parse('https://bookings.revchilltech.com/api/v1/loyalty/guest/check-discount'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode({
               'email': email,
@@ -730,8 +652,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         final msg = (data['message'] as String? ?? '').toLowerCase();
 
         if (msg.contains('already registered')) {
-          final pct =
-              (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
+          final pct = (data['data']?['discount']?['value'] as num?)?.toInt() ?? 10;
           return {'eligible': true, 'percentage': pct};
         }
 
@@ -741,10 +662,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
           return {'eligible': true, 'percentage': pct};
         }
 
-        return {
-          'eligible': false,
-          'message': data['message'] ?? 'Not eligible',
-        };
+        return {'eligible': false, 'message': data['message'] ?? 'Not eligible'};
       }
       return {'eligible': false, 'message': 'Server error'};
     } catch (_) {
@@ -752,39 +670,26 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     }
   }
 
-  /// Saves to static session, closes any open loaders, rebuilds screen silently.
   void _applyDiscount({required String email, required int percentage}) {
     DiscountSession.apply(email: email, percentage: percentage);
-
-    // Close any GetX loading dialog that may still be open
     if (Get.isDialogOpen ?? false) Get.back();
-
     if (mounted) {
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
             children: [
-              const Icon(
-                Icons.check_circle_rounded,
-                color: Colors.white,
-                size: 18,
-              ),
+              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
               const SizedBox(width: 10),
               Text(
                 '$percentage% member discount applied!',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
               ),
             ],
           ),
           backgroundColor: Colors.green[700],
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 3),
         ),
@@ -795,58 +700,96 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
   // ─── Navigation ──────────────────────────────────────────────────────────────
 
   Future<void> _fetchAndShowAddons({
-  required String propertyCode,
-  required String startDate,
-  required String endDate,
-  required String ratePlanCode,
-  required Map<String, dynamic> room,
-  required Map<String, dynamic> ratePlan,
-  required int adults,
-  required int children,
-  required int totalGuests,
-  required String propertyId,
-  required String hotelName,
-  required double discountedPrice,
-}) async {
-  setState(() => _isLoadingAddons = true);
-  try {
-    // Debug print to verify propertyCode
-    print('=== FETCH ADDONS DEBUG ===');
-    print('propertyCode: $propertyCode');
-    print('propertyId: $propertyId');
-    print('startDate: $startDate');
-    print('endDate: $endDate');
-    print('ratePlanCode: $ratePlanCode');
-    print('==========================');
-    
-    // Ensure propertyCode is not empty
-    String finalPropertyCode = propertyCode;
-    if (finalPropertyCode.isEmpty) {
-      print('ERROR: propertyCode is empty!');
-      // Try to get from hotel controller or room data
-      final hotelController = Get.find<HotelController>();
-      final hotel = hotelController.getSelectedHotel();
-      final fallbackCode = hotel?['code'] as String? ?? 
-                          room['propertyCode'] as String? ?? 
-                          propertyCode;
-      print('Using fallback propertyCode: $fallbackCode');
-      finalPropertyCode = fallbackCode;
-    }
-    
-    final result = await Get.find<ApiController>().getAvailableAddons(
-      propertyCode: finalPropertyCode,
-      startDate: startDate,
-      endDate: endDate,
-      ratePlanCode: ratePlanCode,
-    );
+    required String propertyCode,
+    required String startDate,
+    required String endDate,
+    required String ratePlanCode,
+    required Map<String, dynamic> room,
+    required Map<String, dynamic> ratePlan,
+    required int adults,
+    required int children,
+    required int totalGuests,
+    required String propertyId,
+    required String hotelName,
+    required double discountedPrice,
+  }) async {
+    setState(() => _isLoadingAddons = true);
+    try {
+      String finalPropertyCode = propertyCode;
+      if (finalPropertyCode.isEmpty) {
+        final hotelController = Get.find<HotelController>();
+        final hotel = hotelController.getSelectedHotel();
+        finalPropertyCode = hotel?['code'] as String? ??
+            room['propertyCode'] as String? ??
+            propertyCode;
+      }
 
-    if (result['success'] == true && result['data'] != null) {
-      final addonsData = result['data'] as List;
-      
-      // 🔥 CRITICAL FIX: Check if addons are empty or null
-      if (addonsData.isEmpty) {
-        print('No addons available - proceeding directly to booking');
-        // Directly proceed to booking without showing addons screen
+      final result = await Get.find<ApiController>().getAvailableAddons(
+        propertyCode: finalPropertyCode,
+        startDate: startDate,
+        endDate: endDate,
+        ratePlanCode: ratePlanCode,
+      );
+
+      if (result['success'] == true && result['data'] != null) {
+        final addonsData = result['data'] as List;
+
+        if (addonsData.isEmpty) {
+          _proceedToBooking(
+            room: room,
+            ratePlan: ratePlan,
+            adults: adults,
+            children: children,
+            totalGuests: totalGuests,
+            startDate: startDate,
+            endDate: endDate,
+            propertyId: propertyId,
+            propertyCode: finalPropertyCode,
+            hotelName: hotelName,
+            discountedPrice: discountedPrice,
+            selectedAddons: [],
+          );
+        } else {
+          if (context.mounted) {
+            Get.to(
+              () => const AddonsScreen(),
+              arguments: {
+                'addons': addonsData,
+                'startDate': startDate,
+                'endDate': endDate,
+                'onAdd': (List<Map<String, dynamic>> sel) => _proceedToBooking(
+                  room: room,
+                  ratePlan: ratePlan,
+                  adults: adults,
+                  children: children,
+                  totalGuests: totalGuests,
+                  startDate: startDate,
+                  endDate: endDate,
+                  propertyId: propertyId,
+                  propertyCode: finalPropertyCode,
+                  hotelName: hotelName,
+                  discountedPrice: discountedPrice,
+                  selectedAddons: sel,
+                ),
+                'onSkip': () => _proceedToBooking(
+                  room: room,
+                  ratePlan: ratePlan,
+                  adults: adults,
+                  children: children,
+                  totalGuests: totalGuests,
+                  startDate: startDate,
+                  endDate: endDate,
+                  propertyId: propertyId,
+                  propertyCode: finalPropertyCode,
+                  hotelName: hotelName,
+                  discountedPrice: discountedPrice,
+                  selectedAddons: [],
+                ),
+              },
+            );
+          }
+        }
+      } else {
         _proceedToBooking(
           room: room,
           ratePlan: ratePlan,
@@ -859,53 +802,10 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
           propertyCode: finalPropertyCode,
           hotelName: hotelName,
           discountedPrice: discountedPrice,
-          selectedAddons: [], // Empty addons list
+          selectedAddons: [],
         );
-      } else {
-        print('Addons available - showing addons screen');
-        // Show addons screen when addons are available
-        if (context.mounted) {
-          Get.to(
-            () => const AddonsScreen(),
-            arguments: {
-              'addons': addonsData,
-              'startDate': startDate,
-              'endDate': endDate,
-              'onAdd': (List<Map<String, dynamic>> sel) => _proceedToBooking(
-                room: room,
-                ratePlan: ratePlan,
-                adults: adults,
-                children: children,
-                totalGuests: totalGuests,
-                startDate: startDate,
-                endDate: endDate,
-                propertyId: propertyId,
-                propertyCode: finalPropertyCode,
-                hotelName: hotelName,
-                discountedPrice: discountedPrice,
-                selectedAddons: sel,
-              ),
-              'onSkip': () => _proceedToBooking(
-                room: room,
-                ratePlan: ratePlan,
-                adults: adults,
-                children: children,
-                totalGuests: totalGuests,
-                startDate: startDate,
-                endDate: endDate,
-                propertyId: propertyId,
-                propertyCode: finalPropertyCode,
-                hotelName: hotelName,
-                discountedPrice: discountedPrice,
-                selectedAddons: [],
-              ),
-            },
-          );
-        }
       }
-    } else {
-      // If API fails or returns error, proceed without addons
-      print('Addons API failed or returned error - proceeding without addons');
+    } catch (e) {
       _proceedToBooking(
         room: room,
         ratePlan: ratePlan,
@@ -915,33 +815,15 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         startDate: startDate,
         endDate: endDate,
         propertyId: propertyId,
-        propertyCode: finalPropertyCode,
+        propertyCode: propertyCode,
         hotelName: hotelName,
         discountedPrice: discountedPrice,
         selectedAddons: [],
       );
+    } finally {
+      if (mounted) setState(() => _isLoadingAddons = false);
     }
-  } catch (e) {
-    print('Error fetching addons: $e - proceeding without addons');
-    // On error, proceed without addons
-    _proceedToBooking(
-      room: room,
-      ratePlan: ratePlan,
-      adults: adults,
-      children: children,
-      totalGuests: totalGuests,
-      startDate: startDate,
-      endDate: endDate,
-      propertyId: propertyId,
-      propertyCode: propertyCode,
-      hotelName: hotelName,
-      discountedPrice: discountedPrice,
-      selectedAddons: [],
-    );
-  } finally {
-    if (mounted) setState(() => _isLoadingAddons = false);
   }
-}
 
   void _proceedToBooking({
     required Map<String, dynamic> room,
@@ -980,22 +862,17 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
 
   // ─── Loyalty Card Builder ────────────────────────────────────────────────────
 
-  Widget _buildLoyaltyCard({
-    required String propertyId,
-    required String propertyName,
-  }) {
+  Widget _buildLoyaltyCard({required String propertyId, required String propertyName}) {
     if (_loyaltyData == null) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
       child: LoyaltyProgramCard(
         discountValue: _loyaltyData!['discountValue'] ?? 10,
-        termsText:
-            _loyaltyData!['termsText'] ??
+        termsText: _loyaltyData!['termsText'] ??
             "Member-Only Rates\nEnjoy special discounted prices you won't find anywhere else.",
         benefitsTitle: _loyaltyData!['benefitsTitle'] ?? "VIP Perks",
-        benefitsSubtitle:
-            _loyaltyData!['benefitsSubtitle'] ??
+        benefitsSubtitle: _loyaltyData!['benefitsSubtitle'] ??
             "✅ Exclusive discounted room rates\n✅ Early check-in & late check-out\n✅ Dining & spa discounts\n✅ Priority reservations",
         videoUrl: _loyaltyData!['videoUrl'],
         videoThumbnail: _loyaltyData!['videoThumbnail'],
@@ -1038,19 +915,18 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     final adults = guests['adults'] as int? ?? 1;
     final children = guests['children'] as int? ?? 0;
     final now = DateTime.now();
-    final startDate =
-        sp['startDate'] as String? ??
+    final startDate = sp['startDate'] as String? ??
         now.add(const Duration(days: 1)).toIso8601String().split('T')[0];
-    final endDate =
-        sp['endDate'] as String? ??
+    final endDate = sp['endDate'] as String? ??
         now.add(const Duration(days: 2)).toIso8601String().split('T')[0];
 
-    // Use camelCase keys for all room data
-    final roomName =
-        room['roomName'] ?? room['room_name'] ?? room['name'] ?? '';
+    final roomName = room['roomName'] ?? room['room_name'] ?? room['name'] ?? '';
     final roomSize = room['roomSize'] ?? room['room_size'] ?? 0;
     final roomUnit = room['roomUnit'] ?? room['room_unit'] ?? 'sq ft';
-    final roomView = room['roomView'] ?? room['room_view'] ?? '';
+
+    // ✅ FIX: safely extract roomView string from nested object or string
+    final String roomView = _extractRoomView(room['roomView'] ?? room['room_view']);
+
     final maxOccupancy = room['maxOccupancy'] ?? room['max_occupancy'] ?? 0;
     final description = room['description'] ?? '';
     final roomPrice = room['roomPrice'] as List? ?? [];
@@ -1061,8 +937,9 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
       for (var img in rawImages) {
         if (img is String) {
           images.add(img);
-        } else if (img is Map && img['url'] != null)
+        } else if (img is Map && img['url'] != null) {
           images.add(img['url'].toString());
+        }
       }
     }
 
@@ -1078,26 +955,9 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         ? checkOut.difference(checkIn).inDays
         : 1;
 
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final checkInStr = checkIn != null
-        ? '${checkIn.day} ${months[checkIn.month - 1]}'
-        : startDate;
-    final checkOutStr = checkOut != null
-        ? '${checkOut.day} ${months[checkOut.month - 1]}'
-        : endDate;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final checkInStr = checkIn != null ? '${checkIn.day} ${months[checkIn.month - 1]}' : startDate;
+    final checkOutStr = checkOut != null ? '${checkOut.day} ${months[checkOut.month - 1]}' : endDate;
 
     return Scaffold(
       backgroundColor: AppColor.background,
@@ -1141,9 +1001,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                   height: 0,
                   decoration: BoxDecoration(
                     color: AppColor.background,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
                   ),
                 ),
               ),
@@ -1155,43 +1013,14 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ✅ Loyalty Program Card
-                    _buildLoyaltyCard(
-                      propertyId: propertyId,
-                      propertyName: hotelName,
-                    ),
-                    _buildTitleBlock(
-                      roomName,
-                      hotelName,
-                      '',
-                      checkInStr,
-                      checkOutStr,
-                      nights,
-                      adults + children,
-                    ),
-                    _buildQuickStats(
-                      roomSize,
-                      roomUnit,
-                      roomView,
-                      maxOccupancy,
-                    ),
-                    _buildStayDetailsCard(
-                      checkInStr,
-                      checkOutStr,
-                      nights,
-                      adults,
-                      children,
-                    ),
+                    _buildLoyaltyCard(propertyId: propertyId, propertyName: hotelName),
+                    _buildTitleBlock(roomName, hotelName, '', checkInStr, checkOutStr, nights, adults + children),
+                    _buildQuickStats(roomSize, roomUnit, roomView, maxOccupancy),
+                    _buildStayDetailsCard(checkInStr, checkOutStr, nights, adults, children),
                     if (description.isNotEmpty)
-                      _buildSection(
-                        'About This Room',
-                        _buildDescriptionBlock(description),
-                      ),
+                      _buildSection('About This Room', _buildDescriptionBlock(description)),
                     if (amenities.isNotEmpty)
-                      _buildSection(
-                        'Amenities',
-                        _buildAmenitiesGrid(amenities),
-                      ),
+                      _buildSection('Amenities', _buildAmenitiesGrid(amenities)),
                     _buildAppliedDiscountsBanner(roomPrice),
                     if (groupedPlans.isNotEmpty)
                       _buildSection(
@@ -1216,7 +1045,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                           }).toList(),
                         ),
                       ),
-
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -1270,22 +1098,14 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(
                 color: AppColor.primary.withOpacity(0.3),
-                child: Icon(
-                  Icons.hotel_rounded,
-                  size: 80,
-                  color: Colors.white.withOpacity(0.3),
-                ),
+                child: Icon(Icons.hotel_rounded, size: 80, color: Colors.white.withOpacity(0.3)),
               ),
             ),
           )
         else
           Container(
             color: AppColor.primary,
-            child: Icon(
-              Icons.hotel_rounded,
-              size: 80,
-              color: Colors.white.withOpacity(0.2),
-            ),
+            child: Icon(Icons.hotel_rounded, size: 80, color: Colors.white.withOpacity(0.2)),
           ),
         DecoratedBox(
           decoration: BoxDecoration(
@@ -1328,18 +1148,11 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: active
-                              ? Colors.white
-                              : Colors.white.withOpacity(0.3),
+                          color: active ? Colors.white : Colors.white.withOpacity(0.3),
                           width: active ? 2.5 : 1.5,
                         ),
                         boxShadow: active
-                            ? [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 8,
-                                ),
-                              ]
+                            ? [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8)]
                             : [],
                       ),
                       child: ClipRRect(
@@ -1347,8 +1160,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                         child: Image.network(
                           images[i],
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              Container(color: Colors.grey[300]),
+                          errorBuilder: (_, __, ___) => Container(color: Colors.grey[300]),
                         ),
                       ),
                     ),
@@ -1382,11 +1194,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     );
   }
 
-  Widget _buildNavButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    Color? color,
-  }) {
+  Widget _buildNavButton({required IconData icon, required VoidCallback onTap, Color? color}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -1426,11 +1234,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                     if (hotelName.isNotEmpty) ...[
                       Row(
                         children: [
-                          Container(
-                            width: 16,
-                            height: 1.5,
-                            color: AppColor.primary,
-                          ),
+                          Container(width: 16, height: 1.5, color: AppColor.primary),
                           const SizedBox(width: 8),
                           Text(
                             hotelName.toUpperCase(),
@@ -1445,7 +1249,6 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                       ),
                       const SizedBox(height: 8),
                     ],
-
                     Text(
                       roomName,
                       style: TextStyle(
@@ -1467,11 +1270,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               const SizedBox(width: 5),
               Container(width: 10, height: 2.5, color: AppColor.secondary),
               const SizedBox(width: 5),
-              Container(
-                width: 5,
-                height: 2.5,
-                color: AppColor.secondary.withOpacity(0.4),
-              ),
+              Container(width: 5, height: 2.5, color: AppColor.secondary.withOpacity(0.4)),
             ],
           ),
         ],
@@ -1479,33 +1278,16 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     );
   }
 
-  Widget _buildQuickStats(
-    int roomSize,
-    String roomUnit,
-    String roomView,
-    int maxOccupancy,
-  ) {
+  Widget _buildQuickStats(int roomSize, String roomUnit, String roomView, int maxOccupancy) {
     final stats = <Map<String, dynamic>>[];
     if (roomSize > 0) {
-      stats.add({
-        'icon': Icons.straighten_rounded,
-        'label': '$roomSize $roomUnit',
-        'sub': 'Room Size',
-      });
+      stats.add({'icon': Icons.straighten_rounded, 'label': '$roomSize $roomUnit', 'sub': 'Room Size'});
     }
     if (roomView.isNotEmpty) {
-      stats.add({
-        'icon': Icons.landscape_rounded,
-        'label': _capitalize(roomView),
-        'sub': 'View',
-      });
+      stats.add({'icon': Icons.landscape_rounded, 'label': _capitalize(roomView), 'sub': 'View'});
     }
     if (maxOccupancy > 0) {
-      stats.add({
-        'icon': Icons.people_outline_rounded,
-        'label': '$maxOccupancy Guests',
-        'sub': 'Max Capacity',
-      });
+      stats.add({'icon': Icons.people_outline_rounded, 'label': '$maxOccupancy Guests', 'sub': 'Max Capacity'});
     }
     if (stats.isEmpty) return const SizedBox();
 
@@ -1517,11 +1299,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColor.primary.withOpacity(0.08)),
         boxShadow: [
-          BoxShadow(
-            color: AppColor.primary.withOpacity(0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
+          BoxShadow(color: AppColor.primary.withOpacity(0.06), blurRadius: 16, offset: const Offset(0, 4)),
         ],
       ),
       child: Row(
@@ -1540,36 +1318,24 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                           color: AppColor.primary.withOpacity(0.08),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          s['icon'] as IconData,
-                          size: 18,
-                          color: AppColor.primary,
-                        ),
+                        child: Icon(s['icon'] as IconData, size: 18, color: AppColor.primary),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         s['label'] as String,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppColor.text,
-                        ),
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColor.text),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         s['sub'] as String,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: AppColor.textLight,
-                        ),
+                        style: const TextStyle(fontSize: 10, color: AppColor.textLight),
                         textAlign: TextAlign.center,
                       ),
                     ],
                   ),
                 ),
-                if (!isLast)
-                  Container(width: 1, height: 48, color: Colors.grey[200]),
+                if (!isLast) Container(width: 1, height: 48, color: Colors.grey[200]),
               ],
             ),
           );
@@ -1578,13 +1344,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     );
   }
 
-  Widget _buildStayDetailsCard(
-    String checkIn,
-    String checkOut,
-    int nights,
-    int adults,
-    int children,
-  ) {
+  Widget _buildStayDetailsCard(String checkIn, String checkOut, int nights, int adults, int children) {
     return Container(
       margin: const EdgeInsets.fromLTRB(10, 15, 10, 0),
       padding: const EdgeInsets.all(10),
@@ -1592,11 +1352,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         gradient: LinearGradient(colors: [AppColor.primary, AppColor.primary]),
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(
-            color: AppColor.primary.withOpacity(0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
+          BoxShadow(color: AppColor.primary.withOpacity(0.25), blurRadius: 16, offset: const Offset(0, 6)),
         ],
       ),
       child: Row(
@@ -1615,21 +1371,8 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  checkIn,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  'From 14:00',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white.withOpacity(0.65),
-                  ),
-                ),
+                Text(checkIn, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
+                Text('From 14:00', style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.65))),
               ],
             ),
           ),
@@ -1643,19 +1386,11 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               children: [
                 Text(
                   '$nights',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                  ),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white),
                 ),
                 Text(
                   nights == 1 ? 'Night' : 'Nights',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.white.withOpacity(0.8),
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -1676,20 +1411,10 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                 const SizedBox(height: 4),
                 Text(
                   checkOut,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
                   textAlign: TextAlign.end,
                 ),
-                Text(
-                  'Until 12:00',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white.withOpacity(0.65),
-                  ),
-                ),
+                Text('Until 12:00', style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.65))),
               ],
             ),
           ),
@@ -1745,21 +1470,12 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 3)),
         ],
       ),
       child: Text(
         description,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[700],
-          height: 1.7,
-          letterSpacing: 0.1,
-        ),
+        style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.7, letterSpacing: 0.1),
       ),
     );
   }
@@ -1769,18 +1485,13 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
       spacing: 10,
       runSpacing: 10,
       children: amenities.map((a) {
-        final name = a is Map
-            ? (a['amenityName'] ?? a['name'] ?? '')
-            : a.toString();
+        final name = a is Map ? (a['amenityName'] ?? a['name'] ?? '') : a.toString();
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           decoration: BoxDecoration(
             color: AppColor.primary.withOpacity(0.06),
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: AppColor.primary.withOpacity(0.14),
-              width: 1,
-            ),
+            border: Border.all(color: AppColor.primary.withOpacity(0.14), width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -1789,11 +1500,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               const SizedBox(width: 7),
               Text(
                 name,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  color: AppColor.text,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 12.5, color: AppColor.text, fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -1824,15 +1531,8 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColor.secondary,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.local_offer_rounded,
-              size: 16,
-              color: Colors.white,
-            ),
+            decoration: BoxDecoration(color: AppColor.secondary, borderRadius: BorderRadius.circular(12)),
+            child: const Icon(Icons.local_offer_rounded, size: 16, color: Colors.white),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -1841,18 +1541,11 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               children: [
                 Text(
                   'Discounts Applied',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.text,
-                  ),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColor.text),
                 ),
                 const SizedBox(height: 4),
                 ...geoDiscounts.map(
-                  (d) => Text(
-                    '• $d',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
+                  (d) => Text('• $d', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                 ),
               ],
             ),
@@ -1878,12 +1571,9 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     required String propertyId,
     required int nights,
   }) {
-    final cancellationPolicy =
-        plan.policy?['cancellationPolicy'] as Map<String, dynamic>?;
-    final policyDescription =
-        cancellationPolicy?['description'] as String? ?? '';
-    final touristTaxAmount =
-        (plan.touristTax?['calculatedTaxAmount'] as num?)?.toDouble() ?? 0;
+    final cancellationPolicy = plan.policy?['cancellationPolicy'] as Map<String, dynamic>?;
+    final policyDescription = cancellationPolicy?['description'] as String? ?? '';
+    final touristTaxAmount = (plan.touristTax?['calculatedTaxAmount'] as num?)?.toDouble() ?? 0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -1891,30 +1581,22 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: _discountApplied
-              ? AppColor.secondary.withOpacity(0.4)
-              : Colors.grey[200]!,
+          color: _discountApplied ? AppColor.secondary.withOpacity(0.4) : Colors.grey[200]!,
           width: _discountApplied ? 1.5 : 1,
         ),
         boxShadow: [
-          BoxShadow(
-            color: AppColor.primary.withOpacity(0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
+          BoxShadow(color: AppColor.primary.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header ─────────────────────────────────────────
+          // ── Header ──
           Container(
             padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
             decoration: BoxDecoration(
               color: AppColor.primary.withOpacity(0.04),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1934,21 +1616,11 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                     ),
                     if (_discountApplied)
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColor.secondary,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(color: AppColor.secondary, borderRadius: BorderRadius.circular(8)),
                         child: Text(
                           '-$_discountPercentage%',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
                         ),
                       ),
                   ],
@@ -1964,27 +1636,15 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                     key: _policyKeys[planIndex],
                     onTap: () => _expandedPolicyIndex == planIndex
                         ? _removeOverlay()
-                        : _showPolicyOverlay(
-                            context,
-                            policyDescription,
-                            planIndex,
-                          ),
+                        : _showPolicyOverlay(context, policyDescription, planIndex),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.policy_outlined,
-                          size: 13,
-                          color: AppColor.primary,
-                        ),
+                        Icon(Icons.policy_outlined, size: 13, color: AppColor.primary),
                         const SizedBox(width: 5),
                         Text(
                           'Booking conditions →',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColor.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextStyle(fontSize: 11, color: AppColor.primary, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(width: 3),
                         Icon(
@@ -2002,7 +1662,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
             ),
           ),
 
-          // ── Combo rows ─────────────────────────────────────
+          // ── Combo rows ──
           ...plan.combos.asMap().entries.map((comboEntry) {
             final ci = comboEntry.key;
             final combo = comboEntry.value;
@@ -2010,19 +1670,15 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
             final double basePrice = combo.totalAmount;
             final double discountedPrice = _discounted(basePrice);
             final double savings = basePrice - discountedPrice;
-            final double? addonPrice =
-                combo.addons.isNotEmpty && combo.addons.first is Map
+            final double? addonPrice = combo.addons.isNotEmpty && combo.addons.first is Map
                 ? (combo.addons.first['price'] as num?)?.toDouble()
                 : null;
-            final double roomOnlyPrice = addonPrice != null
-                ? basePrice - addonPrice
-                : basePrice;
+            final double roomOnlyPrice = addonPrice != null ? basePrice - addonPrice : basePrice;
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (ci > 0)
-                  Divider(height: 1, color: Colors.grey[100], thickness: 1),
+                if (ci > 0) Divider(height: 1, color: Colors.grey[100], thickness: 1),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
                   child: Row(
@@ -2036,22 +1692,15 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                               children: [
                                 Text(
                                   combo.addons.isEmpty ? '↳ ' : '+ ',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey[400],
-                                  ),
+                                  style: TextStyle(fontSize: 13, color: Colors.grey[400]),
                                 ),
                                 Expanded(
                                   child: Text(
                                     combo.label,
                                     style: TextStyle(
                                       fontSize: 13,
-                                      fontWeight: combo.addons.isEmpty
-                                          ? FontWeight.w500
-                                          : FontWeight.w600,
-                                      color: combo.addons.isEmpty
-                                          ? Colors.grey[700]
-                                          : AppColor.text,
+                                      fontWeight: combo.addons.isEmpty ? FontWeight.w500 : FontWeight.w600,
+                                      color: combo.addons.isEmpty ? Colors.grey[700] : AppColor.text,
                                     ),
                                   ),
                                 ),
@@ -2061,10 +1710,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                               const SizedBox(height: 2),
                               Text(
                                 'Base price: ${plan.currencyCode} ${roomOnlyPrice.toInt()}',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey[500],
-                                ),
+                                style: TextStyle(fontSize: 10, color: Colors.grey[500]),
                               ),
                             ],
                           ],
@@ -2085,13 +1731,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                             ),
                           Row(
                             children: [
-                              Text(
-                                '${plan.currencyCode} ',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: AppColor.primary,
-                                ),
-                              ),
+                              Text('${plan.currencyCode} ', style: TextStyle(fontSize: 11, color: AppColor.primary)),
                               Text(
                                 '${discountedPrice.toInt()}',
                                 style: TextStyle(
@@ -2106,27 +1746,19 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                           if (_discountApplied && savings > 0)
                             Container(
                               margin: const EdgeInsets.only(top: 2),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppColor.secondary.withOpacity(0.12),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 'Save ${plan.currencyCode} ${savings.toInt()}',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColor.secondary,
-                                ),
+                                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppColor.secondary),
                               ),
                             ),
                         ],
                       ),
                       const SizedBox(width: 10),
-                      // ADD button
                       GestureDetector(
                         onTap: () async {
                           _removeOverlay();
@@ -2146,10 +1778,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                           );
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                           decoration: BoxDecoration(
                             color: AppColor.secondary,
                             borderRadius: BorderRadius.circular(12),
@@ -2187,7 +1816,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
             );
           }),
 
-          // ── Geo-discount chips ─────────────────────────────
+          // ── Geo-discount chips ──
           if (plan.appliedDiscounts.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
@@ -2197,32 +1826,20 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                 children: plan.appliedDiscounts
                     .map(
                       (d) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           color: AppColor.secondary.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppColor.secondary.withOpacity(0.2),
-                          ),
+                          border: Border.all(color: AppColor.secondary.withOpacity(0.2)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.sell_rounded,
-                              size: 11,
-                              color: AppColor.secondary,
-                            ),
+                            Icon(Icons.sell_rounded, size: 11, color: AppColor.secondary),
                             const SizedBox(width: 5),
                             Text(
                               '${d['promotionName'] ?? ''} (${d['discountValue']}% off)',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: AppColor.secondary,
-                              ),
+                              style: TextStyle(fontSize: 11, color: AppColor.secondary),
                             ),
                           ],
                         ),
@@ -2232,42 +1849,26 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
               ),
             ),
 
-          // ── BOTTOM BANNER ──────────────────────────────────
-          // Not signed in → "Member Rate Available" CTA (full banner)
+          // ── BOTTOM BANNER ──
           if (!_discountApplied)
             GestureDetector(
-              onTap: () => _openDiscountRegistration(
-                propertyId: propertyId,
-                propertyName: hotelName,
-              ),
+              onTap: () => _openDiscountRegistration(propertyId: propertyId, propertyName: hotelName),
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 14,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                 decoration: BoxDecoration(
                   color: AppColor.secondary.withOpacity(0.06),
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(20),
                     bottomRight: Radius.circular(20),
                   ),
-                  border: Border(
-                    top: BorderSide(color: AppColor.secondary.withOpacity(0.2)),
-                  ),
+                  border: Border(top: BorderSide(color: AppColor.secondary.withOpacity(0.2))),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColor.secondary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.card_membership_rounded,
-                        size: 15,
-                        color: Colors.white,
-                      ),
+                      decoration: BoxDecoration(color: AppColor.secondary, borderRadius: BorderRadius.circular(10)),
+                      child: const Icon(Icons.card_membership_rounded, size: 15, color: Colors.white),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -2276,27 +1877,16 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                         children: [
                           Text(
                             'Member Rate Available',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColor.text,
-                            ),
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColor.text),
                           ),
                           Text(
                             'Sign up once — discount on all plans',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey[600],
-                            ),
+                            style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                           ),
                         ],
                       ),
                     ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: AppColor.secondary,
-                      size: 20,
-                    ),
+                    Icon(Icons.chevron_right_rounded, color: AppColor.secondary, size: 20),
                   ],
                 ),
               ),
@@ -2313,16 +1903,10 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
       width: MediaQuery.of(context).size.width - 48,
       height: 50,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColor.secondary, AppColor.secondary],
-        ),
+        gradient: LinearGradient(colors: [AppColor.secondary, AppColor.secondary]),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: AppColor.primary.withOpacity(0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
+          BoxShadow(color: AppColor.primary.withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6)),
         ],
       ),
       child: ElevatedButton(
@@ -2330,21 +1914,12 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Text(
-              'Reserve Now',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
+            Text('Reserve Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
             SizedBox(width: 8),
             Icon(Icons.arrow_forward_rounded, size: 20, color: Colors.white),
           ],
@@ -2386,10 +1961,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         ),
         filled: true,
         fillColor: Colors.grey[50],
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 14,
-          horizontal: 16,
-        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       ),
       validator: validator,
     );
@@ -2404,10 +1976,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         backgroundColor: AppColor.primary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
-          ),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Get.back(),
         ),
       ),
@@ -2423,20 +1992,12 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                   color: AppColor.primary.withOpacity(0.08),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.hotel_rounded,
-                  size: 48,
-                  color: AppColor.primary,
-                ),
+                child: Icon(Icons.hotel_rounded, size: 48, color: AppColor.primary),
               ),
               const SizedBox(height: 20),
               Text(
                 message,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColor.textLight,
-                  height: 1.5,
-                ),
+                style: TextStyle(fontSize: 16, color: AppColor.textLight, height: 1.5),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -2448,8 +2009,7 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
 
   // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-  String _capitalize(String s) =>
-      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+  String _capitalize(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 
   IconData _getAmenityIcon(String name) {
     final n = name.toLowerCase();
@@ -2458,32 +2018,18 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
     if (n.contains('ac') || n.contains('air')) return Icons.ac_unit_rounded;
     if (n.contains('parking')) return Icons.local_parking_rounded;
     if (n.contains('pool')) return Icons.pool_rounded;
-    if (n.contains('gym') || n.contains('fitness')) {
-      return Icons.fitness_center_rounded;
-    }
-    if (n.contains('breakfast') || n.contains('food')) {
-      return Icons.restaurant_rounded;
-    }
-    if (n.contains('bath') || n.contains('shower')) {
-      return Icons.bathtub_rounded;
-    }
+    if (n.contains('gym') || n.contains('fitness')) return Icons.fitness_center_rounded;
+    if (n.contains('breakfast') || n.contains('food')) return Icons.restaurant_rounded;
+    if (n.contains('bath') || n.contains('shower')) return Icons.bathtub_rounded;
     if (n.contains('kitchen')) return Icons.kitchen_rounded;
     if (n.contains('pet')) return Icons.pets_rounded;
-    if (n.contains('balcony') || n.contains('terrace')) {
-      return Icons.balcony_rounded;
-    }
+    if (n.contains('balcony') || n.contains('terrace')) return Icons.balcony_rounded;
     if (n.contains('safe') || n.contains('lock')) return Icons.lock_rounded;
     if (n.contains('coffee') || n.contains('tea')) return Icons.coffee_rounded;
     if (n.contains('desk') || n.contains('work')) return Icons.desk_rounded;
-    if (n.contains('phone') || n.contains('telephone')) {
-      return Icons.phone_rounded;
-    }
-    if (n.contains('curtain') || n.contains('blackout')) {
-      return Icons.blinds_rounded;
-    }
-    if (n.contains('slipper') || n.contains('bathrobe')) {
-      return Icons.checkroom_rounded;
-    }
+    if (n.contains('phone') || n.contains('telephone')) return Icons.phone_rounded;
+    if (n.contains('curtain') || n.contains('blackout')) return Icons.blinds_rounded;
+    if (n.contains('slipper') || n.contains('bathrobe')) return Icons.checkroom_rounded;
     if (n.contains('alarm') || n.contains('clock')) return Icons.alarm_rounded;
     if (n.contains('iron')) return Icons.iron_rounded;
     if (n.contains('sound')) return Icons.volume_off_rounded;

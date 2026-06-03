@@ -1,21 +1,21 @@
 {
   "id": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
-  "code": "BQQYBF",
-  "name": "Royal Continental Hotels & Suits",
-  "slug": "royal-continental-hotel                                    ",
+  "code": "",
+  "name": "Signature Hotel, Apartments & Spa",
+  "slug": "signature-hotel-apartments-spa",
   "type": "GROUP",
-  "apkName": "Royal Continental Hotels & Suits",
+  "apkName": "Signature Hotel, Apartments & Spa",
   "parentGroupId": null,
   "createdAt": "2025-12-24T09:24:10.259Z",
   "updatedAt": "2025-12-24T09:24:10.259Z",
   "childHotels": [
     {
-      "id": "199bca6e-548d-4f7e-b5d2-a5c674bd7c3e",
-      "code": "BQQYBF",
-      "name": "Royal Continental Hotel",
-      "slug": "royal-continental-hotel                                    ",
+      "id": "f0795175-a1ad-495e-811a-d68661669594",
+      "code": "2JX6IN",
+      "name": "Signature Hotel, Al Barsha",
+      "slug": "signature-hotel-al-barsha",
       "type": "STANDALONE",
-      "apkName": "Royal Continental Hotel",
+      "apkName": "Signature Hotel, Al Barsha",
       "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
       "createdAt": "2025-12-24T10:28:14.699Z",
       "updatedAt": "2025-12-24T10:48:21.121Z",
@@ -23,17 +23,17 @@
       "config": {
         "id": "b0b56169-a1fd-47f5-bcf0-a71e1411996b",
         "hotelId": "51d0be91-9b9a-487f-b95b-587a7cc9a458",
-        "version": "1.0.0",
+        "version": "1.0.0     ",
         "status": "DRAFT",
         "createdAt": "2025-12-24T10:28:22.672Z",
         "updatedAt": "2026-01-08T06:00:26.700Z",
         "branding": {
-          "logo": "http://res.cloudinary.com/dttazo51h/image/upload/v1770792032/SwiftRooms-Images/j35tviz01xqupjojviiy.png",
-          "primaryColor": "#0D5399",
-          "secondaryColor": "#d67816",
+          "logo": "https://image-tc.galaxy.tf/wipng-747g5q0dk2dnxqn6uuv5r10nj/signature-hotel-al-barsha_logo.png",
+          "primaryColor": "#13497D",
+          "secondaryColor": "#C29D3A",
           "backgroundColor": "#FFFFFF",
           "fontFamily": "Inter",
-          "splashImage": "http://res.cloudinary.com/dttazo51h/image/upload/v1770792032/SwiftRooms-Images/j35tviz01xqupjojviiy.png"
+          "splashImage": "https://image-tc.galaxy.tf/wipng-747g5q0dk2dnxqn6uuv5r10nj/signature-hotel-al-barsha_logo.png"
         },
         "navigation": {
           "type": "bottom",
@@ -90,9 +90,9 @@
                   "label": "Book Now",
                   "route": "/rooms"
                 },
-                "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhY44_vOtS2mELTR3igjPvcXJUuMSqJapuDyJ2GXr76VQ6wOPdp5XNnfYXyxj6CSvQsQDjtFLhd5WskoN-ghF8WP1SfjuOlRXUpu70F7apjZj_vTL-hdC_J0YHCuAgZLohNaWcCYwwah5qV/s1600/Royal+Continental+Hotel+Dubai_20170325_059.JPG",
-                "title": "Welcome to Royal Continental Hotels",
-                "subtitle": "Experience Luxury"
+                "image": "https://image-tc.galaxy.tf/wijpeg-2m6rqzimxte80v6ubhcz2tobr/_photo.jpg",
+                "title": "Welcome to Signature Hotel, Al Barsha",
+                "subtitle": ""
               },
               "type": "heroBanner"
             },
@@ -135,10 +135,11 @@
             {
               "data": {
                 "images": [
-                  "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Royal-Continental-4-Star-Luxury-Business-Hotel-in-Dubai.jpg",
-                  "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/WAKE-BAKE-CAFE-2-qv7il4ov1ypzpv4mcv24agp0zp4b4uvbqxc41nlev0jpg",
-                  "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-2-qv7j4j2y3va1c4y62qxx92giczi0zyvw2y1vm8twfw.jpg",
-                  "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Oasis-Restaurant-restaurant-dubai-deira-2-qv7gp519kss7oeihj0hll9z5oxeq37ue1cnnxaj0hs.jpg"
+                  "https://image-tc.galaxy.tf/wijpeg-6v9fxhk65349og4u38i9rupgw/deluxe-twin.jpg?width=750&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-9g55l7lr7l451xwlbv90z35gs/lobby-2.jpg?width=360&height=629",
+                  "https://image-tc.galaxy.tf/wijpeg-dgo5dtncdyxmyxswqht2edzzt/beez-club-2.jpg?width=360&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-d5utkbmmbwyb9tvwgfleewzjx/pool.jpg?width=360&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-6p4pq1ucrzx3ag4rfsxq1z0pd/spa.jpg?width=360&height=300"
                 ]
               },
               "type": "galleryPreview"
@@ -147,15 +148,15 @@
               "data": {
                 "items": [
                   {
-                    "icon": "facilities",
-                    "label": "Facilities",
-                    "route": "/facilities",
+                    "icon": "food_bank",
+                    "label": "Restaurant",
+                    "route": "/restaurant",
                     "color": "#0D5399"
                   },
                   {
-                    "icon": "local_offer",
-                    "label": "Promotion",
-                    "route": "/promotions",
+                    "icon": "photo_library",
+                    "label": "Gallery",
+                    "route": "/gallery",
                     "color": "#D67816"
                   },
                   {
@@ -163,12 +164,6 @@
                     "label": "Meetings and Events",
                     "route": "/meetings-events",
                     "color": "#800080"
-                  },
-                  {
-                    "icon": "tourism",
-                    "label": "Sustainable Tourism",
-                    "route": "/tourism",
-                    "color": "#228B22"
                   }
                 ]
               },
@@ -202,454 +197,218 @@
         ],
         "amenities": [
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/1926/1926492.png",
-            "label": "Cafe"
+            "icon": "https://image-tc.galaxy.tf/wipng-51imjvrw569js9mv7m16jn0wh/gym_photo.png",
+            "label": "Gym"
           },
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/75/75905.png",
-            "label": "Parking"
+            "icon": "https://image-tc.galaxy.tf/wipng-9qbov5klfo0dhqv8n49gvi3ye/diverse-dining-options_photo.png",
+            "label": "Diverse Dining Options"
           },
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/5732/5732044.png",
-            "label": "Spa"
+            "icon": "https://image-tc.galaxy.tf/wipng-1a22j3zq2xljyni33z5uun1rv/pool_photo.png",
+            "label": "Swimming Pool"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-25bhwmxkyl2siw6wovs6zbiwk/spa_photo.png",
+            "label": "Salon & Spa"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-6tnjb0alc14rbkovu6bvrc93f/wi-fi_photo.png",
+            "label": "Wi-Fi"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-bmv9gtbig7zc8oly8735oaymx/free-parking_photo.png",
+            "label": "Free Parking"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-en0vkaxl01pgu740n1lmy6iiu/travel-desk_photo.png",
+            "label": "Travel Desk"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-2wckv8fz9yz3ba5y3764z8z8b/housekeeping_photo.png",
+            "label": "Housekeeping"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-5kyace5wcaw4bfp9z4v54k97b/room-service_photo.png",
+            "label": "Room Service"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-ye0zn8dc0adgm1hgdwpr3v8z/laundry-service_photo.png",
+            "label": "Laundry Service"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-2y9vcayht2wwrqv34s1rn0eak/shuttle-bus_photo.png",
+            "label": "Shuttle Bus"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-278m5c73t323mbea0rqts08js/luggage-storage_photo.png",
+            "label": "Luggage Storage"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-82vola90f84lzkxypbbrzross/meeting-room_photo.png",
+            "label": "Meeting Room"
           }
         ],
         "gallery": {
           "items": [
             {
-              "url": "https://plus.unsplash.com/premium_photo-1661274195465-817fe3d46d7d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTJ8fHNwYXxlbnwwfHwwfHx8MA%3D%3D",
+              "url": "https://image-tc.galaxy.tf/wijpeg-4120ag766exds4mupc6phsyu5/rooms_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Rooms"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-f328o7eedazhok0uwt63p0dbe/rooftop-pool_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Rooftop Pool"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-8fdeu2pnl7rzo7oywf51f1cgg/gym_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Gymnasium"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-787bmr4qamqfeva6nkjrstwhc/restaurant_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Restaurant"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
               "type": "image",
               "caption": "Spa"
             },
             {
-              "url": "https://images.unsplash.com/photo-1514371879740-2e7d2068f502?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTE3fHxjYWZlfGVufDB8fDB8fHww",
+              "url": "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
               "type": "image",
-              "caption": "Cafe"
+              "caption": "Salon"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-d821oe260v04w2q4mwx6gx154/travel-desk_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Travel Desk"
             }
           ]
         },
         "about": {
-          "title": "Built on Trust & Comfort",
-          "description": "Royal Continental Hotel Dubai (specifically in Deira City Centre) is a 4-star, modern property near Dubai International Airport and the Metro, known for being a clean, comfortable, and well-located choice for both business and leisure travelers. Key features include spacious rooms, a rooftop pool, a 24-hour halal restaurant, and a spa. ",
+          "title": "Find here the perfect balance between style and comfort",
+          "description": "Crafted with the modern business traveler in mind, Signature Hotel Al Barsha perfectly balances style and comfort to create one of the top places to stay in Dubai. Ideally located on Sheikh Zayed Road, just a short walk from the Mall of the Emirates and Insurance Market Metro Station, it offers a blend of comfort and convenience.\nWhether you're here for business or leisure, Signature Hotel Al Barsha delivers exceptional services, making it the ideal choice for your stay. With 90 contemporary 4-star rooms and suites and comprehensive facilities, including an outdoor swimming pool, gym, salon, clubs and outdoor swimming pool, you'll find everything you need for a memorable experience. Just 400 meters from the metro and a five-minute stroll to the renowned Mall of the Emirates with over 600 outlets, our location places you at the heart of Dubai's dynamic offerings.",
           "images": [
-            "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/4-Star-Luxury-Business-Hotel-in-Dubai1.jpg",
-            "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Royal-Continental6702.jpg",
-            "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Royal-Continental7819-qv2b4gw6hobkyklsyr5bk0ngkhmw4j54iwc54v5y7k.jpg",
-            "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Royal-Continental7016-qv2b4abb5u2kpavd16axkkb8esjbmnf05zrqrxfpf4.jpg"
+            "https://image-tc.galaxy.tf/wijpeg-abz7jkpyja403ogpe9nw7w7cp/lobby.jpg?width=1920",
+            "https://image-tc.galaxy.tf/wijpeg-6v9fxhk65349og4u38i9rupgw/deluxe-twin.jpg?width=750&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-9g55l7lr7l451xwlbv90z35gs/lobby-2.jpg?width=360&height=629",
+            "https://image-tc.galaxy.tf/wijpeg-dgo5dtncdyxmyxswqht2edzzt/beez-club-2.jpg?width=360&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-d5utkbmmbwyb9tvwgfleewzjx/pool.jpg?width=360&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-6p4pq1ucrzx3ag4rfsxq1z0pd/spa.jpg?width=360&height=300"
           ]
         },
         "policies": {
           "checkIn": "12:00 PM",
           "checkOut": "10:00 AM",
           "cancellation": "Free cancellation upto 2 days before check in . But after that 50% refund.",
-         
           "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
         },
         "contact": {
-          "email": "lostsanctuary@gmail.com",
-          "phone": "+918249611167",
-          "mapUrl": "google.com/maps/place/Royal+Continental+Hotel/@25.2526957,55.3355213,15z/data=!4m2!3m1!1s0x0:0xef84f0bb38bb9db?sa=X&ved=1t:2428&ictx=111",
-          "address": "Book Rooms at Royal Continental Hotel Deira, Dubai",
-          "latitude": 0,
-          "longitude": 0
+          "email": "info@s1hg.com",
+          "phone": "+971 4 561 0600",
+          "mapUrl": "https://www.google.com/maps/place/Sheikh+Zayed+Rd+-+Dubai+-+United+Arab+Emirates/@25.0699544,55.1370806,17z/data=!3m1!4b1!4m6!3m5!1s0x3e5f13435f3abe57:0xb4c00b9d46311cd0!8m2!3d25.0699544!4d55.1370806!16s%2Fg%2F120jxr51?entry=ttu&g_ep=EgoyMDI2MDUyNy4wIKXMDSoASAFQAw%3D%3D",
+          "address": "Sheikh Zayed Road Dubai United Arab Emirates",
+          "latitude": 25.0699544,
+          "longitude": 55.1370806
         },
+        "restaurant": [
+          {
+        "id": "veranda-all-day-dining",
+        "name": "Veranda All Day Dining",
+        "description": "Discover a world of flavors at Veranda All Day Dining, located within the elegant Signature Hotel in Al Barsha. This 24-hour restaurant offers an exceptional array of international cuisine, perfect for any occasion. Whether you're in the mood for a leisurely breakfast, a sumptuous lunch, an elegant dinner, or a late-night snack, Veranda serves up globally inspired dishes in a relaxed, welcoming setting, all while being easy on the wallet.",
+        "location": "Signature Hotel, Al Barsha",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-4t6x7dugspllq7hf49r39j7hp/veranda-all-day-dining_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+      },
+      {
+        "id": "soil-dubai",
+        "name": "Soil Dubai",
+        "description": "SOIL is the pioneering cultural nightclub in Dubai — a place where vibrancy, identity, and unforgettable experiences come together. This is more than just a night out. It’s your community.",
+        "location": "",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "+971503084792",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-1te0rq1vb2ir2qv3pzdesz0jv/file_standard.jpg?width=1140&crop=0%2C128%2C1024%2C768"
+      },
+      {
+        "id": "grand-maraya-club",
+        "name": "Grand Maraya Club",
+        "description": "Immerse yourself in the vibrant allure of Arabian nightlife at the Grand Maraya Club, located on the first floor of Signature Hotel, Al Barsha. Just moments from the Mall of the Emirates and the metro station, this venue is your gateway to an unforgettable evening, all within one of the city's most affordable and stylish hotels.",
+        "location": "Signature Hotel, Al Barsha",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-9a90tqmmhbb01dh978cnzw8b2/grand-maraya-club_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+      },
+      {
+        "id": "beez-club",
+        "name": "Beez Club",
+        "description": "Discover the energy of Beez Club, Dubai's premier Thai nightclub, where the night comes alive with rhythm and revelry. Conveniently located near the Mall of the Emirates and the metro, Signature Hotel, Al Barsha, offers an affordable yet vibrant stay, perfect for nightlife enthusiasts.",
+        "location": "",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-dgo5dtncdyxmyxswqht2edzzt/beez-club_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+      },
+      {
+        "id": "joker-thai-restaurant",
+        "name": "Joker Thai Restaurant",
+        "description": "Delight in the authentic flavors of Thailand at Joker Thai Restaurant, where unlimited buffets and hot pots await.",
+        "location": "",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-26szfrit4o1mgqdolivsvnwfx/joker-thai-restaurant_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+      }
+        ],
+        "meetingsEvents": [
+          {
+            "name": "Meeting Room",
+            "image": "https://image-tc.galaxy.tf/wijpeg-3w8pdjplnlbh6l4t3s5csyr4m/meeting-room_standard.jpg?width=570&crop=240%2C0%2C1440%2C1080",
+            "description": "Our meeting room comfortably accommodates up to 30 guests and offers a range of amenities upon request, including a projector, audio equipment, notepads, pens, water bottles, high-speed internet, Wi-Fi, customizable seating arrangements, and air conditioning."
+          }
+        ],
         "footer": {
-          "links": [],
           "social": {
-            "instagram": "https://www.instagram.com/royalcontinentaldubai/?hl=en",
-            "facebook": "https://www.facebook.com/RoyalContinentalHotels/",
-            "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
-            "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
+            "instagram": "https://www.instagram.com/signature1hotels/",
+            "facebook": "https://www.facebook.com/signature1hotels/",
+            "linkedin": "https://www.linkedin.com/company/signature-1-hotels"
           },
-          "copyright": "© Copyright Royal Continental Hotel Dubai"
+          "copyright": "© 2024 Signature Hotel"
         },
         "extranet": {
           "url": "https://bookings.revchilltech.com/api/v1",
           "apiKey": ""
-        },
-        "facility": [
-          {
-            "id": "meeting_room",
-            "type": "meeting_room",
-            "name": "Meeting Rooms",
-            "heading": "A VENUE FOR ALL KINDS OF MEETINGS AND EVENTS IN DUBAI",
-            "description": "Meetings, Business Facilities and Services",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/18-1-qrxkokeggw7ylomp4jhhdfjuhj4fcyogfxbnq7qk3k.jpg",
-            "learnMoreLabel": "Learn More",
-            "icon": "meeting_room",
-            "details": {
-              "title": "Meeting Room Details",
-              "fullDescription": "From industry conferences to business events, Royal Continental provides a venue for all occasions in Deira. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. Elevate your business meetings with our exquisite meeting room experience. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations.",
-              "wpNumber": "+971 523536563",
-              "callNumber": "+971 4 203 5000",
-              "locations": [
-                {
-                  "id": "location_1",
-                  "name": "Al Diwan",
-                  "location": "Located on the Ground Floor Royal Continental Hotel, Deira, Dubai, the Al Diwan Room is a perfect venue for meetings and training sessions",
-                  "sqm": "74 sqm",
-                  "description": "Book Meeting Rooms in Dubai from Royal Continental Hotel Deira – Hotel Near to Airport ensures you remain seamlessly connected through our free building-wide Wi-Fi internet service, complemented by a complete range of business support services. Our Business Centre caters to all your equipment and connectivity needs, while Al Diwan, the cutting-edge conference facility provides the ideal venue for meetings and corporate events which makes the hotel a Luxury Business hotel in Dubai.",
-                  "wpNumber": "+971 523536563",
-                  "callNumber": "+971 4 203 5000",
-                  "photos": [
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Al-Diwan-meeting-room-dubai.jpg",
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Al-Diwan-meeting-room-dubai-business-hotel-dubai.jpg",
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/171104_133_JRT_3933.jpg",
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/171104_134_JRT_3935.jpg",
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/171104_135_JRT_3936-1.jpg",
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/171104_132_JRT_3931-1.jpg"
-                  ],
-                  "facilities": [
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/wifi-signal.png",
-                      "name": "High speed WiFi"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/innovation-1.png",
-                      "name": "Fully equipped business center"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/smart-tv.png",
-                      "name": "Multi user Screen Sharing"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/stationary-1.png",
-                      "name": "Flip charts & stationary"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/water.png",
-                      "name": "Complimentary bottled water"
-                    },
-                    {
-                      "icon": "https://static.vecteezy.com/system/resources/previews/007/285/470/non_2x/cup-of-coffee-thin-black-lines-on-a-white-background-vector.jpg",
-                      "name": "Tea & Coffee making facilities"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/concierge.png",
-                      "name": "Concierge service"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/speaker.png",
-                      "name": "In-built sound system"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/parking-lot.png",
-                      "name": "Free parking for each delegate"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/people.png",
-                      "name": "Dedicated Events Team to service"
-                    }
-                  ]
-                },
-                {
-                  "id": "location_2",
-                  "name": "Executive Lounge",
-                  "location": "Located on the Second Floor of Royal Continental Hotel, Deira, Dubai, the Executive Lounge is a perfect venue for meetings and training sessions",
-                  "sqm": "59 sqm",
-                  "description": "Royal Continental Hotel – Hotel Near to Airport ensures you remain seamlessly connected through our free building-wide Wi-Fi internet service, complemented by a complete range of business support services. Our Business Centre caters to all your equipment and connectivity needs, while Executive Lounge provides the ideal venue for meetings and corporate events which makes the hotel a Luxury Business hotel in Dubai.",
-                  "wpNumber": "+971 4 203 5000",
-                  "callNumber": "+971 4 203 5000",
-                  "photos": [
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Executive-Lounge-ROYAL-CONTINENTAL-Business-HOTEL-DEIRA.jpg",
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Executive-Lounge-ROYAL-CONTINENTAL-Business-HOTEL-DEIRA-1.jpg",
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/06/Executive-Lounge-1.jpg",
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/06/Executive-Lounge-2.jpg",
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/06/Executive-Lounge-4.jpg",
-                    "https://royalcontinentalhotels.com/wp-content/uploads/2024/06/Executive-Lounge.jpg"
-                  ],
-                  "facilities": [
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/wifi-signal.png",
-                      "name": "High speed WiFi"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/innovation-1.png",
-                      "name": "Fully equipped business center"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/smart-tv.png",
-                      "name": "Multi user Screen Sharing"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/stationary-1.png",
-                      "name": "Flip charts & stationary"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/water.png",
-                      "name": "Complimentary bottled water"
-                    },
-                    {
-                      "icon": "https://static.vecteezy.com/system/resources/previews/007/285/470/non_2x/cup-of-coffee-thin-black-lines-on-a-white-background-vector.jpg",
-                      "name": "Tea & Coffee making facilities"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/concierge.png",
-                      "name": "Concierge service"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/speaker.png",
-                      "name": "In-built sound system"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/parking-lot.png",
-                      "name": "Free parking for each delegate"
-                    },
-                    {
-                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/people.png",
-                      "name": "Dedicated Events Team to service"
-                    }
-                  ]
-                },
-                {
-                  "id": "location_3",
-                  "name": "Pool Party Area",
-                  "location": "Take your event to the next level at the exclusive Pool Party Area in Royal Continental Hotel. With a lavish Executive Lounge and stunning pool area, it’s the perfect venue for any party or celebration.",
-                  "sqm": "80",
-                  "description": "Elevate your celebrations at the exclusive Pool Party Area of Royal Continental Hotel, where luxury meets unforgettable experiences. Featuring a stunning poolside ambiance and access to a lavish Executive Lounge, this premium venue is designed to impress. Whether you're hosting a birthday bash, corporate gathering, or a private celebration, the elegant setting, vibrant atmosphere, and top-tier amenities create the perfect backdrop for every occasion. Celebrate in style and make every moment extraordinary.",
-                  "wpNumber": "+971 523536563",
-                  "callNumber": "+971 4 203 5000",
-                  "photos": [
-                    "https:\/\/royalcontinentalhotels.com\/wp-content\/uploads\/2024\/06\/Royal-Continental-swimming-pool-2.jpg",
-                    "https:\/\/royalcontinentalhotels.com\/wp-content\/uploads\/2024\/06\/Royal-Continental-swimming-pool.jpg",
-                    "https:\/\/royalcontinentalhotels.com\/wp-content\/uploads\/2024\/06\/Royal-Continental-swimming-pool1.jpg"
-                  ],
-                  "facilities": []
-                }
-              ]
-            }
-          },
-          {
-            "id": "restaurant",
-            "type": "restaurant",
-            "name": "Oasis Restaurant",
-            "heading": "Multi-cuisine dining experience",
-            "description": "Traditional recipes for a modern audience.",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Oasis-Restaurant-restaurant-dubai-deira-2-qv7gp519kss7oeihj0hll9z5oxeq37ue1cnnxaj0hs.jpg",
-            "learnMoreLabel": "Check Menu",
-            "icon": "restaurant",
-            "details": {
-              "title": "Oasis Restaurant",
-              "fullDescription": "Royal Continental features dining options to satisfy your culinary needs 24 hours a day, 7 days a week, whether you choose to select from our extensive in-room dining menu, or one of our two outlets. Oasis Restaurant Deira, Dubai, our all-day dining venue, offering sumptuous multi-cuisine buffets for breakfast, lunch and dinner. Royal Continental Hotel reflects and upholds Arab cultural values throughout its facilities, and therefore does not serve any alcoholic beverages or pork items.",
-              "menuPdfUrl": "https://royalcontinentalhotels.com/Oasis-Restaurant-Menu.pdf",
-              "wpNumber": "",
-              "callNumber": "",
-              "photos": [
-                "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Oasis-Restaurant-restaurant-dubai-deira-2.jpg",
-                "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Oasis-Restaurant-restaurant-dubai-deira-1.jpg",
-                "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Oasis-Restaurant-restaurant-dubai-deira.jpg"
-              ],
-              "facilities": [
-                {
-                  "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/icon-17.png",
-                  "name": "International"
-                },
-                {
-                  "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/restaurant.png",
-                  "name": "Multi Cuisine"
-                },
-                {
-                  "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/icon-14.png",
-                  "name": "No-Smoking"
-                },
-                {
-                  "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/24-hours.png",
-                  "name": "24-Hour Service"
-                }
-              ]
-            }
-          },
-          {
-            "id": "swimming_pool",
-            "type": "swimming_pool",
-            "name": "Swimming Pool",
-            "heading": "Outdoor swimming pool and sun deck",
-            "description": "Refreshing work-out experience",
-            "image": "https://q-xx.bstatic.com/xdata/images/hotel/max500/633479909.jpg?k=038bfa7450a3a31a0c621d1d62dc71e3c512b874d4be0bbecfd4df1ce8724d55&o=",
-            "learnMoreLabel": "Learn More",
-            "icon": "pool",
-            "details": {
-              "title": "Swimming Pool",
-              "fullDescription": "The Swimming Pool at Royal Continental Hotel is the perfect oasis for those seeking a tranquil escape after a hectic day. Nestled on the pool deck level, this serene spot boasts stunning views and a laid-back atmosphere that instantly puts you at ease. As you kick off your shoes and dip your toes into the refreshing water, you can unwind to the soothing sounds of chilled lounge music playing in the background. Sip on delicious mocktails or smoothies as you bask in the warm sun, indulging in fresh fruit and snacks to keep you energized. And when hunger strikes, tantalize your taste buds with mouth-watering food options that are sure to satisfy any craving. The Swimming Pool at Royal Continental Hotel provides a luxurious haven where you can truly unwind and recharge amidst luxury surroundings.",
-              "photos": [
-                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Royal-Continental-swimming-pool1-qv7id7vuksumkfod95fmk1u97g6yq2irrrn2zczs9k.jpg",
-                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Royal-Continental-swimming-pool-1-qv7i91hmdiyds46d70gskjfyspow5t3qc54jzgqfe8.jpg"
-              ]
-            }
-          },
-          {
-            "id": "wake_and_bake",
-            "type": "cafe",
-            "name": "Wake & Bake Cafe",
-            "heading": "Light bites and specialty coffee",
-            "description": "The flavour of coffee from bean to cup",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/WAKE-BAKE-CAFE-2-qv7il4ov1ypzpv4mcv24agp0zp4b4uvbqxc41nlev0.jpg",
-            "learnMoreLabel": "Check Menu",
-            "icon": "local_cafe",
-            "details": {
-              "title": "Wake & Bake Cafe",
-              "fullDescription": "Step into the inviting atmosphere of Wake & Bake Café at Royal Continental Hotel, where the rich aroma of freshly brewed coffee fills the air and entices customers to start their day on a flavorful note. As you enter the café, you are greeted by friendly baristas who expertly craft your favorite espresso-based beverages with precision and care. The cozy seating area offers a relaxing space to enjoy your drink while soaking in the vibrant energy of this bustling coffee shop.",
-              "menuPdfUrl": "https://royalcontinentalhotels.com/wake-bake-cafe-menu.pdf",
-              "wpNumber": "",
-              "callNumber": "",
-              "photos": [
-                "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Wake-Bake-Cafe-in-Royal-Continental-Hotel-1.jpg",
-                "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Wake-Bake-Cafe-in-Royal-Continental-Hotel.jpg"
-              ],
-              "facilities": []
-            }
-          },
-          {
-            "id": "gym",
-            "type": "gym",
-            "name": "Fitness Center",
-            "heading": "State-of-the-art fitness center",
-            "description": "Keep up with your fitness routine while you are away!",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-2-qv7j4j2y3va1c4y62qxx92giczi0zyvw2y1vm8twfw.jpg",
-            "learnMoreLabel": "Learn More",
-            "icon": "fitness_center",
-            "details": {
-              "title": "Fitness Center",
-              "fullDescription": "The Gym at Royal Continental Hotel offers guests the perfect opportunity to stay active and fit while away from home. Equipped with modern technology and a variety of exercise equipment, this gym is designed to help you achieve clear and effective results. Whether you prefer cardio workouts, strength training with free weights, running on machines, or using resistance equipment, there is something for everyone here. With top-of-the-line facilities and dedicated staff members ready to assist you in reaching your fitness goals, staying healthy during your stay has never been easier at the Gym at Royal Continental Hotel.",
-              "menuPdfUrl": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/Orchid-Brochure.pdf",
-              "photos": [
-                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-2-qv7j4j315i8jwk07ryfe05qekhkwdgy06y0yyshzh4.jpg",
-                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-1-qv7j3xgoyj8latb5tv4g08u9jjg43qq6x0vypsxoxc.jpg"
-              ]
-            }
-          },
-          {
-            "id": "spa",
-            "type": "spa",
-            "name": "Orchid Spa",
-            "heading": "Spa and wellness treatments",
-            "description": "Revitalize your body, mind and spirit with our Spa and Beauty treatment",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Orchid-Spa-Beauty-Salon-3-qv7jg1lrtt1hk681u84eanusbwqwahlinxr099ra7w.jpg",
-            "learnMoreLabel": "Learn More",
-            "icon": "spa",
-            "details": {
-              "title": "Orchid Spa",
-              "fullDescription": "Orchid Spa & Beauty Salon is your exclusive beauty destination for all your Hair, Nail, Face & body treatments. Set in Royal Continental Hotel Dubai, we welcome you into a calming atmosphere where you can unwind, de-stress & get a fabulous makeover! At Orchid Spa, with six indulgent spa treatment rooms, a sauna and a Moroccan hammam, complete relaxation is only ever a few floors away.",
-              "wpNumber": "+971 4 203 5001",
-              "callNumber": "+971 4 203 5001",
-              "rate-cardPdfUrl": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/Orchid-Brochure.pdf",
-              "youtubeUrl": "https://www.youtube.com/@royalcontinentalhotels3892/videos",
-              "photos": [
-                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Orchid-Spa-Beauty-Salon-1-qv7jg6b17orxpcc9ehv6kmlssquornku7xy0x0qauo.jpg",
-                "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Orchid-Spa-Beauty-Salon-3-qv7jg1lrtt1hk681u84eanusbwqwahlinxr099ra7w.jpg"
-              ],
-              "services": [
-                {
-                  "name": "Moroccan Bath",
-                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/services-1.jpg"
-                },
-                {
-                  "name": "Massage",
-                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/woman-getting-massage-from-therapist-2023-11-27-05-35-39-utc-qrxkolc5sb3ih9yebeffhlxuxk59xmxb8vmglvs9sw.jpg"
-                },
-                {
-                  "name": "Facial",
-                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/the-beautician-applies-a-collagen-booster-on-the-c-2024-02-26-16-09-40-utc-qrxkolc5sb3ih9yebeffhlxuxk59xmxb8vmglvs9sw.jpg"
-                },
-                {
-                  "name": "Manicure & Pedicure",
-                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/beauty-saloon-master-together-with-client-choose-2023-11-27-05-37-06-utc-qrxkolc880odpa9v585rprml08kj95cr0gsswoqpv4.jpg"
-                },
-                {
-                  "name": "Hair Services",
-                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/hairdresser-cleaning-the-hair-with-hot-water-and-s-2023-11-27-05-12-07-utc-qrxkolc880odpa9v585rprml08kj95cr0gsswoqpv4.jpg"
-                },
-                {
-                  "name": "Waxing",
-                  "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/women-hold-orange-paraffin-wax-bowl-woman-in-beau-2023-11-27-04-52-20-utc-qrxkolc5sb3ih9yebeffhlxuxk59xmxb8vmglvs9sw.jpg"
-                }
-              ]
-            }
-          }
-        ],
-        "promotion": [
-          {
-            "id": "room-offer",
-            "name": "Room Offer",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/RCH-Non-smoking-room-promo-copy-red7pyp4vliwsyg94h8gthahgz5yl5o66u40f354xs.jpg",
-            "phone": "",
-            "buttonText": "Book Now",
-            "buttonRoute": "/rooms",
-            "details": {
-              "title": "Non-smoking rooms at 40% off",
-              "fullDescription": "Breathe Easy. Stay Smart. Enjoy 40% OFF on our Non-Smoking Rooms — where comfort meets sustainability. Experience modern elegance, premium amenities, and a refreshing smoke-free environment designed for your well-being. Relax in style and make every moment a breath of luxury. T&Cs Apply."
-            }
-          },
-          {
-            "id": "gym-offer",
-            "name": "Gym Offer",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/2025/11/RCH-DFC-GYM-2025.jpg",
-            "phone": "+971 4 203 5000",
-            "buttonText": "",
-            "buttonRoute": "",
-            "details": {
-              "title": "Gym Membership Promotion",
-              "fullDescription": "Hurry up and kick-start your wellness journey! Our exclusive gym memberships come with amazing perks — unlimited gym access, pool entry, and special discounts. Sign up today and take your lifestyle to the next level!"
-            }
-          },
-          {
-            "id": "f-b-offer",
-            "name": "F & B Offer",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/2025/10/10-Off-on-All-Food-Beverages.jpg",
-            "phone": "+971 4 203 5000",
-            "buttonText": "",
-            "buttonRoute": "",
-            "details": {
-              "title": "Stay with Us & Savor for Less!",
-              "fullDescription": "Book your room at Royal Continental Hotel and enjoy 10% off on all Food & Beverages throughout your stay."
-            }
-          },
-          {
-            "id": "f-b-offer",
-            "name": "F & B Offer",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/2025/10/Shisha-combo-01-copy.jpg",
-            "phone": "+971 4 203 5106",
-            "buttonText": "Book Now",
-            "buttonRoute": "/rooms",
-            "details": {
-              "title": "Unwind with Our Shisha Combo Offer",
-              "fullDescription": "Sip, Puff, Repeat – An Indulgent Experience Awaits. Enjoy your favorite shisha flavor paired with a refreshing juice, smoothie, or hot beverage. A perfect blend of comfort and relaxation — exclusively at Royal Continental Hotel, Deira for AED 59"
-            }
-          },
-          {
-            "id": "meeting-room-offer",
-            "name": "Meeting Room Offer",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Sustainable-meeting-room-deira-r3uon6hwqhmostp1atv9obg9pbtvrpsbr3kscj9i68.jpg",
-            "phone": "971 52 353 6563",
-            "buttonText": "",
-            "buttonRoute": "",
-            "details": {
-              "title": "Green Meeting Room Package",
-              "fullDescription": "Avail 10% Discount on coffee break menu. Experience eco-friendly meetings with our Green Meeting Room Package – sustainable, stylish, and smart for the planet!"
-            }
-          },
-          {
-            "id": "meeting-room-offer",
-            "name": "Meeting Room Offer",
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Corporate-meeting-space-3_3-qrxkolcanq98xalbz1w3xxbb2wzskns6s1z57hp5xc.jpg",
-            "phone": "971 52 353 6563",
-            "buttonText": "",
-            "buttonRoute": "",
-            "details": {
-              "title": "Conference Meeting Package",
-              "fullDescription": "Royal Continental Hotel is the perfect address to stage business meetings & corporate events, pairing state-of-the-art audiovisual facilities with impeccable service and powerful connectivity."
-            }
-          }
-        ]
+        }
       }
     },
     {
       "id": "f0795175-a1ad-495e-811a-d68661669594",
-      "code": "SGI1EW",
-      "name": "Royal Continental Hotel Suites",
-      "slug": "royal-continental-suites",
+      "code": "RSQT83",
+      "name": "Signature 1 Hotel, Barsha Heights",
+      "slug": "barsha-heights",
       "type": "STANDALONE",
-      "apkName": "Royal Continental Suites",
+      "apkName": "Barsha Heights",
       "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
       "createdAt": "2025-12-24T10:28:14.699Z",
       "updatedAt": "2025-12-24T10:48:21.121Z",
@@ -662,12 +421,450 @@
         "createdAt": "2025-12-24T10:28:22.672Z",
         "updatedAt": "2026-01-08T06:00:26.700Z",
         "branding": {
-          "logo": "http://res.cloudinary.com/dttazo51h/image/upload/v1770808172/SwiftRooms-Images/e4smfwvxsxgsxyslnhna.png",
-          "primaryColor": "#0D5399",
-          "secondaryColor": "#d67816",
+          "logo": "https://image-tc.galaxy.tf/wipng-89p7xvrk2b5vbij0tb37ot7xd/signature-1-hotel-barsha-heights_logo.png",
+          "primaryColor": "#13497D",
+          "secondaryColor": "#C29D3A",
           "backgroundColor": "#FFFFFF",
           "fontFamily": "Inter",
-          "splashImage": "http://res.cloudinary.com/dttazo51h/image/upload/v1770808172/SwiftRooms-Images/e4smfwvxsxgsxyslnhna.png"
+          "splashImage": "https://image-tc.galaxy.tf/wipng-89p7xvrk2b5vbij0tb37ot7xd/signature-1-hotel-barsha-heights_logo.png"
+        },
+        "navigation": {
+          "type": "bottom",
+          "items": [
+            {
+              "id": "home",
+              "icon": "home",
+              "label": "Home",
+              "route": "/home",
+              "visible": true
+            },
+            {
+              "id": "rooms",
+              "icon": "bed",
+              "label": "Rooms",
+              "route": "/rooms",
+              "visible": true
+            },
+            {
+              "id": "my_bookings",
+              "icon": "booking",
+              "label": "My Bookings",
+              "route": "/bookingdetails",
+              "visible": true
+            },
+            {
+              "id": "about",
+              "icon": "info",
+              "label": "About",
+              "route": "/about",
+              "visible": true
+            },
+            {
+              "id": "contact",
+              "icon": "call",
+              "label": "Contact",
+              "route": "/contact",
+              "visible": true
+            },
+            {
+              "id": "offers",
+              "icon": "local_offer",
+              "label": "Offers",
+              "route": "/offers",
+              "visible": false
+            }
+          ]
+        },
+        "home": {
+          "sections": [
+            {
+              "data": {
+                "cta": {
+                  "label": "Book Now",
+                  "route": "/rooms"
+                },
+                "image": "https://image-tc.galaxy.tf/wijpeg-5v2m8yzvgv1z8qxs7t6adovkd/where-elegant-meets-comfort_photo.jpg",
+                "title": "Welcome to Signature 1 Hotel, Barsha Heights",
+                "subtitle": ""
+              },
+              "type": "heroBanner"
+            },
+            {
+              "data": {
+                "items": [
+                  {
+                    "icon": "wifi",
+                    "label": "Free WiFi"
+                  },
+                  {
+                    "icon": "spa",
+                    "label": "Spa"
+                  },
+                  {
+                    "icon": "boating",
+                    "label": "Boating"
+                  }
+                ]
+              },
+              "type": "highlights"
+            },
+            {
+              "data": {
+                "rooms": [
+                  {
+                    "id": "1",
+                    "name": "Delux",
+                    "image": "https://plus.unsplash.com/premium_photo-1661964402307-02267d1423f5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGhvdGVsfGVufDB8fDB8fHww"
+                  },
+                  {
+                    "id": "1766573004995",
+                    "name": "Suite",
+                    "image": "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGhvdGVsfGVufDB8fDB8fHww"
+                  }
+                ]
+              },
+              "type": "featuredRooms"
+            },
+            {
+              "data": {
+                "images": [
+                  "https://image-tc.galaxy.tf/wijpeg-2emn7tgsdtjbyudjbvsfv2z46/twin-room-2.jpg?width=360&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-aoarvsvaev2afedlnkkjesnxc/executive-suite-bed-2.jpg?width=360&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-cos4wa0q09dsdezfh2ggu4rie/clavichord-1.jpg?width=360&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-1l06tep6udcyx9ts0ys0q4l7l/pool-area.jpg?width=750&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-7o29ekxxahcgygp8s64aqvjpe/lobby-1.jpg?width=360&height=300"
+                ]
+              },
+              "type": "galleryPreview"
+            },
+            {
+              "data": {
+                "items": [
+                  {
+                    "icon": "food_bank",
+                    "label": "Restaurant",
+                    "route": "/restaurant",
+                    "color": "#0D5399"
+                  },
+                  {
+                    "icon": "local_offer",
+                    "label": "Offers",
+                    "route": "/offers",
+                    "color": "#D67816"
+                  },
+                  {
+                    "icon": "photo_library",
+                    "label": "Gallery",
+                    "route": "/gallery",
+                    "color": "#F97316"
+                  },
+                  {
+                    "icon": "meeting_room",
+                    "label": "Meetings and Events",
+                    "route": "/meetings-events",
+                    "color": "#800080"
+                  }
+                ]
+              },
+              "type": "quickActions"
+            }
+          ]
+        },
+        "rooms": [
+          {
+            "id": "1766573068882",
+            "name": "Delux",
+            "images": [
+              "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzV8fGhvdGVsfGVufDB8fDB8fHww"
+            ],
+            "amenities": [],
+            "basePrice": 2000,
+            "description": "A spacious room with sea view.",
+            "maxOccupancy": 4
+          },
+          {
+            "id": "1766573134870",
+            "name": "Suite",
+            "images": [
+              "https://images.unsplash.com/photo-1498503182468-3b51cbb6cb24?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDR8fGhvdGVsfGVufDB8fDB8fHww"
+            ],
+            "amenities": [],
+            "basePrice": 8000,
+            "description": "A spacious room with sea view.",
+            "maxOccupancy": 4
+          }
+        ],
+        "amenities": [
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-4dkha6hjvzi391kcxsmmeawhz/rooftop-pool-gym_photo.png",
+            "label": "Rooftop Pool & Gym"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-9qbov5klfo0dhqv8n49gvi3ye/diverse-dining-options_photo.png",
+            "label": "Diverse Dining Options"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-2laonqf1dubekqag3tbokiswa/vibrant-live-entertainment_photo.png",
+            "label": "Vibrant Live Entertainment"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-82vola90f84lzkxypbbrzross/versatile-function-room_photo.png",
+            "label": "Versatile Function Room"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-9gdrkd0iv9ag78cx9wdseag9b/24-7-doctor-on-call_photo.png",
+            "label": "24/7 Doctor on Call"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-6tnjb0alc14rbkovu6bvrc93f/wi-fi_photo.png",
+            "label": "Wi-Fi"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-bmv9gtbig7zc8oly8735oaymx/free-parking_photo.png",
+            "label": "Free Parking"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-en0vkaxl01pgu740n1lmy6iiu/travel-desk_photo.png",
+            "label": "Travel Desk"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-2wckv8fz9yz3ba5y3764z8z8b/housekeeping_photo.png",
+            "label": "Housekeeping"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-5kyace5wcaw4bfp9z4v54k97b/room-service_photo.png",
+            "label": "Room Service"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-ye0zn8dc0adgm1hgdwpr3v8z/laundry-service_photo.png",
+            "label": "Laundry Service"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-2y9vcayht2wwrqv34s1rn0eak/shuttle-bus_photo.png",
+            "label": "Shuttle Bus"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-278m5c73t323mbea0rqts08js/luggage-storage_photo.png",
+            "label": "Luggage Storage"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-25bhwmxkyl2siw6wovs6zbiwk/salon-spa_photo.png",
+            "label": "Salon & Spa"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-3iqw8skluu2h7qpwnbhp3ov6r/steam-moroccan-bath_photo.png",
+            "label": "Steam & Moroccan Bath"
+          }
+        ],
+        "gallery": {
+          "items": [
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-4120ag766exds4mupc6phsyu5/rooms_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Rooms"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-f328o7eedazhok0uwt63p0dbe/rooftop-pool_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Rooftop Pool"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-8fdeu2pnl7rzo7oywf51f1cgg/gym_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Gymnasium"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-787bmr4qamqfeva6nkjrstwhc/restaurant_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Restaurant"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Spa"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Salon"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-d821oe260v04w2q4mwx6gx154/travel-desk_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Travel Desk"
+            }
+          ]
+        },
+        "about": {
+          "title": "Enjoy a seamless blend of modern comfort and convenience",
+          "description": "Nestled in the heart of Tecom Business Hub, Signature 1 Hotel offers a seamless blend of modern comfort and convenience. With 301 well-appointed rooms, including flat-screen TVs, workspaces, and in-room amenities like a mini fridge and electric kettle, you’ll find everything you need right at your fingertips. Whether you’re here for business or leisure, our warm ambiance and attentive staff ensure a memorable stay. Ideally located near the metro and top attractions, we provide affordable comfort in one of Dubai’s best four-star hotels.",
+          "images": [
+            "https://image-tc.galaxy.tf/wijpeg-3rm51c31rnkzvo6b7g17kza42/lobby-2.jpg?width=1920",
+            "https://image-tc.galaxy.tf/wijpeg-2emn7tgsdtjbyudjbvsfv2z46/twin-room-2.jpg?width=360&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-aoarvsvaev2afedlnkkjesnxc/executive-suite-bed-2.jpg?width=360&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-cos4wa0q09dsdezfh2ggu4rie/clavichord-1.jpg?width=360&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-1l06tep6udcyx9ts0ys0q4l7l/pool-area.jpg?width=750&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-7o29ekxxahcgygp8s64aqvjpe/lobby-1.jpg?width=360&height=300"
+          ]
+        },
+        "policies": {
+          "checkIn": "12:00 PM",
+          "checkOut": "10:00 AM",
+          "cancellation": "Free cancellation upto 2 days before check in . But after that 50% refund.",
+          "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
+        },
+        "contact": {
+          "email": "info@s1hg.com",
+          "phone": "+971 4 561 0600",
+          "mapUrl": "https://www.google.com/maps/place/Sheikh+Zayed+Rd+-+Dubai+-+United+Arab+Emirates/@25.0699544,55.1370806,17z/data=!3m1!4b1!4m6!3m5!1s0x3e5f13435f3abe57:0xb4c00b9d46311cd0!8m2!3d25.0699544!4d55.1370806!16s%2Fg%2F120jxr51?entry=ttu&g_ep=EgoyMDI2MDUyNy4wIKXMDSoASAFQAw%3D%3D",
+          "address": "Sheikh Zayed Road Dubai United Arab Emirates",
+          "latitude": 25.0699544,
+          "longitude": 55.1370806
+        },
+        "restaurant": [
+          {
+            "id": "xandros-restaurant-and-terrace-lounge",
+            "name": "Xandros Restaurant And Terrace Lounge",
+            "description": "Located at Signature 1 Hotel, Barsha Heights, Xandros offers an elegant dining experience with a selection of international buffets, an extensive à la carte menu, and a variety of beverages. Guests can also enjoy themed evenings, including Ladies’ Night, Cocktail Nights, and BBQ Nights, all set in a refined and welcoming atmosphere.",
+            "location": "Signature 1 Hotel, Barsha Heights",
+            "from-day": "Monday",
+            "to-day": "Sunday",
+            "from-time": "06:30 AM",
+            "to-time": "03:00 AM",
+            "number": "+971 4 561 0638",
+            "email": "xandros@s1hg.com",
+            "image": "https://image-tc.galaxy.tf/wijpeg-4ddety2yztjcnld5xk0utu51b/tecom-property-outlet-2-xandros_standard.jpg?width=1140&crop=112%2C0%2C1777%2C1333"
+          },
+          {
+            "id": "lit-lounge",
+            "name": "LIT Lounge",
+            "description": "LIT Club is the place where nightlife, music, and high-energy vibes come together under one roof.",
+            "location": "",
+            "from-day": "",
+            "to-day": "",
+            "from-time": "",
+            "to-time": "",
+            "number": "+971 50 968 0807",
+            "email": "Info@litclublounge.com",
+            "image": "https://image-tc.galaxy.tf/wiwebp-2t8fa054lsvtj7m665t9is309/lit_standard.webp?width=1140&crop=0%2C500%2C1333%2C1000"
+          },
+          {
+            "id": "cafe-breeze",
+            "name": "Café Breeze",
+            "description": "Stir your morning to life at Café Breeze, proudly serving Starbucks coffee and quick bites throughout the day. Whether you're on the go or looking to relax, this cozy spot is ideally situated close to the metro and local attractions.",
+            "location": "",
+            "from-day": "Monday",
+            "to-day": "Sunday",
+            "from-time": "07:00 AM",
+            "to-time": "11:00 PM",
+            "number": "+971 4 561 0600",
+            "email": "info@s1hg.com",
+            "image": "https://image-tc.galaxy.tf/wijpeg-a1mq7879phps6jo1uufcie9w5/cafe-breeze_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+          },
+          {
+            "id": "rooftop-pool-bar",
+            "name": "Rooftop Pool Bar",
+            "description": "Relax and soak in the skyline views at the Rooftop Pool Bar, where you can enjoy light bites and specially crafted drinks to keep you cool. Located at Signature 1 Hotel Barsha Heights, this poolside haven is perfect for unwinding, just steps away from the metro and nearby attractions.",
+            "location": "Signature 1 Hotel Barsha Heights",
+            "from-day": "Monday",
+            "to-day": "Sunday",
+            "from-time": "08:00 AM",
+            "to-time": "08:00 PM",
+            "number": "+971 4 561 0600",
+            "email": "info@s1hg.com",
+            "image": "https://image-tc.galaxy.tf/wijpeg-1dwj1sw10521zvxh4mzwppgz0/rooftop-pool-bar_standard.jpg?width=1140&crop=57%2C0%2C911%2C683"
+          }
+        ],
+        "meetingsEvents": [
+          {
+            "name": "Meetings & Events Package",
+            "image": "https://image-tc.galaxy.tf/wijpeg-60yhgswq9ivuzlu930fzz2r0a/meeting-room_standard.jpg?width=570&crop=240%2C0%2C1440%2C1080",
+            "description": "Discover a new standard for meeting spaces at Signature 1 Hotel. Our versatile venues offer a unique and inspiring setting, far from the ordinary. Immerse yourself in a modern and stylish environment designed to foster collaboration and productivity. "
+          }
+        ],
+        "offers": [
+          {
+            "id": "xandros-restaurant-and-terrace-lounge",
+            "name": "Xandros Restaurant and Terrace Lounge",
+            "image": "https://image-tc.galaxy.tf/wijpeg-6tcu6g6q6n7y0224nexcmrih3/tecom-property-outlet-xandros_standard.jpg?crop=112%2C0%2C1777%2C1333&width=400",
+            "location": "Signature 1 Hotel, Barsha Heights",
+            "offerdetails": [
+              {
+                "name": "Ramadan Special Iftar Buffet",
+                "desc": "during the Holy month of Ramadan Daily from Sunset till 9 PM"
+              },
+              {
+                "name": "Lunch Buffet",
+                "desc": "Daily from 12:30 PM to 4:30 PM"
+              },
+              {
+                "name": "Dinner Buffet",
+                "desc": "Daily from 7:00 PM to 11:00 PM"
+              },
+              {
+                "name": "Friday: Comedy Night",
+                "desc": "From 8 PM on, entry AED 80 per person includes one drink"
+              },
+              {
+                "name": "Saturday: Barbecue Night",
+                "desc": "From 7 PM on, enjoy all-you-can-eat for AED 109 "
+              },
+              {
+                "name": "Happy Hours",
+                "desc": "Daily from 12:00 PM to 8:00 PM "
+              }
+            ],
+            "menu": [
+              {
+                "name": "Lunch Buffet Menu",
+                "pdf": "https://document-tc.galaxy.tf/wdpdf-2xweixpvlydex6j0pnrej4bm0/lunch-buffet-menu.pdf"
+              },
+              {
+                "name": "A La carte Menu",
+                "pdf": "https://document-tc.galaxy.tf/wdpdf-bvg0x7wtke2fwurwcywrqoxpm/a-la-carte-menu.pdf"
+              }
+            ]
+          }
+        ],
+        "footer": {
+          "social": {
+            "instagram": "https://www.instagram.com/signature1hotels/",
+            "facebook": "https://www.facebook.com/signature1hotels/",
+            "linkedin": "https://www.linkedin.com/company/signature-1-hotels"
+          },
+          "copyright": "© 2024 Signature Hotel"
+        },
+        "extranet": {
+          "url": "https://bookings.revchilltech.com/api/v1",
+          "apiKey": ""
+        }
+      }
+    },
+    {
+      "id": "f0795175-a1ad-495e-811a-d68661669594",
+      "code": "OHDCV6",
+      "name": "Signature Apartments and Spa",
+      "slug": "signature-apartments-spa",
+      "type": "STANDALONE",
+      "apkName": "Signature Apartments and Spa",
+      "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+      "createdAt": "2025-12-24T10:28:14.699Z",
+      "updatedAt": "2025-12-24T10:48:21.121Z",
+      "childHotels": [],
+      "config": {
+        "id": "b0b56169-a1fd-47f5-bcf0-a71e1411996b",
+        "hotelId": "51d0be91-9b9a-487f-b95b-587a7cc9a458",
+        "version": "1.0.0     ",
+        "status": "DRAFT",
+        "createdAt": "2025-12-24T10:28:22.672Z",
+        "updatedAt": "2026-01-08T06:00:26.700Z",
+        "branding": {
+          "logo": "https://image-tc.galaxy.tf/wipng-5bkrw92k0cdon1iztriiyub6d/signature-hotel-apartments-and-spa-dubai-marina_logo.png",
+          "primaryColor": "#13497D",
+          "secondaryColor": "#C29D3A",
+          "backgroundColor": "#FFFFFF",
+          "fontFamily": "Inter",
+          "splashImage": "https://image-tc.galaxy.tf/wipng-5bkrw92k0cdon1iztriiyub6d/signature-hotel-apartments-and-spa-dubai-marina_logo.png"
         },
         "navigation": {
           "type": "bottom",
@@ -756,9 +953,9 @@
                   "label": "Book Now",
                   "route": "/rooms"
                 },
-                "image": "https://img.easemytrip.com/EMTHOTEL-1838502/23/na/l/15917985_18.jpg",
-                "title": "Royal Continental Hotel Suites",
-                "subtitle": "Experience Luxury"
+                "image": "https://image-tc.galaxy.tf/wijpeg-e2o55hwuz5ppepc5jweb4wa5s/_photo.jpg",
+                "title": "Welcome to Signature Hotel Apartments and Spa, Dubai Marina",
+                "subtitle": ""
               },
               "type": "heroBanner"
             },
@@ -801,10 +998,11 @@
             {
               "data": {
                 "images": [
-                  "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Cover-ImageRCS.jpg",
-                  "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-qv7udf2afh4ltltct4k7a3v4cni8ktojtadlvcpvsw.jpg",
-                  "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-Apartment-with-Dubai-Canal-view-.jpg",
-                  "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/swimming-pool-1-qrxkom9zz5606goir6u2jkgxxwby90mcosq5l16meg.jpg"
+                  "https://image-tc.galaxy.tf/wijpeg-dhvb0bv6wfra1dkzdvfg7vukt/living-area-2.jpg?width=360&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-pbl91i4d3pbzz1jvycaod7j5/tph-lakwil-1.jpg?width=750&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa-1.jpg?width=360&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-bw71ajidnugzdtql8eohxmzzt/playground.jpg?width=360&height=300",
+                  "https://image-tc.galaxy.tf/wijpeg-6pfbajiembdhhmgqx469ilrn9/obr-livingroom-2.jpg?width=360&height=300"
                 ]
               },
               "type": "galleryPreview"
@@ -813,15 +1011,15 @@
               "data": {
                 "items": [
                   {
-                    "icon": "facilities",
-                    "label": "Facilities",
-                    "route": "/facilities",
+                    "icon": "food_bank",
+                    "label": "Restaurant",
+                    "route": "/restaurant",
                     "color": "#0D5399"
                   },
                   {
-                    "icon": "local_offer",
-                    "label": "Promotion",
-                    "route": "/promotions",
+                    "icon": "photo_library",
+                    "label": "Gallery",
+                    "route": "/gallery",
                     "color": "#D67816"
                   },
                   {
@@ -829,18 +1027,6 @@
                     "label": "Meetings and Events",
                     "route": "/meetings-events",
                     "color": "#800080"
-                  },
-                  {
-                    "icon": "restaurant",
-                    "label": "Outlet",
-                    "route": "/outlet",
-                    "color": "#FF8C00"
-                  },
-                  {
-                    "icon": "tourism",
-                    "label": "Sustainable Tourism",
-                    "route": "/tourism",
-                    "color": "#228B22"
                   }
                 ]
               },
@@ -874,41 +1060,115 @@
         ],
         "amenities": [
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/1926/1926492.png",
-            "label": "Cafe"
+            "icon": "https://image-tc.galaxy.tf/wipng-51imjvrw569js9mv7m16jn0wh/gym_photo.png",
+            "label": "Gym"
           },
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/75/75905.png",
-            "label": "Parking"
+            "icon": "https://image-tc.galaxy.tf/wipng-9qbov5klfo0dhqv8n49gvi3ye/diverse-dining-options_photo.png",
+            "label": "Diverse Dining Options"
           },
           {
-            "icon": "https://cdn-icons-png.flaticon.com/128/5732/5732044.png",
+            "icon": "https://image-tc.galaxy.tf/wipng-1a22j3zq2xljyni33z5uun1rv/pool_photo.png",
+            "label": "Pool"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-cluwwlquic270tdxosfz5oh0t/kids-play-area_photo.png",
+            "label": "Kids Play Area"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-25bhwmxkyl2siw6wovs6zbiwk/spa_photo.png",
             "label": "Spa"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-6tnjb0alc14rbkovu6bvrc93f/wi-fi_photo.png",
+            "label": "Wi-Fi"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-bmv9gtbig7zc8oly8735oaymx/free-parking_photo.png",
+            "label": "Free Parking"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-en0vkaxl01pgu740n1lmy6iiu/travel-desk_photo.png",
+            "label": "Travel Desk"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-2wckv8fz9yz3ba5y3764z8z8b/housekeeping_photo.png",
+            "label": "Housekeeping"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-5kyace5wcaw4bfp9z4v54k97b/room-service_photo.png",
+            "label": "Room Service"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-ye0zn8dc0adgm1hgdwpr3v8z/laundry-service_photo.png",
+            "label": "Laundry Service"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-2y9vcayht2wwrqv34s1rn0eak/shuttle-bus_photo.png",
+            "label": "Shuttle Bus"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-278m5c73t323mbea0rqts08js/luggage-storage_photo.png",
+            "label": "Luggage Storage"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-3d2elihjudt6n3v1tmm13jzif/household-equipment_photo.png",
+            "label": "Household Equipment"
+          },
+          {
+            "icon": "https://image-tc.galaxy.tf/wipng-d8wwxxzqacmgnqzing6xxs8uv/fully-equipped-kitchen_photo.png",
+            "label": "Fully Equipped Kitchen"
           }
         ],
         "gallery": {
           "items": [
             {
-              "url": "https://plus.unsplash.com/premium_photo-1661274195465-817fe3d46d7d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTJ8fHNwYXxlbnwwfHwwfHx8MA%3D%3D",
+              "url": "https://image-tc.galaxy.tf/wijpeg-4120ag766exds4mupc6phsyu5/rooms_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Rooms"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-f328o7eedazhok0uwt63p0dbe/rooftop-pool_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Rooftop Pool"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-8fdeu2pnl7rzo7oywf51f1cgg/gym_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Gymnasium"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-787bmr4qamqfeva6nkjrstwhc/restaurant_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Restaurant"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
               "type": "image",
               "caption": "Spa"
             },
             {
-              "url": "https://images.unsplash.com/photo-1514371879740-2e7d2068f502?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTE3fHxjYWZlfGVufDB8fDB8fHww",
+              "url": "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
               "type": "image",
-              "caption": "Cafe"
+              "caption": "Salon"
+            },
+            {
+              "url": "https://image-tc.galaxy.tf/wijpeg-d821oe260v04w2q4mwx6gx154/travel-desk_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+              "type": "image",
+              "caption": "Travel Desk"
             }
           ]
         },
         "about": {
-          "title": "Family Hotel Apartments with Dubai Canal view",
-          "description": "Royal Continental Suites, Dubai, is an ideal starting point from which to discover the city’s dynamic energy, where modern architecture stands side-by-side with traditional souk markets. Strategically located on Business Bay, Marasi Drive Downtown, and minutes away from Dubai Mall and City Walk, the hotel apartment offers spacious rooms with stunning views of the Burj Khalifa and Business Bay Canal. Levantine cuisine dining options and a pool offering unobstructed views of the Burj Khalifa complete the experience. Royal Continental Suites in Dubai offers the perfect blend of comfort and convenience as a family hotel apartment in Business Bay, ideal for both leisure and business stays.\n\nRoyal Continental Suites provides the discerning traveler with impeccable accommodation and service in relaxed contemporary surroundings, perfectly suited to both a short city break or an extended vacation. We pride ourselves on offering a unique and technologically-advanced experience through our innovative in-room hospitality facilities.",
+          "title": "Enjoy our breathtaking waterfront views and exceptional service",
+          "description": "Experience the best of Dubai Marina at Signature Hotel Apartments and Spa, where breathtaking waterfront views and exceptional service come together to create the perfect setting for both business and leisure stays in Dubai United Arab Emirates.\nLocated just a short stroll from DMCC Metro Station and JBR Beach, our hotel offers the ultimate in affordable comfort at the heart of Dubai Marina. Choose from 95 elegantly furnished apartments in four distinct categories: Superior Studio Apartments, Villas, One-Bedroom Apartments, and Two-Bedroom Apartments, all designed with your relaxation in mind.\nIndulge in a culinary journey at our all-day dining restaurant and café, offering a mesmerizing view of the Marina waterfront. With a diverse menu featuring buffet and à la carte options for breakfast, lunch, and dinner, you'll enjoy a dining experience that perfectly complements your stay in our self-contained, spacious apartments, complete with modern amenities and stylish fittings.",
           "images": [
-            "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental8713-qv7w0wakgcyx9b3mo0dztxufhpx4btdnk3bcsvkm0g.jpg",
-            "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7266-qv7w10zrej5cvcwswkf4oenqgn9yeawb8qks79dn5c.jpg",
-            "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental8784-qv7w0uew2owcm36cyzkqoybiay6dwf66vu0dubnecw.jpg",
-            "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7357-qv7w0z430v2s84zj7jlvjf4t9vj7ywoukh9t8pgfhs.jpg",
-            "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental9194-qv7w0qnjbcr7bnbtkxy8ez9nxeox1mr9jbefx7sz1s.jpg"
+            "https://image-tc.galaxy.tf/wijpeg-bwe3pnw8gs9hwgbzmnbsdstjv/lobby-3.jpg?width=1920",
+            "https://image-tc.galaxy.tf/wijpeg-dhvb0bv6wfra1dkzdvfg7vukt/living-area-2.jpg?width=360&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-pbl91i4d3pbzz1jvycaod7j5/tph-lakwil-1.jpg?width=750&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa-1.jpg?width=360&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-bw71ajidnugzdtql8eohxmzzt/playground.jpg?width=360&height=300",
+            "https://image-tc.galaxy.tf/wijpeg-6pfbajiembdhhmgqx469ilrn9/obr-livingroom-2.jpg?width=360&height=300"
           ]
         },
         "policies": {
@@ -918,22 +1178,55 @@
           "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
         },
         "contact": {
-          "email": "lostsanctuary@gmail.com",
-          "phone": "+918249611167",
-          "mapUrl": "https://www.google.com/maps/place/Royal+Continental+Suites/@25.1829866,55.2834542,15z/data=!4m2!3m1!1s0x0:0xe2701bd9c8898a5a?sa=X&ved=1t:2428&ictx=111",
-          "address": "Book Apartments at Royal Continental Hotel Suites in Business Bay, Dubai",
-          "latitude": 0,
-          "longitude": 0
+          "email": "info@s1hg.com",
+          "phone": "+971 4 561 0600",
+          "mapUrl": "https://www.google.com/maps/place/Sheikh+Zayed+Rd+-+Dubai+-+United+Arab+Emirates/@25.0699544,55.1370806,17z/data=!3m1!4b1!4m6!3m5!1s0x3e5f13435f3abe57:0xb4c00b9d46311cd0!8m2!3d25.0699544!4d55.1370806!16s%2Fg%2F120jxr51?entry=ttu&g_ep=EgoyMDI2MDUyNy4wIKXMDSoASAFQAw%3D%3D",
+          "address": "Sheikh Zayed Road Dubai United Arab Emirates",
+          "latitude": 25.0699544,
+          "longitude": 55.1370806
         },
-        "footer": {
-          "links": [],
-          "social": {
-            "instagram": "https://www.instagram.com/royalcontinentaldubai/?hl=en",
-            "facebook": "https://www.facebook.com/RoyalContinentalHotels/",
-            "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
-            "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
+        "restaurant": [
+          {
+            "id": "marina-aura-restaurant-cafe",
+            "name": "Marina Aura Restaurant & Café",
+            "description": "Ideal for a relaxed meeting, a quick bite, or a delightful breakfast, Marina Aura Restaurant & Café offers a vibrant yet serene atmosphere. Located within the Signature Hotel Apartments and Spa at Dubai Marina, this four-star waterfront gem is a short stroll from the metro and the iconic JBR Beach, making it a convenient and stylish choice for your dining experience.",
+            "location": "",
+            "from-day": "",
+            "to-day": "",
+            "from-time": "",
+            "to-time": "",
+            "number": "",
+            "email": "",
+            "image": "https://image-tc.galaxy.tf/wijpeg-awqcs8sjrblqzjzda767xa8in/11_standard.jpg?width=1140&crop=200%2C0%2C1200%2C900"
           },
-          "copyright": "© Copyright Royal Continental Suites Dubai"
+          {
+            "id": "tph-lakwil-restaurant-lounge-bar",
+            "name": "TPH Lakwil Restaurant, Lounge & Bar",
+            "description": "Experience the serene beauty of the Marina at TPH Lakwil Restaurant, Lounge & Bar. With both indoor and outdoor seating options, this venue offers breathtaking views of Marina Walk, complemented by a menu of exquisite dishes. Situated within the Signature Hotel Apartments and Spa in Dubai Marina, TPH Lakwil is conveniently close to the DMCC metro station and JBR Beach, making it a prime spot for waterfront dining.",
+            "location": "",
+            "from-day": "",
+            "to-day": "",
+            "from-time": "",
+            "to-time": "",
+            "number": "",
+            "email": "",
+            "image": "https://image-tc.galaxy.tf/wijpeg-1od73h7snd5w8i3qovqvjl1kv/tph-lakwil-restaurant-lounge-bar_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+          }
+        ],
+        "meetingsEvents": [
+          {
+            "name": "Meeting Room",
+            "image": "https://image-tc.galaxy.tf/wijpeg-3g96tobaey7h3d5nonngyaki5/meeting-room_standard.jpg?width=570&crop=240%2C0%2C1440%2C1080",
+            "description": "Designed for focused discussions and private meetings, our meeting room comes equipped with essential amenities such as high-speed internet, a projector and screen, audio-visual equipment, water and customizable seating arrangements to ensure a productive and seamless experience. Additional refreshments provided upon request."
+          }
+        ],
+        "footer": {
+          "social": {
+            "instagram": "https://www.instagram.com/signature1hotels/",
+            "facebook": "https://www.facebook.com/signature1hotels/",
+            "linkedin": "https://www.linkedin.com/company/signature-1-hotels"
+          },
+          "copyright": "© 2024 Signature Hotel"
         },
         "extranet": {
           "url": "https://bookings.revchilltech.com/api/v1",
@@ -1214,18 +1507,18 @@
   "config": {
     "id": "d8448efb-0cfe-4b8a-be9f-47575c313998",
     "hotelId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
-    "version": "1.0.0     ",
+    "version": "1.0.0",
     "status": "DRAFT",
     "createdAt": "2025-12-24T09:24:23.203Z",
     "updatedAt": "2026-01-09T08:55:01.332Z",
     "childHotels": [
       {
         "id": "199bca6e-548d-4f7e-b5d2-a5c674bd7c3e",
-        "code": "BQQYBF",
-        "name": "Royal Continental Hotel",
-        "slug": "royal-continental-hotel",
+        "code": "2JX6IN",
+        "name": "Signature Hotel, Al Barsha",
+        "slug": "al-barsha",
         "type": "STANDALONE",
-        "apkName": "Royal Continental Hotel",
+        "apkName": "Al Barsha",
         "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
         "createdAt": "2025-12-24T10:28:14.699Z",
         "updatedAt": "2025-12-24T10:48:21.121Z",
@@ -1233,11 +1526,23 @@
       },
       {
         "id": "f0795175-a1ad-495e-811a-d68661669594",
-        "code": "SGI1EW",
-        "name": "Royal Continental Hotel Suites",
-        "slug": "royal-continental-suites",
+        "code": "RSQT83",
+        "name": "Signature 1 Hotel, Barsha Heights",
+        "slug": "barsha-heights",
         "type": "STANDALONE",
-        "apkName": "Royal Continental Suites",
+        "apkName": "Barsha Heights",
+        "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+        "createdAt": "2025-12-24T10:28:14.699Z",
+        "updatedAt": "2025-12-24T10:48:21.121Z",
+        "childHotels": []
+      },
+      {
+        "id": "f0795175-a1ad-495e-811a-d68661669594",
+        "code": "OHDCV6",
+        "name": "Signature Apartments and Spa",
+        "slug": "signature-apartments-spa",
+        "type": "STANDALONE",
+        "apkName": "Signature Apartments and Spa",
         "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
         "createdAt": "2025-12-24T10:28:14.699Z",
         "updatedAt": "2025-12-24T10:48:21.121Z",
@@ -1245,12 +1550,12 @@
       }
     ],
     "branding": {
-      "logo": "https://royalcontinentalhotels.com/wp-content/uploads/2024/07/RCHS_3-W-550x237.png",
-      "primaryColor": "#000000",
-      "secondaryColor": "#ad9064",
+      "logo": "https://image-tc.galaxy.tf/wipng-9g6pwnad1bnz7zzevm379cpx2/all-hotels-logo-new.png?rotate=0&crop=0%2C30%2C1859%2C614&width=500",
+      "primaryColor": "#11406E",
+      "secondaryColor": "#C29D3A",
       "backgroundColor": "#FFFFFF",
       "fontFamily": "Inter",
-      "splashImage": "https://royalcontinentalhotels.com/wp-content/uploads/2024/07/RCHS_3-W-550x237.png"
+      "splashImage": "https://image-tc.galaxy.tf/wipng-cucee4gm00c6l9evaurpwao08/all-logo-white.png?width=500"
     },
     "navigation": {
       "type": "bottom",
@@ -1300,9 +1605,9 @@
               "label": "Book Now",
               "route": "/hotels"
             },
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Cover-ImageRCS-1-copy.jpg",
-            "title": "Welcome to Royal Continental Hotels & Suits",
-            "subtitle": "STAY IN THE HEART OF DUBAI"
+            "image": "https://image-tc.galaxy.tf/wijpeg-e2o55hwuz5ppepc5jweb4wa5s/_photo.jpg",
+            "title": "Welcome to Signature Group of Hotels",
+            "subtitle": ""
           },
           "type": "heroBanner"
         },
@@ -1328,13 +1633,59 @@
         {
           "data": {
             "images": [
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-qv7udf2afh4ltltct4k7a3v4cni8ktojtadlvcpvsw.jpg",
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/rch-hotel-1-qrxkoma16zydc2rc8z258e7pbz4ocv74nrusaha1qw.jpg",
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Gym-qrxkom9zz5606goir6u2jkgxxwby90mcosq5l16meg.jpg",
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/01/happy-family-walking-in-dubai-with-burj-khalifa-sk-2023-11-27-04-52-19-utc.jpg"
+              "https://image-tc.galaxy.tf/wijpeg-46uiuhzlm1zspadmz9qvioq25/barsha-heights-1.jpg?width=960",
+              "https://image-tc.galaxy.tf/wijpeg-cos4wa0q09dsdezfh2ggu4rie/clavichord-1.jpg?width=360&height=300",
+              "https://image-tc.galaxy.tf/wijpeg-ajkjcifshrueizxowmfqg19kx/albar.jpg?width=960",
+              "https://image-tc.galaxy.tf/wijpeg-1l06tep6udcyx9ts0ys0q4l7l/pool-area.jpg?width=750&height=300",
+              "https://image-tc.galaxy.tf/wijpeg-518ne9zr963yorbvkqafuq8is/apart.jpg?width=960",
+              "https://image-tc.galaxy.tf/wijpeg-f328o7eedazhok0uwt63p0dbe/rooftop-pool_standard.jpg?width=2000&"
             ]
           },
           "type": "galleryPreview"
+        },
+        {
+          "data": {
+            "items": [
+              {
+                "icon": "food_bank",
+                "label": "Restaurant",
+                "route": "/restaurant",
+                "color": "#0D5399"
+              },
+              {
+                "icon": "spa",
+                "label": "Spa",
+                "route": "/spa",
+                "color": "#16A34A"
+              },
+              {
+                "icon": "local_offer",
+                "label": "Offers",
+                "route": "/offers",
+                "color": "#B8860B"
+              },
+              {
+                "icon": "photo_library",
+                "label": "Gallery",
+                "route": "/gallery",
+                "color": "#EC4899"
+              },
+              {
+                "icon": "landscape",
+                "label": "Attractions",
+                "route": "/attractions",
+                "color": "#F97316"
+              }
+            ]
+          },
+          "type": "quickActions"
+        },
+        {
+          "data": {
+            "title": "Our Values",
+            "description": "Our commitment to exceptional hospitality shines through in every interaction. We believe in creating personalized experiences that exceed expectations. Your satisfaction is our ultimate goal."
+          },
+          "type": "values"
         }
       ]
     },
@@ -1360,38 +1711,452 @@
         "label": "Gym"
       }
     ],
+    "restaurant": [
+      {
+        "id": "xandros-restaurant-and-terrace-lounge",
+        "name": "Xandros Restaurant And Terrace Lounge",
+        "description": "Located at Signature 1 Hotel, Barsha Heights, Xandros offers an elegant dining experience with a selection of international buffets, an extensive à la carte menu, and a variety of beverages. Guests can also enjoy themed evenings, including Ladies’ Night, Cocktail Nights, and BBQ Nights, all set in a refined and welcoming atmosphere.",
+        "location": "Signature 1 Hotel, Barsha Heights",
+        "from-day": "Monday",
+        "to-day": "Sunday",
+        "from-time": "06:30 AM",
+        "to-time": "03:00 AM",
+        "number": "+971 4 561 0638",
+        "email": "xandros@s1hg.com",
+        "image": "https://image-tc.galaxy.tf/wijpeg-4ddety2yztjcnld5xk0utu51b/tecom-property-outlet-2-xandros_standard.jpg?width=1140&crop=112%2C0%2C1777%2C1333"
+      },
+      {
+        "id": "lit-lounge",
+        "name": "LIT Lounge",
+        "description": "LIT Club is the place where nightlife, music, and high-energy vibes come together under one roof.",
+        "location": "",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "+971 50 968 0807",
+        "email": "Info@litclublounge.com",
+        "image": "https://image-tc.galaxy.tf/wiwebp-2t8fa054lsvtj7m665t9is309/lit_standard.webp?width=1140&crop=0%2C500%2C1333%2C1000"
+      },
+      {
+        "id": "cafe-breeze",
+        "name": "Café Breeze",
+        "description": "Stir your morning to life at Café Breeze, proudly serving Starbucks coffee and quick bites throughout the day. Whether you're on the go or looking to relax, this cozy spot is ideally situated close to the metro and local attractions.",
+        "location": "",
+        "from-day": "Monday",
+        "to-day": "Sunday",
+        "from-time": "07:00 AM",
+        "to-time": "11:00 PM",
+        "number": "+971 4 561 0600",
+        "email": "info@s1hg.com",
+        "image": "https://image-tc.galaxy.tf/wijpeg-a1mq7879phps6jo1uufcie9w5/cafe-breeze_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+      },
+      {
+        "id": "rooftop-pool-bar",
+        "name": "Rooftop Pool Bar",
+        "description": "Relax and soak in the skyline views at the Rooftop Pool Bar, where you can enjoy light bites and specially crafted drinks to keep you cool. Located at Signature 1 Hotel Barsha Heights, this poolside haven is perfect for unwinding, just steps away from the metro and nearby attractions.",
+        "location": "Signature 1 Hotel Barsha Heights",
+        "from-day": "Monday",
+        "to-day": "Sunday",
+        "from-time": "08:00 AM",
+        "to-time": "08:00 PM",
+        "number": "+971 4 561 0600",
+        "email": "info@s1hg.com",
+        "image": "https://image-tc.galaxy.tf/wijpeg-1dwj1sw10521zvxh4mzwppgz0/rooftop-pool-bar_standard.jpg?width=1140&crop=57%2C0%2C911%2C683"
+      },
+      {
+        "id": "veranda-all-day-dining",
+        "name": "Veranda All Day Dining",
+        "description": "Discover a world of flavors at Veranda All Day Dining, located within the elegant Signature Hotel in Al Barsha. This 24-hour restaurant offers an exceptional array of international cuisine, perfect for any occasion. Whether you're in the mood for a leisurely breakfast, a sumptuous lunch, an elegant dinner, or a late-night snack, Veranda serves up globally inspired dishes in a relaxed, welcoming setting, all while being easy on the wallet.",
+        "location": "Signature Hotel, Al Barsha",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-4t6x7dugspllq7hf49r39j7hp/veranda-all-day-dining_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+      },
+      {
+        "id": "soil-dubai",
+        "name": "Soil Dubai",
+        "description": "SOIL is the pioneering cultural nightclub in Dubai — a place where vibrancy, identity, and unforgettable experiences come together. This is more than just a night out. It’s your community.",
+        "location": "",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "+971503084792",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-1te0rq1vb2ir2qv3pzdesz0jv/file_standard.jpg?width=1140&crop=0%2C128%2C1024%2C768"
+      },
+      {
+        "id": "grand-maraya-club",
+        "name": "Grand Maraya Club",
+        "description": "Immerse yourself in the vibrant allure of Arabian nightlife at the Grand Maraya Club, located on the first floor of Signature Hotel, Al Barsha. Just moments from the Mall of the Emirates and the metro station, this venue is your gateway to an unforgettable evening, all within one of the city's most affordable and stylish hotels.",
+        "location": "Signature Hotel, Al Barsha",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-9a90tqmmhbb01dh978cnzw8b2/grand-maraya-club_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+      },
+      {
+        "id": "beez-club",
+        "name": "Beez Club",
+        "description": "Discover the energy of Beez Club, Dubai's premier Thai nightclub, where the night comes alive with rhythm and revelry. Conveniently located near the Mall of the Emirates and the metro, Signature Hotel, Al Barsha, offers an affordable yet vibrant stay, perfect for nightlife enthusiasts.",
+        "location": "",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-dgo5dtncdyxmyxswqht2edzzt/beez-club_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+      },
+      {
+        "id": "joker-thai-restaurant",
+        "name": "Joker Thai Restaurant",
+        "description": "Delight in the authentic flavors of Thailand at Joker Thai Restaurant, where unlimited buffets and hot pots await.",
+        "location": "",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-26szfrit4o1mgqdolivsvnwfx/joker-thai-restaurant_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+      },
+      {
+        "id": "marina-aura-restaurant-cafe",
+        "name": "Marina Aura Restaurant & Café",
+        "description": "Ideal for a relaxed meeting, a quick bite, or a delightful breakfast, Marina Aura Restaurant & Café offers a vibrant yet serene atmosphere. Located within the Signature Hotel Apartments and Spa at Dubai Marina, this four-star waterfront gem is a short stroll from the metro and the iconic JBR Beach, making it a convenient and stylish choice for your dining experience.",
+        "location": "",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-awqcs8sjrblqzjzda767xa8in/11_standard.jpg?width=1140&crop=200%2C0%2C1200%2C900"
+      },
+      {
+        "id": "tph-lakwil-restaurant-lounge-bar",
+        "name": "TPH Lakwil Restaurant, Lounge & Bar",
+        "description": "Experience the serene beauty of the Marina at TPH Lakwil Restaurant, Lounge & Bar. With both indoor and outdoor seating options, this venue offers breathtaking views of Marina Walk, complemented by a menu of exquisite dishes. Situated within the Signature Hotel Apartments and Spa in Dubai Marina, TPH Lakwil is conveniently close to the DMCC metro station and JBR Beach, making it a prime spot for waterfront dining.",
+        "location": "",
+        "from-day": "",
+        "to-day": "",
+        "from-time": "",
+        "to-time": "",
+        "number": "",
+        "email": "",
+        "image": "https://image-tc.galaxy.tf/wijpeg-1od73h7snd5w8i3qovqvjl1kv/tph-lakwil-restaurant-lounge-bar_standard.jpg?width=1140&crop=240%2C0%2C1440%2C1080"
+      }
+    ],
+    "spa": [
+      {
+        "name": "Signature Wellness Spa",
+        "image": "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa_standard.jpg?crop=240%2C0%2C1440%2C1080&width=700",
+        "location": "Signature Hotel Apartments & Spa, Dubai Marina, Dubai, UAE",
+        "description": "Experience rejuvenation at our lobby spa within Signature Hotel Apartments & Spa, Dubai Marina. Offering relaxing massages, refreshing facials, and personalized wellness treatments in a tranquil setting designed to help guests unwind and recharge."
+      },
+      {
+        "name": "Al Yamama Spa",
+        "image": "https://image-tc.galaxy.tf/wijpeg-6p4pq1ucrzx3ag4rfsxq1z0pd/spa_standard.jpg?crop=240%2C0%2C1440%2C1080&width=700",
+        "location": "Signature Hotel, Al Barsha, Dubai, UAE",
+        "description": "Step into a world of serenity with an extensive range of spa treatments including therapeutic massages, refreshing facials, luxurious body wraps, and detoxifying wellness experiences provided by expert therapists."
+      },
+      {
+        "name": "Laguna Spa",
+        "image": "https://image-tc.galaxy.tf/wijpeg-7kbvff272iyk8grjwkm9def4h/laguna-spa_standard.jpg?crop=240%2C0%2C1440%2C1080&width=700",
+        "location": "Signature 1 Hotel, Barsha Heights, Dubai, UAE",
+        "description": "A rooftop wellness destination open 24 hours, offering Moroccan baths, massages, hair and face masks, and deep cleansing treatments. Designed for relaxation and rejuvenation in the heart of Barsha Heights."
+      }
+    ],
+    "attractions": [
+      {
+        "name": "Mall of the Emirates",
+        "description": "A premier shopping destination in Dubai, Mall of the Emirates boasts a vast array of high-end retailers, dining options, and the world-famous indoor ski resort, Ski Dubai.",
+        "image": "https://image-tc.galaxy.tf/wijpeg-4pe6aq6efmwehyuoibbk14u77/mall-of-the-emirates_standard.jpg?crop=107%2C0%2C1067%2C800&width=1140",
+        "video": "",
+        "location": "Al Barsha A-2 Dubai United Arab Emirates"
+      },
+      {
+        "name": "Museum of the Future",
+        "description": "An architectural marvel and hub of innovation, the Museum of the Future offers a glimpse into cutting-edge advancements and the possibilities of tomorrow through immersive exhibits and experiences. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-bujofajnl30bjnh5z72ld1fjd/museum-of-the-future_standard.jpg?crop=134%2C0%2C1333%2C1000&width=1140",
+        "video": "",
+        "location": "Sheikh Zayed Road Dubai United Arab Emirates",
+        "phone":"+9718002071",
+        "website":"https://museumofthefuture.ae/"
+      },
+      {
+        "name": "Burj Khalifa",
+        "description": "Soaring at 828 meters, the iconic Burj Khalifa is the tallest building in the world, offering breathtaking views of Dubai’s skyline from its observation decks. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-4altk3hehmuln73jv9qmynrx4/burj-khalifa_standard.jpg?crop=58%2C0%2C908%2C681&width=1140",
+        "video": "",
+        "location": "1 Sheikh Mohammed bin Rashid Boulevard Dubai United Arab Emirates",
+        "phone":"+97148888888",
+        "website":"http://www.burjkhalifa.ae/"
+      },
+      {
+        "name": "The Dubai Mall",
+        "description": "As one of the largest shopping malls in the world, The Dubai Mall is a sprawling complex featuring luxury boutiques, an aquarium, an ice rink, and endless entertainment options. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-7180qo5u86tr0wtcywsnj9ljx/dubai-mall_standard.jpg?crop=34%2C0%2C544%2C408&width=1140",
+        "video": "",
+        "location": "Downtown Dubai - Dubai - United Arab Emirates Dubai United Arab Emirates",
+        "phone":"+971800382246255",
+        "website":"https://thedubaimall.com/ar"
+      },
+      {
+        "name": "Palm Jumeirah",
+        "description": "A man-made island in the shape of a palm tree, Palm Jumeirah is home to luxury resorts, upscale dining, and pristine beaches, making it a top destination for visitors seeking a lavish experience. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-9sk7680ve8zcnjpb9u3edqwps/palm-jumeirah_standard.jpg?crop=200%2C0%2C1200%2C900&width=1140",
+        "video": "",
+        "location": "Palm Jumeirah - The Palm Jumeirah - Dubai - United Arab Emirates Dubai United Arab Emirates"
+      },
+      {
+        "name": "Dubai Frame",
+        "description": "Dubai Frame is a massive golden structure that frames stunning views of both old and new Dubai, offering insight into the city’s transformation through its interactive museum. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-gn6v5tcjzwtdhb1ftvioqrwf/dubai-frame_standard.jpg?crop=16%2C0%2C244%2C183&width=1140",
+        "video": "",
+        "location": "Zabeel Park Jogging Track Dubai United Arab Emirates",
+        "phone":"+971800900",
+        "website":"https://www.dubaiframe.ae/ar/plan-your-visit"
+      },
+      {
+        "name": "Kite Beach",
+        "description": "Known for its laid-back vibe, Kite Beach is a favorite spot for beachgoers, offering water sports, food trucks, and spectacular views of the Burj Al Arab. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-5zvmur0nceq9ltwn0jgkhbq6q/kite-beach_standard.jpg?crop=115%2C0%2C1771%2C1328&width=1140",
+        "video": "",
+        "location": "Kite Beach - Kite beach - Dubai - United Arab Emirates Dubai United Arab Emirates",
+        "phone":"+97143173999",
+        "website":"http://www.kitebeach.ae/?utm_source=google&utm_campaign=local_search&utm_medium=organic&utm_content=KiteBeach"
+      },
+      {
+        "name": "Dubai Garden Glow",
+        "description": "A family-friendly attraction, Dubai Garden Glow is a dazzling theme park featuring larger-than-life illuminated installations and themed zones that come to life at night. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-ep8qv6wi8s91zc5oozna2t9yu/dubai-garden-glow_standard.jpg?crop=0%2C218%2C2000%2C1500&width=1140",
+        "video": "",
+        "location": "Zabeel Park, Gate No- 6 & 7 Area - B - Za'abeel - Za'abeel 1 - Dubai - United Arab Emirates Dubai United Arab Emirates",
+        "phone":"+971559188126",
+        "website":"http://www.dubaigardenglow.com/"
+      },
+      {
+        "name": "Atlantis, The Palm",
+        "description": "Atlantis, The Palm is an iconic luxury resort located on Palm Jumeirah, known for its opulent accommodations, world-class dining, and the thrilling Aquaventure Waterpark. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-2p90q6u62lc1jeisowdznc1bh/atlantis-the-palm_standard.jpg?crop=73%2C0%2C879%2C659&width=1140",
+        "video": "",
+        "location": "Crescent Road Dubai United Arab Emirates",
+        "phone":"+97144262000",
+        "website":"https://www.atlantis.com/atlantis-the-palm?utm_source=googleplaces&utm_medium=location&utm_campaign=atp&utm_content=listing"
+      },
+      {
+        "name": "Burj Al Arab",
+        "description": "Synonymous with luxury, the Burj Al Arab is a sail-shaped, seven-star hotel offering unparalleled service, exquisite dining, and breathtaking views of the Arabian Gulf. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-a3jvv076nkvi0uhktc8h9zife/burj-al-arab_standard.jpg?crop=0%2C145%2C360%2C270&width=1140",
+        "video": "",
+        "location": "Dubai - Umm Suqeim 3 - Dubai - United Arab Emirates Dubai United Arab Emirates",
+        "phone":"tel:+97143017777",
+        "website":"https://www.jumeirah.com/en/stay/dubai/burj-al-arab-jumeirah?utm_source=google&utm_medium=google%20places&utm_campaign=hotel"
+      },
+      {
+        "name": "Dubai Miracle Garden",
+        "description": "A floral paradise, Dubai Miracle Garden is the world’s largest natural flower garden, featuring over 150 million blooms arranged in stunning, imaginative displays. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-5rqnvzvwxrob7f804ysioxtzv/dubai-miracle-garden_standard.jpg?crop=1%2C0%2C1067%2C800&width=1140",
+        "video": "",
+        "location": "Street 3 Dubai United Arab Emirates",
+        "phone":"+97144228902",
+        "website":"https://www.dubaimiraclegarden.com/"
+      },
+      {
+        "name": "La Mer",
+        "description": "La Mer is a trendy beachfront destination in Dubai, combining laid-back beach vibes with vibrant street art, chic cafes, and a wide array of water activities. ",
+        "image": "https://image-tc.galaxy.tf/wipng-89mnfwazs709x2zcwvit9awk0/la-mer_standard.png?crop=0%2C0%2C600%2C450&width=1140",
+        "video": "https://vimeo.com/1006502440?fl=pl&fe=cm",
+        "location": "45 2A Street Dubai United Arab Emirates",
+        "phone":"+97145905090",
+        "website":"http://www.j1beach.com/"
+      },
+      {
+        "name": "Ski Dubai",
+        "description": "Located inside Mall of the Emirates, Ski Dubai is the Middle East’s first indoor ski resort, offering snow-filled fun with slopes, a snow park, and the chance to meet penguins. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-3scpyrc55ze6ku4a96e0qr8t0/ski-dubai_standard.jpg?crop=38%2C0%2C595%2C446&width=1140",
+        "video": "",
+        "location": "Sheikh Zayed Road Dubai United Arab Emirates",
+        "phone":"+97144094000",
+        "website":"https://www.skidxb.com/ar-ae/ski-dubai"
+      },
+      {
+        "name": "Dubai Butterfly Garden",
+        "description": "Dubai Butterfly Garden is a serene sanctuary where visitors can stroll among thousands of colorful butterflies housed within climate-controlled domes. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-6fbtr0krp8ahaqvdl1q0dnnh7/dubai-butterfly-garden_standard.jpg?crop=0%2C48%2C640%2C480&width=1140",
+        "video": "",
+        "location": "Al Barsha South 3, Dubailand Area, Beside Dubai Miracle Garden - Arjan-Dubailand - Al Barsha South - Dubai - United Arab Emirates Dubai United Arab Emirates",
+        "phone":"+97144228902",
+        "website":"http://www.dubaibutterflygarden.com/"
+      },
+      {
+        "name": "Aquaventure",
+        "description": "Aquaventure at Atlantis, The Palm, is one of the world’s largest and most thrilling waterparks, featuring record-breaking waterslides, a lazy river, and marine animal encounters. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-3k3zld45nc075jv2a8op4hu03/aquaventure_standard.jpg?crop=42%2C0%2C667%2C500&width=1140",
+        "video": "",
+        "location": "Crescent Road Dubai United Arab Emirates",
+        "phone":"+97144260000",
+        "website":"https://www.aquaventureworld.com/?utm_source=googleplaces&utm_medium=location&utm_campaign=mwp&utm_content=listing"
+      },
+      {
+        "name": "Marina Walk",
+        "description": "Marina Walk is a scenic promenade along the Dubai Marina, lined with stylish cafes, restaurants, and shops, offering picturesque views of the marina and yachts. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-3dtuwoxomishgjvzlnm3hgjpd/marina-walk_standard.jpg?crop=0%2C0%2C1200%2C900&width=1140",
+        "video": "",
+        "location": "Dubai Marina Walk",
+        "website":"https://www.emaar.com/en/our-communities/dubai-marina?utm_source=google&utm_campaign=local_search&utm_medium=organic"
+      },
+      {
+        "name": "Dubai Marina Mall",
+        "description": "A compact yet stylish shopping destination, Dubai Marina Mall offers a curated selection of fashion, dining, and entertainment options, set against the backdrop of the marina. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-1mgormwzqvkmiffu50cy4itv8/dubai-marina-mall_standard.jpg?crop=106%2C0%2C989%2C742&width=1140",
+        "video": "",
+        "location": "Sheikh Zayed Road Dubai United Arab Emirates",
+        "phone":"+97144361020",
+        "website":"http://www.dubaimarinamall.com/"
+      },
+      {
+        "name": "Jumeirah Beach Residences",
+        "description": "Jumeirah Beach Residences (JBR) is a bustling waterfront community known for its lively atmosphere, featuring chic boutiques, a diverse dining scene, and direct access to the beach. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-cuoxzg1p7s8imoxppwwxeqle5/jumeirah-beach-residences_standard.jpg?crop=67%2C0%2C667%2C500&width=1140",
+        "video": "",
+        "location": "Jumeirah Beach Residence - Dubai - United Arab Emirates Dubai United Arab Emirates"
+      },
+      {
+        "name": "Bluewater Island",
+        "description": "Bluewater Island is a vibrant lifestyle destination home to Ain Dubai, the world’s largest observation wheel, as well as luxury residences, shopping, and dining experiences.",
+        "image": "https://image-tc.galaxy.tf/wijpeg-bcw57mtygt3k34qaoaot47u6n/bluewater-island_standard.jpg?crop=107%2C0%2C1707%2C1280&width=1140",
+        "video": "",
+        "location": "Bluewaters Island - Dubai - United Arab Emirates Dubai United Arab Emirates"
+      }
+      ,
+      {
+        "name": "Wings of Mexico",
+        "description": "The Wings of Mexico is a striking public art installation near the Burj Khalifa, symbolizing freedom and creativity, and a popular spot for photos with Dubai's skyline as a backdrop.",
+        "image": "https://image-tc.galaxy.tf/wijpeg-5di135vn98v4zi29tdfg57b1u/wings-of-mexico_standard.jpg?crop=84%2C0%2C1333%2C1000&width=1140",
+        "video": "",
+        "location": "Sheikh Mohammed bin Rashid Boulevard Dubai United Arab Emirates",
+        "website":"https://thedubaiclick.com/wings"
+      },
+      {
+        "name": "Dubai Marina Yacht Club",
+        "description": "Dubai Marina Yacht Club is an exclusive marina offering yacht services, dining, and social events, set in the heart of the glamorous Dubai Marina. ",
+        "image": "https://image-tc.galaxy.tf/wijpeg-1wjjr5y65yip4wzmrl08rpodn/dubai-marina-yacht-club_standard.jpg?crop=44%2C0%2C712%2C534&width=1140",
+        "video": "",
+        "location": "Dubai United Arab Emirates",
+        "phone":"+971508499333",
+        "website":"http://www.dubairentalboats.com/"
+      },
+      {
+        "name": "The Palm",
+        "description": "The Palm is a man-made island famed for its luxury resorts, upscale residences, and exclusive beach clubs, offering a luxurious escape amidst stunning Arabian Gulf views.",
+        "image": "https://image-tc.galaxy.tf/wijpeg-2p90q6u62lc1jeisowdznc1bh/the-palm_standard.jpg?crop=73%2C0%2C879%2C659&width=1140",
+        "video": "",
+        "location": "The Palm - Deira - Dubai Islands - Dubai - United Arab Emirates Dubai United Arab Emirates"
+      }
+    ],
+    "offers": [
+      {
+        "id": "xandros-restaurant-and-terrace-lounge",
+        "name": "Xandros Restaurant and Terrace Lounge",
+        "image": "https://image-tc.galaxy.tf/wijpeg-6tcu6g6q6n7y0224nexcmrih3/tecom-property-outlet-xandros_standard.jpg?crop=112%2C0%2C1777%2C1333&width=400",
+        "location": "Signature 1 Hotel, Barsha Heights",
+        "offerdetails": [
+          {
+            "name": "Ramadan Special Iftar Buffet",
+            "desc": "during the Holy month of Ramadan Daily from Sunset till 9 PM"
+          },
+          {
+            "name": "Lunch Buffet",
+            "desc": "Daily from 12:30 PM to 4:30 PM"
+          },
+          {
+            "name": "Dinner Buffet",
+            "desc": "Daily from 7:00 PM to 11:00 PM"
+          },
+          {
+            "name": "Friday: Comedy Night",
+            "desc": "From 8 PM on, entry AED 80 per person includes one drink"
+          },
+          {
+            "name": "Saturday: Barbecue Night",
+            "desc": "From 7 PM on, enjoy all-you-can-eat for AED 109 "
+          },
+          {
+            "name": "Happy Hours",
+            "desc": "Daily from 12:00 PM to 8:00 PM "
+          }
+        ],
+        "menu": [
+          {
+            "name": "Lunch Buffet Menu",
+            "pdf": "https://document-tc.galaxy.tf/wdpdf-2xweixpvlydex6j0pnrej4bm0/lunch-buffet-menu.pdf"
+          },
+          {
+            "name": "A La carte Menu",
+            "pdf": "https://document-tc.galaxy.tf/wdpdf-bvg0x7wtke2fwurwcywrqoxpm/a-la-carte-menu.pdf"
+          }
+        ]
+      }
+    ],
     "gallery": {
       "items": [
         {
-          "url": "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c3BhfGVufDB8fDB8fHww",
+          "url": "https://image-tc.galaxy.tf/wijpeg-4120ag766exds4mupc6phsyu5/rooms_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
           "type": "image",
-          "caption": "Thai spa"
+          "caption": "Rooms"
         },
         {
-          "url": "https://images.unsplash.com/photo-1603085429201-64dadaec4061?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODZ8fHN3aW1taW5nJTIwcG9vbHxlbnwwfHwwfHx8MA%3D%3D",
+          "url": "https://image-tc.galaxy.tf/wijpeg-f328o7eedazhok0uwt63p0dbe/rooftop-pool_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
           "type": "image",
-          "caption": "Swimming Pool"
+          "caption": "Rooftop Pool"
         },
         {
-          "url": "https://images.unsplash.com/photo-1543007631-283050bb3e8c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGJhcnxlbnwwfHwwfHx8MA%3D%3D",
+          "url": "https://image-tc.galaxy.tf/wijpeg-8fdeu2pnl7rzo7oywf51f1cgg/gym_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
           "type": "image",
-          "caption": "Bar"
+          "caption": "Gymnasium"
         },
         {
-          "url": "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjJ8fHJlc3RhdXJhbnR8ZW58MHx8MHx8fDA%3D",
+          "url": "https://image-tc.galaxy.tf/wijpeg-787bmr4qamqfeva6nkjrstwhc/restaurant_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
           "type": "image",
-          "caption": "Swimming Pool"
+          "caption": "Restaurant"
+        },
+        {
+          "url": "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+          "type": "image",
+          "caption": "Spa"
+        },
+        {
+          "url": "https://image-tc.galaxy.tf/wijpeg-99f3l16pc8sluu1g0du7wrf3b/spa_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+          "type": "image",
+          "caption": "Salon"
+        },
+        {
+          "url": "https://image-tc.galaxy.tf/wijpeg-d821oe260v04w2q4mwx6gx154/travel-desk_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080",
+          "type": "image",
+          "caption": "Travel Desk"
         }
       ]
     },
     "about": {
-      "title": "About Royal Continental, Dubai",
-      "description": "Set in two ideal locations, Royal Continental Hotel Deira City Center, a Dubai Airport Hotel, and Royal Continental Suites Business Bay at the strand of Dubai Canal and near Dubai Downtown, both offer business travelers and holidaymakers a stylish and welcoming haven. With a variety of rooms and suites to meet all requirements and tastes, as well as a host of business and leisure facilities, dining outlets, and amenities, Royal Continental Hotel and Suites provide the discerning traveler with impeccable accommodation and service in relaxed contemporary surroundings. Suited to both short city breaks or an extended vacation, we pride ourselves on offering a unique and technologically advanced experience through our innovative in-room hospitality facilities and tastefully appointed units. Whether you need a hotel room or a fully furnished apartment, we have it for you. Experience uncompromising yet affordable luxury and comfort at Royal Continental Hotel, the Best Luxury Business Hotel near airport, and at Royal Continental Suites, a modern and classy Deluxe Hotel Apartment right in the heart of Dubai’s business and entertainment areas.",
+      "title": "An exceptional blend of business, lifestyle, and entertainment experiences in Dubai..",
+      "description": "Since 2017, the Signature Group of Hotels has redefined the hospitality landscape in Dubai United Arab Emirates. Our chic, contemporary hotels in Dubai offer a welcoming alternative to the ordinary, blending style with affordability. Prime locations, exceptional service, and a range of accommodations set us apart as the places to stay for sophisticated comfort at an affordable price. Discover the Signature difference today.",
       "images": [
-        "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental9194-qv7w0qnjbcr7bnbtkxy8ez9nxeox1mr9jbefx7sz1s.jpg",
-        "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-qv7udf2afh4ltltct4k7a3v4cni8ktojtadlvcpvsw.jpg",
-        "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-Apartment-with-Dubai-Canal-view-.jpg",
-        "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7266-qv7w10zrej5cvcwswkf4oenqgn9yeawb8qks79dn5c.jpg"
+        "https://image-tc.galaxy.tf/wijpeg-4ddety2yztjcnld5xk0utu51b/tecom-property-outlet-2-xandros_standard.jpg?width=1140&crop=112%2C0%2C1777%2C1333",
+        "https://image-tc.galaxy.tf/wijpeg-awqcs8sjrblqzjzda767xa8in/11_standard.jpg?width=1140&crop=200%2C0%2C1200%2C900",
+        "https://image-tc.galaxy.tf/wijpeg-6p4pq1ucrzx3ag4rfsxq1z0pd/spa_standard.jpg?crop=240%2C0%2C1440%2C1080&width=700https://image-tc.galaxy.tf/wijpeg-6p4pq1ucrzx3ag4rfsxq1z0pd/spa_standard.jpg?crop=240%2C0%2C1440%2C1080&width=700",
+        "https://image-tc.galaxy.tf/wijpeg-f328o7eedazhok0uwt63p0dbe/pool-2.jpg?width=1920",
+        "https://image-tc.galaxy.tf/wijpeg-8fdeu2pnl7rzo7oywf51f1cgg/gym_standard.jpg?width=2000&crop=240%2C0%2C1440%2C1080"
       ]
     },
     "policies": {
@@ -1401,77 +2166,20 @@
       "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
     },
     "contact": {
-      "email": "info@royalcontinentalhotels.com",
-      "phone": "+971 4 203 5000",
-      "mapUrl": "https://www.google.com/maps/place/Royal+Continental+Hotel/@25.2526957,55.3355213,15z/data=!4m2!3m1!1s0x0:0xef84f0bb38bb9db?sa=X&ved=1t:2428&ictx=111",
-      "address": "P.O. Box 182166, Deira, Dubai, UAE",
-      "latitude": 0,
-      "longitude": 0
+      "email": "info@s1hg.com",
+      "phone": "+971 4 561 0600",
+      "mapUrl": "https://www.google.com/maps/place/Sheikh+Zayed+Rd+-+Dubai+-+United+Arab+Emirates/@25.0699544,55.1370806,17z/data=!3m1!4b1!4m6!3m5!1s0x3e5f13435f3abe57:0xb4c00b9d46311cd0!8m2!3d25.0699544!4d55.1370806!16s%2Fg%2F120jxr51?entry=ttu&g_ep=EgoyMDI2MDUyNy4wIKXMDSoASAFQAw%3D%3D",
+      "address": "Sheikh Zayed Road Dubai United Arab Emirates",
+      "latitude": 25.0699544,
+      "longitude": 55.1370806
     },
     "footer": {
       "social": {
-        "instagram": "https://www.instagram.com/royalcontinentaldubai/?hl=en",
-        "facebook": "https://www.facebook.com/RoyalContinentalHotels/",
-        "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
-        "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
+        "instagram": "https://www.instagram.com/signature1hotels/",
+        "facebook": "https://www.facebook.com/signature1hotels/",
+        "linkedin": "https://www.linkedin.com/company/signature-1-hotels"
       },
-      "copyright": "© Copyright Royal Continental Hotel Dubai"
-    },
-    "promotion": [
-      {
-        "id": "summer_special",
-        "name": "Summer Special",
-        "description": "Enjoy 25% off on all room bookings this summer. Perfect for your vacation getaway.",
-        "image": "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800",
-        "phone": "+971 4 203 5000",
-        "buttonText": "Book Now",
-        "buttonRoute": "/rooms",
-        "details": {
-          "title": "Summer Special Offer",
-          "fullDescription": "Take advantage of our exclusive summer promotion with 25% discount on all room types. Valid for bookings made before August 31st.",
-          "photos": [
-            "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800",
-            "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800"
-          ],
-          "facilities": [
-            {
-              "icon": "local_offer",
-              "name": "25% Discount"
-            },
-            {
-              "icon": "event",
-              "name": "Summer Season"
-            }
-          ]
-        }
-      },
-      {
-        "id": "weekend_deal",
-        "name": "Weekend Deal",
-        "description": "Special rates for weekend stays with complimentary breakfast.",
-        "image": "https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?w=800",
-        "phone": "+971 4 203 5000",
-        "buttonText": "Reserve Now",
-        "buttonRoute": "/rooms",
-        "details": {
-          "title": "Weekend Special Deal",
-          "fullDescription": "Book your weekend stay and enjoy special rates plus complimentary breakfast for two.",
-          "photos": [
-            "https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?w=800",
-            "https://images.unsplash.com/photo-1498503182468-3b51cbb6cb24?w=800"
-          ],
-          "facilities": [
-            {
-              "icon": "free_breakfast",
-              "name": "Complimentary Breakfast"
-            },
-            {
-              "icon": "weekend",
-              "name": "Weekend Special"
-            }
-          ]
-        }
-      }
-    ]
+      "copyright": "© 2024 Signature Hotel"
+    }
   }
 }

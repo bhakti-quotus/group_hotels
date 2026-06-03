@@ -61,154 +61,217 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: const Color(0xFF080808),
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
-          child: Column(
+          child: Stack(
             children: [
-              // Top brand line
-              Padding(
-                padding: const EdgeInsets.only(top: 36, left: 32, right: 32),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 30,
-                      height: 1,
-                      color: const Color(0xFFC9A96E).withOpacity(0.6),
+              // Ambient radial glow behind logo
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.2,
+                left: MediaQuery.of(context).size.width / 2 - 140,
+                child: Container(
+                  width: 280,
+                  height: 280,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        const Color(0xFFC9A96E).withOpacity(0.07),
+                        Colors.transparent,
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'EST. 2017',
-                      style: TextStyle(
-                        fontSize: 10,
-                        letterSpacing: 4,
-                        color: const Color(0xFFC9A96E).withOpacity(0.7),
-                        fontWeight: FontWeight.w400,
-                        fontFamily: BrandingColors.fontFamily,
+                  ),
+                ),
+              ),
+
+              // Corner brackets
+              _buildCornerBracket(top: 16, left: 16, flipH: false, flipV: false),
+              _buildCornerBracket(top: 16, right: 16, flipH: true, flipV: false),
+              _buildCornerBracket(bottom: 16, left: 16, flipH: false, flipV: true),
+              _buildCornerBracket(bottom: 16, right: 16, flipH: true, flipV: true),
+
+              Column(
+                children: [
+                  // Top ornament
+                  Padding(
+                    padding: const EdgeInsets.only(top: 40),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(width: 28, height: 0.5, color: const Color(0xFFC9A96E).withOpacity(0.6)),
+                        const SizedBox(width: 10),
+                        Row(
+                          children: List.generate(3, (i) => Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 2),
+                            width: 3,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFFC9A96E).withOpacity(0.6),
+                            ),
+                          )),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(width: 28, height: 0.5, color: const Color(0xFFC9A96E).withOpacity(0.6)),
+                      ],
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  // Double ring logo
+                  Container(
+                    width: 148,
+                    height: 148,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFFC9A96E).withOpacity(0.2),
+                        width: 0.5,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Container(
-                      width: 30,
-                      height: 1,
-                      color: const Color(0xFFC9A96E).withOpacity(0.6),
-                    ),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-
-              // Center logo only — no border, just a soft glow
-              Container(
-                width: 220,
-                height: 220,
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFC9A96E).withOpacity(0.12),
-                      blurRadius: 60,
-                      spreadRadius: 20,
-                    ),
-                  ],
-                ),
-                child: splashImage != null
-                    ? Image.network(
-                        splashImage!,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            _buildDefaultLogo(),
-                      )
-                    : _buildDefaultLogo(),
-              ),
-              const Spacer(),
-
-              // Text section
-              AnimatedBuilder(
-                animation: _fadeController,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(0, _slideAnimation.value),
-                    child: child,
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 36),
-                  child: Column(
-                    children: [
-                      // Gold divider
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 20,
-                            height: 1,
-                            color: const Color(0xFFC9A96E).withOpacity(0.5),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFFC9A96E).withOpacity(0.12),
+                            width: 0.5,
                           ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                            width: 4,
-                            height: 4,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFFC9A96E),
+                        ),
+                        child: Container(
+                          margin: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0x10C9A96E),
+                          ),
+                          child: Center(
+                            child: splashImage != null
+                                ? Image.network(
+                                    splashImage!,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const SizedBox.shrink(),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  // Text section
+                  AnimatedBuilder(
+                    animation: _fadeController,
+                    builder: (context, child) {
+                      return Transform.translate(
+                        offset: Offset(0, _slideAnimation.value),
+                        child: child,
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 36),
+                      child: Column(
+                        children: [
+                          // Diamond divider
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(width: 28, height: 0.5, color: const Color(0xFFC9A96E).withOpacity(0.45)),
+                              Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 8),
+                                width: 5,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFC9A96E).withOpacity(0.8),
+                                  borderRadius: BorderRadius.zero,
+                                ),
+                                transform: Matrix4.rotationZ(0.785398),
+                                transformAlignment: Alignment.center,
+                              ),
+                              Container(width: 28, height: 0.5, color: const Color(0xFFC9A96E).withOpacity(0.45)),
+                            ],
+                          ),
+                          const SizedBox(height: 18),
+
+                          // Hotel name
+                          Text(
+                            'SIGNATURE HOTELS',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              letterSpacing: 7,
+                              color: const Color(0xFFC9A96E),
+                              fontWeight: FontWeight.w400,
+                              fontFamily: BrandingColors.fontFamily,
                             ),
                           ),
-                          Container(
-                            width: 20,
-                            height: 1,
-                            color: const Color(0xFFC9A96E).withOpacity(0.5),
+                          const SizedBox(height: 20),
+
+                          // Tagline
+                          Text(
+                            'Where every stay becomes\na cherished memory.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              height: 1.7,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.white.withOpacity(0.45),
+                              fontWeight: FontWeight.w300,
+                              fontFamily: BrandingColors.fontFamily,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                    ),
+                  ),
 
-                      // Hotel name
-                      Text(
-                        'ROYAL CONTINENTAL',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 22,
-                          letterSpacing: 6,
-                          color: const Color(0xFFC9A96E),
-                          fontWeight: FontWeight.w600,
-                          fontFamily: BrandingColors.fontFamily,
+                  const SizedBox(height: 40),
+
+                  // Loading indicator
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: 40,
+                        child: TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0.2, end: 0.8),
+                          duration: const Duration(seconds: 2),
+                          curve: Curves.easeInOut,
+                          builder: (context, value, _) {
+                            return LinearProgressIndicator(
+                              value: value,
+                              minHeight: 2,
+                              backgroundColor: Colors.white.withOpacity(0.08),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                const Color(0xFFC9A96E).withOpacity(0.5),
+                              ),
+                              borderRadius: BorderRadius.circular(2),
+                            );
+                          },
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 10),
                       Text(
-                        'HOTELS & SUITES',
-                        textAlign: TextAlign.center,
+                        'LOADING',
                         style: TextStyle(
-                          fontSize: 13,
-                          letterSpacing: 5,
-                          color: Colors.white.withOpacity(0.5),
-                          fontWeight: FontWeight.w300,
-                          fontFamily: BrandingColors.fontFamily,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Tagline
-                      Text(
-                        'Where every stay becomes\na cherished memory.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          height: 1.6,
-                          color: Colors.white.withOpacity(0.65),
+                          fontSize: 9,
+                          letterSpacing: 3,
+                          color: Colors.white.withOpacity(0.2),
                           fontWeight: FontWeight.w300,
                           fontFamily: BrandingColors.fontFamily,
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
 
-              const SizedBox(height: 56),
+                  const SizedBox(height: 36),
+                ],
+              ),
             ],
           ),
         ),
@@ -216,24 +279,49 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildDefaultLogo() {
-    return Container(
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xFF1A1A1A),
-      ),
-      child: Center(
-        child: Text(
-          'RC',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w300,
-            letterSpacing: 3,
-            color: const Color(0xFFC9A96E),
-            fontFamily: BrandingColors.fontFamily,
-          ),
+  Widget _buildCornerBracket({
+    double? top,
+    double? bottom,
+    double? left,
+    double? right,
+    required bool flipH,
+    required bool flipV,
+  }) {
+    return Positioned(
+      top: top,
+      bottom: bottom,
+      left: left,
+      right: right,
+      child: Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.identity()
+          ..scale(flipH ? -1.0 : 1.0, flipV ? -1.0 : 1.0),
+        child: SizedBox(
+          width: 12,
+          height: 12,
+          child: CustomPaint(painter: _CornerBracketPainter()),
         ),
       ),
     );
   }
+}
+
+class _CornerBracketPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFC9A96E).withOpacity(0.2)
+      ..strokeWidth = 0.5
+      ..style = PaintingStyle.stroke;
+
+    final path = Path()
+      ..moveTo(0, size.height)
+      ..lineTo(0, 0)
+      ..lineTo(size.width, 0);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.royal_continent"
+    namespace = "com.example.hotel_signature"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,7 +15,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.royal_continent"
+        applicationId = "com.example.hotel_signature"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

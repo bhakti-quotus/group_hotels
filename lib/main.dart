@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'royalcontinent',
+      title: 'Signature Hotels',
       initialRoute: AppRoutes.splash,
       getPages: AppRoutes.routes,
     );

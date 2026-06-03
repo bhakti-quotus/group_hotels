@@ -1,4 +1,4 @@
-package com.example.royal_continent
+package com.example.hotel_signature
 
 import io.flutter.embedding.android.FlutterActivity
 

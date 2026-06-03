@@ -2,9 +2,9 @@ import 'package:royalcontinent/group/views/about/about.dart';
 import 'package:royalcontinent/group/views/auth/register.dart';
 import 'package:royalcontinent/group/views/auth/verify_email.dart';
 import 'package:royalcontinent/group/views/contact/contact.dart';
-import 'package:royalcontinent/group/views/offers/offers.dart';
 import 'package:royalcontinent/group/views/room/room.dart';
 import 'package:royalcontinent/ui/booking_details_page.dart';
+import 'package:royalcontinent/ui/offer_page/offer_list_page.dart';
 import 'package:royalcontinent/ui/booking_page/confirm_booking_page.dart';
 import 'package:royalcontinent/ui/booking_page/modify_booking_page.dart';
 import 'package:royalcontinent/ui/booking_page/cancel_booking_page.dart';
@@ -13,6 +13,10 @@ import 'package:get/get.dart';
 import 'package:royalcontinent/ui/room_screen/room_details_screen.dart';
 import 'package:royalcontinent/ui/promotions_page/promotions_list_page.dart';
 import 'package:royalcontinent/ui/facilities_page/facilities_list_page.dart';
+import 'package:royalcontinent/ui/restaurants_page/restaurants_list_page.dart';
+import 'package:royalcontinent/ui/spa_page/spa_list_page.dart';
+import 'package:royalcontinent/ui/meetings_events_page/meetings_events_list_page.dart';
+import 'package:royalcontinent/ui/attractions_page/attractions_list_page.dart';
 import 'package:royalcontinent/ui/outlet_page/outlet_page.dart';
 import 'package:royalcontinent/ui/tourism/dubai_sustainable_tourism_ui.dart';
 import '../views/splash/splash_page.dart';
@@ -60,6 +64,10 @@ class AppRoutes {
   static const roomDetails = '/room-details';
   static const promotions = '/promotions';
   static const facilities = '/facilities';
+  static const restaurant = '/restaurant';
+  static const spa = '/spa';
+  static const meetingsEvents = '/meetings-events';
+  static const attractions = '/attractions';
   static const outlet = '/outlet';
 
   static const tourism = '/tourism';
@@ -81,7 +89,15 @@ class AppRoutes {
     GetPage(name: about, page: () => const About()),
     GetPage(name: rooms, page: () => const Room()),
     GetPage(name: contact, page: () => const Contact()),
-    GetPage(name: offers, page: () => const Offers()),
+    GetPage(
+      name: offers,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        final offers = args?['offers'] as List<dynamic>?;
+        final title = args?['title'] as String?;
+        return OfferListPage(offers: offers, title: title);
+      },
+    ),
     GetPage(name: profile, page: () => const ProfileScreen()),
     GetPage(name: roomDetails, page: () => const RoomDetailsScreen()),
     GetPage(name: confirmBooking, page: () => const ConfirmBookingPage()),
@@ -105,6 +121,42 @@ class AppRoutes {
         final facilities = args?['facilities'] as List<dynamic>? ?? [];
         final title = args?['title'] as String?;
         return FacilitiesListPage(facilities: facilities, title: title);
+      },
+    ),
+    GetPage(
+      name: restaurant,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        final restaurants = args?['restaurants'] as List<dynamic>? ?? [];
+        final title = args?['title'] as String?;
+        return RestaurantListPage(restaurants: restaurants, title: title);
+      },
+    ),
+    GetPage(
+      name: spa,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        final spas = args?['spas'] as List<dynamic>? ?? [];
+        final title = args?['title'] as String?;
+        return SpaListPage(spas: spas, title: title);
+      },
+    ),
+    GetPage(
+      name: meetingsEvents,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        final meetingsEvents = args?['meetingsEvents'] as List<dynamic>? ?? [];
+        final title = args?['title'] as String?;
+        return MeetingsEventsListPage(meetingsEvents: meetingsEvents, title: title);
+      },
+    ),
+    GetPage(
+      name: attractions,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        final attractions = args?['attractions'] as List<dynamic>? ?? [];
+        final title = args?['title'] as String?;
+        return AttractionsListPage(attractions: attractions, title: title);
       },
     ),
     GetPage(name: outlet, page: () => const OutletPage()),

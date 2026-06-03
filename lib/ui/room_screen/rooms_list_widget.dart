@@ -761,8 +761,10 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
         room['roomSize'] ?? room['room_size'] ?? 0;
     final roomUnit =
         room['roomUnit'] ?? room['room_unit'] ?? 'sq ft';
-    final roomView =
-        room['roomView'] ?? room['room_view'] ?? '';
+   final roomViewRaw = room['roomView'] ?? room['room_view'];
+    final roomView = roomViewRaw is Map
+        ? (roomViewRaw['MasterRoomView']?['viewName'] as String? ?? '')
+        : (roomViewRaw as String? ?? '');
     final maxOccupancy =
         room['maxOccupancy'] ?? room['max_occupancy'] ?? 0;
     final description = room['description'] ?? '';

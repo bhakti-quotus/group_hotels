@@ -67,6 +67,10 @@ class QuickActionsSection extends StatelessWidget {
 
   IconData _getIcon(String iconName) {
     switch (iconName) {
+      case 'photo_library':
+        return Icons.photo_library_outlined;
+      case 'landscape':
+        return Icons.landscape_outlined;
       case 'meeting_room':
         return Icons.meeting_room_outlined;
       case 'tourism':
@@ -93,6 +97,8 @@ class QuickActionsSection extends StatelessWidget {
         return Icons.fitness_center_outlined;
       case 'restaurant':
         return Icons.restaurant_outlined;
+      case 'food_bank':
+        return Icons.food_bank_outlined;
       default:
         return Icons.circle_outlined;
     }
@@ -126,28 +132,42 @@ class _QuickActionButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 90,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
+        width: 82,
+        height: 90, // fixed height so centering works
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3), width: 1),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.black12, width: 0.5),
         ),
+        clipBehavior: Clip.hardEdge,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: color,
+            // Accent bar at top
+            Container(
+              height: 5,
+              color: color,
+            ),
+            // Icon + label centered in remaining space
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center, // ← this centers it
+                children: [
+                  Icon(icon, color: color, size: 23),
+                  const SizedBox(height: 6),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[600],
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
+import '../gallery/gallery_grid_page.dart';
 
 class GalleryPreviewSection extends StatefulWidget {
   final List<String> images;
@@ -8,12 +9,14 @@ class GalleryPreviewSection extends StatefulWidget {
   /// Optional: pass full gallery items from config for captions
   /// Each item: { 'url': String, 'caption': String, 'type': String }
   final List<Map<String, dynamic>>? galleryItems;
+  final VoidCallback? onViewAll;
 
   const GalleryPreviewSection({
     super.key,
     required this.images,
     required this.currentImageIndex,
     this.galleryItems,
+    this.onViewAll,
   });
 
   @override
@@ -103,7 +106,16 @@ class _GalleryPreviewSectionState extends State<GalleryPreviewSection>
               ],
             ),
             GestureDetector(
-              onTap: () => _openFullscreen(context, _selectedIndex),
+              onTap: widget.onViewAll ?? () {
+                final images = widget.images;
+                if (images.isNotEmpty) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => GalleryGridPage(images: images),
+                    ),
+                  );
+                }
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,

@@ -76,6 +76,9 @@ class _GroupHomePageState extends State<GroupHomePage> {
         : AppColor.primary;
     final fontFamily = branding['fontFamily'] as String? ?? 'Inter';
 
+    final childHotels = groupData['childHotels'] as List<dynamic>? ?? [];
+    final tabs = <String>['All'] + childHotels.map((c) => (c as Map<String, dynamic>)['name'] as String? ?? '').toList();
+
     return Theme(
       data: ThemeData(fontFamily: fontFamily),
       child: Scaffold(

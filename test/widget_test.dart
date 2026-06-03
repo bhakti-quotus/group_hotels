@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:royalcontinent/main.dart';
 // ignore: depend_on_referenced_packages
-//import 'package:royal_continent/main.dart';
+//import 'package:hotel_signature/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
