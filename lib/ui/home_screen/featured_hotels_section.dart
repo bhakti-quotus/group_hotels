@@ -172,6 +172,21 @@ class _HotelCardState extends State<HotelCard>
     return null;
   }
 
+  int _roomTypeCount(List<dynamic> rooms) {
+    final uniqueKeys = <String>{};
+    for (final room in rooms) {
+      if (room is Map) {
+        final key = (room['roomTypeCode'] ?? room['roomType'] ?? room['roomName'] ?? room['name'] ?? room['id'])
+            ?.toString()
+            .trim();
+        if (key != null && key.isNotEmpty) {
+          uniqueKeys.add(key);
+        }
+      }
+    }
+    return uniqueKeys.length;
+  }
+
   @override
   void dispose() {
     _pressController.dispose();
@@ -383,22 +398,6 @@ class _HotelCardState extends State<HotelCard>
 
                     const SizedBox(height: 10),
 
-                    // Stats row
-                    Row(
-                      children: [
-                        _StatPill(
-                          icon: Icons.bed_outlined,
-                          label:
-                              '$roomCount ${roomCount == 1 ? 'Room Type' : 'Room Types'}',
-                        ),
-                        const SizedBox(width: 8),
-                        if (amenityCount > 0)
-                          _StatPill(
-                            icon: Icons.spa_outlined,
-                            label: '$amenityCount Amenities',
-                          ),
-                      ],
-                    ),
                   ],
                 ),
               ),

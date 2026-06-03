@@ -44,12 +44,15 @@ class _SearchWidgetState extends State<SearchWidget>
   DateTime checkIn = DateTime.now().add(const Duration(days: 1));
   DateTime checkOut = DateTime.now().add(const Duration(days: 2));
   int rooms = 1;
-  List<Map<String, dynamic>> roomGuests = [];
+  List<Map<String, Object?>> roomGuests = [];
   String propertyCode = '';
   String? hotelLogoUrl;
   String hotelName = '';
   bool _showGuestDetails = false;
   bool _showFullSearch = false;
+  final ScrollController _scrollCtrl = ScrollController();
+  final GlobalKey _calendarSectionKey = GlobalKey();
+  final GlobalKey _guestSectionKey = GlobalKey();
   late HotelController hotelCtrl;
   int selectedHotelIndex = 0;
   List<dynamic> childHotels = [];
@@ -108,7 +111,11 @@ class _SearchWidgetState extends State<SearchWidget>
   void _initializeRoomGuests() {
     roomGuests = List.generate(
       rooms,
-      (_) => {'adults': 1, 'children': 0, 'childAges': <int>[]},
+      (_) => <String, Object?>{
+        'adults': 1,
+        'children': 0,
+        'childAges': <int>[],
+      },
     );
   }
 
@@ -117,6 +124,7 @@ class _SearchWidgetState extends State<SearchWidget>
     _panelCtrl.dispose();
     _shimmerCtrl.dispose();
     _calPageCtrl.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
@@ -167,7 +175,7 @@ class _SearchWidgetState extends State<SearchWidget>
   void _loadFromController() {
     final ctrl = Get.find<search_ctrl.AppSearchController>();
     if (ctrl.searchPayload.isNotEmpty) {
-      final p = Map<String, dynamic>.from(ctrl.searchPayload.value);
+      final p = Map<String, dynamic>.from(ctrl.searchPayload);
       setState(() {
         checkIn = DateTime.parse(p['startDate']);
         checkOut = DateTime.parse(p['endDate']);
@@ -175,18 +183,24 @@ class _SearchWidgetState extends State<SearchWidget>
         rooms = g['rooms'] as int? ?? 1;
         if (g['roomsArray'] != null) {
           roomGuests = (g['roomsArray'] as List)
-              .map(
-                (r) => {
-                  'adults': r['adults'] as int,
-                  'children': r['children'] as int,
-                  'childAges': List<int>.from(r['childAges'] ?? []),
-                },
-              )
+              .map<Map<String, Object?>>((r) {
+                final room = Map<String, Object?>.from(r as Map);
+                final childAges = room['childAges'] as List?;
+                return <String, Object?>{
+                  'adults': room['adults'] as int? ?? 1,
+                  'children': room['children'] as int? ?? 0,
+                  'childAges': List<int>.from(childAges?.cast<int>() ?? <int>[]),
+                };
+              })
               .toList();
         } else {
           roomGuests = List.generate(
             rooms,
-            (_) => {'adults': 1, 'children': 0, 'childAges': <int>[]},
+            (_) => <String, Object?>{
+              'adults': 1,
+              'children': 0,
+              'childAges': <int>[],
+            },
           );
         }
       });
@@ -218,18 +232,22 @@ class _SearchWidgetState extends State<SearchWidget>
   void updateChildren(int i, int v) {
     final currentAdults = roomGuests[i]['adults'] as int;
     final currentChildren = roomGuests[i]['children'] as int;
-    final currentAges = List<int>.from(roomGuests[i]['childAges'] ?? []);
+    final currentAges = List<int>.from(
+      (roomGuests[i]['childAges'] as List?)?.cast<int>() ?? <int>[],
+    );
     if (currentAdults + v <= 4 && v >= 0) {
+      final updatedAges = <int>[];
+      if (v > currentChildren) {
+        updatedAges.addAll(currentAges);
+        updatedAges.addAll(List.generate(v - currentChildren, (_) => 0));
+      } else if (v < currentChildren) {
+        updatedAges.addAll(currentAges.take(v));
+      } else {
+        updatedAges.addAll(currentAges.take(v));
+      }
       setState(() {
         roomGuests[i]['children'] = v;
-        if (v > currentChildren) {
-          roomGuests[i]['childAges'] = [
-            ...currentAges,
-            ...List.generate(v - currentChildren, (_) => 0),
-          ];
-        } else if (v < currentChildren) {
-          roomGuests[i]['childAges'] = currentAges.sublist(0, v);
-        }
+        roomGuests[i]['childAges'] = updatedAges;
       });
     }
   }
@@ -237,7 +255,9 @@ class _SearchWidgetState extends State<SearchWidget>
   void updateChildAge(int roomIndex, int childIndex, int age) {
     if (age >= 0 && age <= 15) {
       setState(() {
-        final ages = List<int>.from(roomGuests[roomIndex]['childAges'] ?? []);
+        final ages = List<int>.from(
+          (roomGuests[roomIndex]['childAges'] as List?)?.cast<int>() ?? <int>[],
+        );
         if (childIndex < ages.length) {
           ages[childIndex] = age;
           roomGuests[roomIndex]['childAges'] = ages;
@@ -320,6 +340,38 @@ class _SearchWidgetState extends State<SearchWidget>
     _showFullSearch ? _panelCtrl.forward() : _panelCtrl.reverse();
   }
 
+  void _openPanelToSection(GlobalKey key, {bool expandGuestDetails = false}) {
+    final wasOpen = _showFullSearch;
+    
+    if (!_showFullSearch) {
+      setState(() => _showFullSearch = true);
+      _panelCtrl.forward();
+    }
+    
+    if (expandGuestDetails && !_showGuestDetails) {
+      setState(() => _showGuestDetails = true);
+    }
+    
+    // If panel was already open, scroll immediately
+    // If just opened, wait for animation to complete
+    final delay = wasOpen 
+      ? Duration.zero 
+      : const Duration(milliseconds: 420);
+    
+    Future.delayed(delay, () {
+      if (!mounted) return;
+      final ctx = key.currentContext;
+      if (ctx == null) return;
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 380),
+        curve: Curves.easeInOut,
+        alignment: 0.12,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
+      );
+    });
+  }
+
   // ── helpers ──────────────────────────────────
   static String _mon(int m) => const [
     'JAN',
@@ -370,6 +422,7 @@ class _SearchWidgetState extends State<SearchWidget>
     return Container(
       color: Colors.white,
       child: SingleChildScrollView(
+        controller: _scrollCtrl,
         physics: const ClampingScrollPhysics(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -464,6 +517,7 @@ class _SearchWidgetState extends State<SearchWidget>
                       value:
                           '${_mon(checkIn.month)} ${checkIn.day}  —  ${_mon(checkOut.month)} ${checkOut.day}',
                       icon: Icons.date_range_rounded,
+                      onTap: () => _openPanelToSection(_calendarSectionKey),
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -472,6 +526,7 @@ class _SearchWidgetState extends State<SearchWidget>
                     value: '$totalNights',
                     icon: Icons.nightlight_round,
                     fixedWidth: 70,
+                    onTap: () => _openPanelToSection(_calendarSectionKey),
                   ),
                   const SizedBox(width: 4),
                   _chip(
@@ -479,6 +534,10 @@ class _SearchWidgetState extends State<SearchWidget>
                     value: '$totalGuests · ${rooms}rm',
                     icon: Icons.people_outline_rounded,
                     fixedWidth: 74,
+                    onTap: () => _openPanelToSection(
+                      _guestSectionKey,
+                      expandGuestDetails: true,
+                    ),
                   ),
                 ],
               ),
@@ -522,6 +581,7 @@ class _SearchWidgetState extends State<SearchWidget>
     required String value,
     required IconData icon,
     double? fixedWidth,
+    VoidCallback? onTap,
   }) {
     final inner = Container(
       width: fixedWidth,
@@ -565,7 +625,11 @@ class _SearchWidgetState extends State<SearchWidget>
         ],
       ),
     );
-    return fixedWidth != null ? inner : Expanded(flex: 5, child: inner);
+    if (onTap == null) {
+      return fixedWidth != null ? inner : Expanded(flex: 5, child: inner);
+    }
+    final clickable = GestureDetector(onTap: onTap, child: inner);
+    return fixedWidth != null ? clickable : Expanded(flex: 5, child: clickable);
   }
 
   Widget _buildShimmerLine() {
@@ -721,6 +785,7 @@ class _SearchWidgetState extends State<SearchWidget>
     final activeCheckOut = _pendingCheckIn == null ? checkOut : null;
 
     return Container(
+      key: _calendarSectionKey,
       decoration: BoxDecoration(
         color: _T.surface,
         borderRadius: BorderRadius.circular(16),
@@ -1233,6 +1298,7 @@ class _SearchWidgetState extends State<SearchWidget>
   // ─────────────────────────────────────────────
   Widget _buildGuestPanel() {
     return Container(
+      key: _guestSectionKey,
       margin: const EdgeInsets.only(top: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1335,7 +1401,9 @@ class _SearchWidgetState extends State<SearchWidget>
     final room = roomGuests[roomIndex];
     final adults = room['adults'] as int;
     final children = room['children'] as int;
-    final childAges = List<int>.from(room['childAges'] ?? []);
+    final childAges = List<int>.from(
+      (room['childAges'] as List?)?.cast<int>() ?? <int>[],
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,

@@ -2160,10 +2160,10 @@
       ]
     },
     "policies": {
-      "checkIn": "10:00 AM",
-      "checkOut": "12:00 PM",
-      "cancellation": "Free cancellation upto 2 days before check in . But after that 50% refund.",
-      "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
+      "checkIn": "12:00 PM",
+          "checkOut": "10:00 AM",
+          "cancellation": "Free cancellation upto 2 days before check in . But after that 50% refund.",
+          "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
     },
     "contact": {
       "email": "info@s1hg.com",

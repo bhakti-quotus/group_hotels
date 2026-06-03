@@ -1018,6 +1018,21 @@ class _HotelCardState extends State<_HotelCard>
     return null;
   }
 
+  int _roomTypeCount(List<dynamic> rooms) {
+    final roomTypeKeys = <String>{};
+    for (final item in rooms) {
+      if (item is Map) {
+        final key = (item['roomTypeCode'] ?? item['roomType'] ?? item['roomName'] ?? item['name'] ?? item['id'])
+            ?.toString()
+            .trim();
+        if (key != null && key.isNotEmpty) {
+          roomTypeKeys.add(key);
+        }
+      }
+    }
+    return roomTypeKeys.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     final hotelConfig = widget.hotel['config'] as Map<String, dynamic>? ?? {};
@@ -1033,6 +1048,7 @@ class _HotelCardState extends State<_HotelCard>
     final logo = hotelBranding['logo'] as String?;
     final checkIn = policies['checkIn'] as String?;
     final checkOut = policies['checkOut'] as String?;
+    final roomTypeCount = rooms.length;
 
     // ✅ Use the proper multi-fallback resolver
     final heroImage = _resolveHeroImage(hotelConfig, hotelBranding, rooms);
@@ -1104,31 +1120,6 @@ class _HotelCardState extends State<_HotelCard>
                       ),
                     ),
                   ),
-                  // Room count badge
-                  if (rooms.isNotEmpty)
-                    Positioned(
-                      bottom: 12,
-                      left: 14,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColor.secondary,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '${rooms.length} ${rooms.length == 1 ? 'Room Type' : 'Room Types'}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                      ),
-                    ),
                 ],
               ),
 
