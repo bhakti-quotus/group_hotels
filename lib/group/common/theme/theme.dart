@@ -20,7 +20,7 @@ class AppColor {
   static const Color bottomBarIconUnselected = Color(0xFF888888);
 
   static const Color cardBackground = Colors.white;
-  static const Color ratingColor = Color(0xFFFFD700);
+  static const Color ratingColor = Color(0xFFAD9064);
   static const Color chipBackground = Color(0xFFE8F0FE);
   static const Color cardBorder = Color(0xFFE0E0E0);
 }
@@ -43,15 +43,25 @@ class BrandingColors {
       final branding = config['branding'] as Map<String, dynamic>?;
       if (branding != null) {
         _primary = branding['primaryColor'] != null
-            ? Color(int.parse(branding['primaryColor'].replaceFirst('#', '0xff')))
+            ? Color(
+                int.parse(branding['primaryColor'].replaceFirst('#', '0xff')),
+              )
             : null;
         _secondary = branding['secondaryColor'] != null
-            ? Color(int.parse(branding['secondaryColor'].replaceFirst('#', '0xff')))
+            ? Color(
+                int.parse(branding['secondaryColor'].replaceFirst('#', '0xff')),
+              )
             : null;
         _background = branding['backgroundColor'] != null
-            ? Color(int.parse(branding['backgroundColor'].replaceFirst('#', '0xff')))
+            ? Color(
+                int.parse(
+                  branding['backgroundColor'].replaceFirst('#', '0xff'),
+                ),
+              )
             : null;
-        _text = const Color(0xFF000000); // Keep default or add to mockdata if needed
+        _text = const Color(
+          0xFF000000,
+        ); // Keep default or add to mockdata if needed
         _fontFamily = branding['fontFamily'];
       }
     } catch (e) {

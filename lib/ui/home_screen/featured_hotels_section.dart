@@ -44,7 +44,7 @@ class _FeaturedHotelsSectionState extends State<FeaturedHotelsSection> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Choose \n Accommodation',
+                  'Choose Accommodation',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -286,13 +286,13 @@ class _HotelCardState extends State<HotelCard>
                           horizontal: 10,
                           vertical: 6,
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.92),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        // decoration: BoxDecoration(
+                        //   color: Colors.white.withOpacity(0.92),
+                        //   borderRadius: BorderRadius.circular(8),
+                        // ),
                         child: Image.network(
                           branding['logo'],
-                          height: 24,
+                          height: 44,
                           fit: BoxFit.contain,
                           errorBuilder: (_, __, ___) =>
                               const Icon(Icons.hotel, size: 20),

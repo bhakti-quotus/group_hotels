@@ -52,7 +52,7 @@ class PromotionListPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                   "Promotions",
+                  "Promotions",
                   style: const TextStyle(
                     color: Colors.black87,
                     fontWeight: FontWeight.w700,
@@ -62,7 +62,7 @@ class PromotionListPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "Royal Continental Hotel",
+                  "Stells Di Mare",
                   style: TextStyle(
                     color: Colors.grey[700],
                     fontWeight: FontWeight.w400,
@@ -161,7 +161,8 @@ class PromotionListPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
-                      final promotion = promotions[index] as Map<String, dynamic>;
+                      final promotion =
+                          promotions[index] as Map<String, dynamic>;
                       final name = promotion['name'] as String? ?? '';
                       final imageUrl = promotion['image'] as String? ?? '';
 
@@ -202,64 +203,90 @@ class PromotionListPage extends StatelessWidget {
                                                 height: 220,
                                                 fit: BoxFit.cover,
                                                 errorBuilder: (_, __, ___) => Container(
-                                                  color: AppColor.primary.withOpacity(0.1),
+                                                  color: AppColor.primary
+                                                      .withOpacity(0.1),
                                                   child: Center(
                                                     child: Column(
-                                                      mainAxisSize: MainAxisSize.min,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
                                                       children: [
                                                         Icon(
-                                                          Icons.image_not_supported_outlined,
+                                                          Icons
+                                                              .image_not_supported_outlined,
                                                           size: 48,
-                                                          color: AppColor.primary.withOpacity(0.5),
+                                                          color: AppColor
+                                                              .primary
+                                                              .withOpacity(0.5),
                                                         ),
-                                                        const SizedBox(height: 8),
+                                                        const SizedBox(
+                                                          height: 8,
+                                                        ),
                                                         Text(
                                                           'Image not available',
                                                           style: TextStyle(
                                                             fontSize: 12,
-                                                            color: AppColor.primary.withOpacity(0.5),
+                                                            color: AppColor
+                                                                .primary
+                                                                .withOpacity(
+                                                                  0.5,
+                                                                ),
                                                           ),
                                                         ),
                                                       ],
                                                     ),
                                                   ),
                                                 ),
-                                                loadingBuilder: (context, child, progress) {
-                                                  if (progress == null) return child;
-                                                  return Container(
-                                                    color: AppColor.primary.withOpacity(0.1),
-                                                    child: Center(
-                                                      child: Column(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: [
-                                                          const SizedBox(
-                                                            width: 32,
-                                                            height: 32,
-                                                            child: CircularProgressIndicator(
-                                                              strokeWidth: 2,
-                                                            ),
+                                                loadingBuilder:
+                                                    (context, child, progress) {
+                                                      if (progress == null)
+                                                        return child;
+                                                      return Container(
+                                                        color: AppColor.primary
+                                                            .withOpacity(0.1),
+                                                        child: Center(
+                                                          child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              const SizedBox(
+                                                                width: 32,
+                                                                height: 32,
+                                                                child:
+                                                                    CircularProgressIndicator(
+                                                                      strokeWidth:
+                                                                          2,
+                                                                    ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 8,
+                                                              ),
+                                                              Text(
+                                                                'Loading...',
+                                                                style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: AppColor
+                                                                      .primary
+                                                                      .withOpacity(
+                                                                        0.5,
+                                                                      ),
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                          const SizedBox(height: 8),
-                                                          Text(
-                                                            'Loading...',
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              color: AppColor.primary.withOpacity(0.5),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
+                                                        ),
+                                                      );
+                                                    },
                                               )
                                             : Container(
-                                                color: AppColor.primary.withOpacity(0.1),
+                                                color: AppColor.primary
+                                                    .withOpacity(0.1),
                                                 child: Center(
                                                   child: Icon(
                                                     Icons.local_offer_outlined,
                                                     size: 56,
-                                                    color: AppColor.primary.withOpacity(0.5),
+                                                    color: AppColor.primary
+                                                        .withOpacity(0.5),
                                                   ),
                                                 ),
                                               ),
@@ -281,8 +308,8 @@ class PromotionListPage extends StatelessWidget {
                                           ),
                                         ),
                                       ),
+
                                       // Offer Badge
-                                     
                                     ],
                                   ),
 
@@ -304,13 +331,17 @@ class PromotionListPage extends StatelessWidget {
                                                 end: Alignment.centerRight,
                                                 colors: [
                                                   AppColor.primary,
-                                                  AppColor.primary.withOpacity(0.7),
+                                                  AppColor.primary.withOpacity(
+                                                    0.7,
+                                                  ),
                                                 ],
                                               ),
-                                              borderRadius: BorderRadius.circular(30),
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: AppColor.primary.withOpacity(0.3),
+                                                  color: AppColor.primary
+                                                      .withOpacity(0.3),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 2),
                                                 ),
@@ -330,30 +361,38 @@ class PromotionListPage extends StatelessWidget {
                                           ),
                                         ),
                                         const SizedBox(width: 12),
-                                        
+
                                         // View Button with Glassmorphism Effect
                                         ClipRRect(
-                                          borderRadius: BorderRadius.circular(30),
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
                                           child: BackdropFilter(
                                             filter: ImageFilter.blur(
                                               sigmaX: 10,
                                               sigmaY: 10,
                                             ),
                                             child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 16,
-                                                vertical: 10,
-                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 10,
+                                                  ),
                                               decoration: BoxDecoration(
-                                                color: Colors.white.withOpacity(0.9),
-                                                borderRadius: BorderRadius.circular(30),
+                                                color: Colors.white.withOpacity(
+                                                  0.9,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
                                                 border: Border.all(
-                                                  color: AppColor.primary.withOpacity(0.6),
+                                                  color: AppColor.primary
+                                                      .withOpacity(0.6),
                                                   width: 1.5,
                                                 ),
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: AppColor.primary.withOpacity(0.15),
+                                                    color: AppColor.primary
+                                                        .withOpacity(0.15),
                                                     blurRadius: 12,
                                                     offset: const Offset(0, 4),
                                                   ),
@@ -367,7 +406,8 @@ class PromotionListPage extends StatelessWidget {
                                                     style: TextStyle(
                                                       color: AppColor.primary,
                                                       fontSize: 12,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                       letterSpacing: 0.5,
                                                     ),
                                                   ),

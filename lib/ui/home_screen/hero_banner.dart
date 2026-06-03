@@ -200,18 +200,18 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                     horizontal: 12,
                     vertical: 7,
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.45),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.25),
-                      width: 1,
-                    ),
-                  ),
+                  // decoration: BoxDecoration(
+                  //   color: Colors.white.withOpacity(0.45),
+                  //   borderRadius: BorderRadius.circular(12),
+                  //   border: Border.all(
+                  //     color: Colors.white.withOpacity(0.25),
+                  //     width: 1,
+                  //   ),
+                  // ),
                   child: widget.logoUrl.isNotEmpty
                       ? Image.network(
                           widget.logoUrl,
-                          height: 28,
+                          height: 48,
                           fit: BoxFit.contain,
                           errorBuilder: (_, __, ___) => const Icon(
                             Icons.hotel,
@@ -234,7 +234,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                       vertical: 7,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColor.secondary.withOpacity(0.9),
+                      color: AppColor.primary.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: Colors.white.withOpacity(0.3),
@@ -242,7 +242,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColor.secondary.withOpacity(0.35),
+                          color: AppColor.primary.withOpacity(0.35),
                           blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),
@@ -283,7 +283,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
                     height: 6,
                     decoration: BoxDecoration(
                       color: isActive
-                          ? AppColor.secondary
+                          ? AppColor.primary
                           : Colors.white.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(3),
                     ),

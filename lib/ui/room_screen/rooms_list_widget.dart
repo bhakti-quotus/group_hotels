@@ -45,8 +45,7 @@ class RoomsListWidget extends StatefulWidget {
   });
 
   @override
-  State<RoomsListWidget> createState() =>
-      _RoomsListWidgetState();
+  State<RoomsListWidget> createState() => _RoomsListWidgetState();
 }
 
 class _RoomsListWidgetState extends State<RoomsListWidget>
@@ -100,15 +99,13 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading || _showSkeleton)
-      return _buildSkeletonUI();
+    if (widget.isLoading || _showSkeleton) return _buildSkeletonUI();
 
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
         color: AppColor.background,
-        padding: const EdgeInsets.symmetric(
-            horizontal: 10, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -122,18 +119,13 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
             else
               Builder(
                 builder: (context) {
-                  final validRooms =
-                      widget.rooms.where((room) {
-                    final hasValidRate =
-                        room['hasValidRate'] == true;
-                    final roomPrice =
-                        room['roomPrice'] as List? ?? [];
-                    return hasValidRate &&
-                        roomPrice.isNotEmpty;
+                  final validRooms = widget.rooms.where((room) {
+                    final hasValidRate = room['hasValidRate'] == true;
+                    final roomPrice = room['roomPrice'] as List? ?? [];
+                    return hasValidRate && roomPrice.isNotEmpty;
                   }).toList();
 
-                  if (validRooms.isEmpty)
-                    return _buildEmptyState();
+                  if (validRooms.isEmpty) return _buildEmptyState();
 
                   return Column(
                     children: validRooms
@@ -144,16 +136,12 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                             room: entry.value,
                             index: entry.key,
                             totalGuests: widget.totalGuests,
-                            propertyCode:
-                                widget.propertyCode,
+                            propertyCode: widget.propertyCode,
                             hotelName: widget.hotelName,
                             propertyId: widget.propertyId,
-                            propertyDetails:
-                                widget.propertyDetails,
-                            propertyVideos:
-                                widget.propertyVideos,
-                            loyaltyConfig:
-                                widget.loyaltyConfig,
+                            propertyDetails: widget.propertyDetails,
+                            propertyVideos: widget.propertyVideos,
+                            loyaltyConfig: widget.loyaltyConfig,
                           ),
                         )
                         .toList(),
@@ -172,10 +160,7 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
       children: [
         Row(
           children: [
-            Container(
-                width: 24,
-                height: 1.5,
-                color: AppColor.primary),
+            Container(width: 24, height: 1.5, color: AppColor.primary),
             const SizedBox(width: 10),
             Text(
               'CURATED SELECTION',
@@ -202,15 +187,9 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
         const SizedBox(height: 14),
         Row(
           children: [
-            Container(
-                width: 40,
-                height: 2.5,
-                color: AppColor.primary),
+            Container(width: 40, height: 2.5, color: AppColor.primary),
             const SizedBox(width: 6),
-            Container(
-                width: 12,
-                height: 2.5,
-                color: AppColor.secondary),
+            Container(width: 12, height: 2.5, color: AppColor.secondary),
             const SizedBox(width: 6),
             Container(
               width: 5,
@@ -229,16 +208,19 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
         padding: const EdgeInsets.symmetric(vertical: 48),
         child: Column(
           children: [
-            Icon(Icons.wifi_off_rounded,
-                size: 48,
-                color: AppColor.primary.withOpacity(0.4)),
+            Icon(
+              Icons.wifi_off_rounded,
+              size: 48,
+              color: AppColor.primary.withOpacity(0.4),
+            ),
             const SizedBox(height: 16),
             Text(
               widget.errorMessage!,
               style: const TextStyle(
-                  color: AppColor.textLight,
-                  fontSize: 15,
-                  height: 1.5),
+                color: AppColor.textLight,
+                fontSize: 15,
+                height: 1.5,
+              ),
               textAlign: TextAlign.center,
             ),
             if (widget.onRefresh != null) ...[
@@ -274,8 +256,7 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color:
-                          AppColor.primary.withOpacity(0.3),
+                      color: AppColor.primary.withOpacity(0.3),
                       width: 1.5,
                     ),
                   ),
@@ -296,17 +277,19 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                   ),
                 ),
                 const SizedBox(height: 8),
-                Obx(() => Text(
-                      hotelCtrl.childHotels.length > 1
-                          ? 'No rooms match your dates.\nTry one of our other properties below.'
-                          : 'Please refine your search or check back later.',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColor.textLight,
-                        height: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    )),
+                Obx(
+                  () => Text(
+                    hotelCtrl.childHotels.length > 1
+                        ? 'No rooms match your dates.\nTry one of our other properties below.'
+                        : 'Please refine your search or check back later.',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColor.textLight,
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ],
             ),
           ),
@@ -315,21 +298,17 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
         // Alternate hotel picker
         Obx(() {
           final hotels = hotelCtrl.childHotels;
-          if (hotels.length <= 1)
-            return const SizedBox.shrink();
+          if (hotels.length <= 1) return const SizedBox.shrink();
 
           final currentCode =
-              hotelCtrl.selectedHotel.value?['code']
-                  as String? ??
-              '';
+              hotelCtrl.selectedHotel.value?['code'] as String? ?? '';
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Section label
               Padding(
-                padding:
-                    const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
                 child: Row(
                   children: [
                     Container(
@@ -338,15 +317,13 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppColor.primary
-                                .withOpacity(0.6),
+                            AppColor.primary.withOpacity(0.6),
                             AppColor.primary,
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ),
-                        borderRadius:
-                            BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -365,50 +342,40 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
 
               // Hotel cards
               Column(
-                children:
-                    hotels.asMap().entries.map((entry) {
+                children: hotels.asMap().entries.map((entry) {
                   final index = entry.key;
-                  final hotel =
-                      entry.value as Map<String, dynamic>;
-                  final code =
-                      hotel['code'] as String? ?? '';
-                  final name = hotel['name'] as String? ??
-                      'Hotel ${index + 1}';
-                  final logoUrl = hotel['config']
-                      ?['branding']?['logo'] as String?;
+                  final hotel = entry.value as Map<String, dynamic>;
+                  final code = hotel['code'] as String? ?? '';
+                  final name = hotel['name'] as String? ?? 'Hotel ${index + 1}';
+                  final logoUrl =
+                      hotel['config']?['branding']?['logo'] as String?;
                   final isSelected = code == currentCode;
 
                   return Padding(
                     padding: EdgeInsets.only(
-                      bottom:
-                          index < hotels.length - 1 ? 10 : 0,
+                      bottom: index < hotels.length - 1 ? 10 : 0,
                     ),
                     child: GestureDetector(
                       onTap: isSelected
                           ? null
                           : () {
                               // 1. Update HotelController
-                              hotelCtrl
-                                  .setSelectedHotel(hotel);
+                              hotelCtrl.setSelectedHotel(hotel);
 
                               // 2. Update payload propertyCode
-                              final searchCtrl = Get.find<search_ctrl
-                                  .AppSearchController>();
-                              final current =
-                                  Map<String, dynamic>.from(
-                                searchCtrl
-                                    .searchPayload.value,
+                              final searchCtrl =
+                                  Get.find<search_ctrl.AppSearchController>();
+                              final current = Map<String, dynamic>.from(
+                                searchCtrl.searchPayload.value,
                               );
                               current['propertyCode'] = code;
-                              searchCtrl
-                                  .updateSearchPayload(current);
+                              searchCtrl.updateSearchPayload(current);
 
                               // 3. Tell parent to re-fetch
                               widget.onHotelSelected?.call();
                             },
                       child: AnimatedContainer(
-                        duration:
-                            const Duration(milliseconds: 220),
+                        duration: const Duration(milliseconds: 220),
                         curve: Curves.easeOutCubic,
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
@@ -417,11 +384,9 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColor.primary
-                                  .withOpacity(0.07)
+                              ? AppColor.primary.withOpacity(0.07)
                               : Colors.white,
-                          borderRadius:
-                              BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: isSelected
                                 ? AppColor.primary
@@ -431,12 +396,9 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                           boxShadow: [
                             BoxShadow(
                               color: isSelected
-                                  ? AppColor.primary
-                                      .withOpacity(0.12)
-                                  : Colors.black
-                                      .withOpacity(0.04),
-                              blurRadius:
-                                  isSelected ? 12 : 6,
+                                  ? AppColor.primary.withOpacity(0.12)
+                                  : Colors.black.withOpacity(0.04),
+                              blurRadius: isSelected ? 12 : 6,
                               offset: const Offset(0, 3),
                             ),
                           ],
@@ -448,26 +410,21 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                   color: isSelected
-                                      ? AppColor.primary
-                                          .withOpacity(0.4)
+                                      ? AppColor.primary.withOpacity(0.4)
                                       : AppColor.cardBorder,
                                   width: 1,
                                 ),
                               ),
                               child: ClipRRect(
-                                borderRadius:
-                                    BorderRadius.circular(9),
-                                child: (logoUrl != null &&
-                                        logoUrl.isNotEmpty)
+                                borderRadius: BorderRadius.circular(9),
+                                child: (logoUrl != null && logoUrl.isNotEmpty)
                                     ? CachedNetworkImage(
                                         imageUrl: logoUrl,
                                         fit: BoxFit.cover,
-                                        errorWidget: (_, __,
-                                                ___) =>
+                                        errorWidget: (_, __, ___) =>
                                             _hotelFallbackIcon(),
                                       )
                                     : _hotelFallbackIcon(),
@@ -479,8 +436,7 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                             // Name + subtitle
                             Expanded(
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     name,
@@ -495,8 +451,7 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                                       letterSpacing: 0.1,
                                     ),
                                     maxLines: 2,
-                                    overflow:
-                                        TextOverflow.ellipsis,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   if (isSelected) ...[
                                     const SizedBox(height: 2),
@@ -504,8 +459,9 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
                                       'Currently selected',
                                       style: TextStyle(
                                         fontSize: 10,
-                                        color: AppColor.primary
-                                            .withOpacity(0.7),
+                                        color: AppColor.primary.withOpacity(
+                                          0.7,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -517,8 +473,7 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
 
                             // Radio
                             AnimatedContainer(
-                              duration: const Duration(
-                                  milliseconds: 200),
+                              duration: const Duration(milliseconds: 200),
                               width: 22,
                               height: 22,
                               decoration: BoxDecoration(
@@ -558,25 +513,20 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
   }
 
   Widget _hotelFallbackIcon() => Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColor.primary.withOpacity(0.6),
-              AppColor.primary,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: const Icon(Icons.hotel_rounded,
-            color: Colors.white, size: 18),
-      );
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [AppColor.primary.withOpacity(0.6), AppColor.primary],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    child: const Icon(Icons.hotel_rounded, color: Colors.white, size: 18),
+  );
 
   Widget _buildSkeletonUI() {
     return Container(
       color: AppColor.background,
-      padding: const EdgeInsets.symmetric(
-          horizontal: 10, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -602,11 +552,10 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
     );
   }
 
-  BoxDecoration _skeletonBox({double radius = 6}) =>
-      BoxDecoration(
-        color: AppColor.cardBorder.withOpacity(0.4),
-        borderRadius: BorderRadius.circular(radius),
-      );
+  BoxDecoration _skeletonBox({double radius = 6}) => BoxDecoration(
+    color: AppColor.cardBorder.withOpacity(0.4),
+    borderRadius: BorderRadius.circular(radius),
+  );
 
   Widget _buildSkeletonCard() {
     return Container(
@@ -614,8 +563,7 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: AppColor.cardBorder, width: 1),
+        border: Border.all(color: AppColor.cardBorder, width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -633,7 +581,8 @@ class _RoomsListWidgetState extends State<RoomsListWidget>
               decoration: BoxDecoration(
                 color: AppColor.cardBorder.withOpacity(0.25),
                 borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20)),
+                  top: Radius.circular(20),
+                ),
               ),
             ),
           ),
@@ -717,8 +666,7 @@ class _RoyalRoomCard extends StatefulWidget {
   });
 
   @override
-  State<_RoyalRoomCard> createState() =>
-      _RoyalRoomCardState();
+  State<_RoyalRoomCard> createState() => _RoyalRoomCardState();
 }
 
 class _RoyalRoomCardState extends State<_RoyalRoomCard>
@@ -733,12 +681,10 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
       vsync: this,
       duration: const Duration(milliseconds: 120),
     );
-    _scaleAnim =
-        Tween<double>(begin: 1.0, end: 0.982).animate(
-      CurvedAnimation(
-          parent: _pressController,
-          curve: Curves.easeOut),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 1.0,
+      end: 0.982,
+    ).animate(CurvedAnimation(parent: _pressController, curve: Curves.easeOut));
   }
 
   @override
@@ -751,20 +697,16 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
   Widget build(BuildContext context) {
     final room = widget.room;
     final images = room['images'] as List? ?? [];
-    final roomName = room['roomName'] ??
-        room['room_name'] ??
-        room['name'] ??
-        'Luxury Suite';
-    final roomType =
-        room['roomType'] ?? room['room_type'] ?? '';
-    final roomSize =
-        room['roomSize'] ?? room['room_size'] ?? 0;
-    final roomUnit =
-        room['roomUnit'] ?? room['room_unit'] ?? 'sq ft';
-    final roomView =
-        room['roomView'] ?? room['room_view'] ?? '';
-    final maxOccupancy =
-        room['maxOccupancy'] ?? room['max_occupancy'] ?? 0;
+    final roomName =
+        room['roomName'] ?? room['room_name'] ?? room['name'] ?? 'Luxury Suite';
+    final roomType = room['roomType'] ?? room['room_type'] ?? '';
+    final roomSize = room['roomSize'] ?? room['room_size'] ?? 0;
+    final roomUnit = room['roomUnit'] ?? room['room_unit'] ?? 'sq ft';
+    final roomViewRaw = room['roomView'] ?? room['room_view'];
+    final roomView = roomViewRaw is Map
+        ? (roomViewRaw['MasterRoomView']?['viewName'] as String? ?? '')
+        : (roomViewRaw as String? ?? '');
+    final maxOccupancy = room['maxOccupancy'] ?? room['max_occupancy'] ?? 0;
     final description = room['description'] ?? '';
 
     return AnimatedBuilder(
@@ -780,8 +722,7 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-                color: AppColor.cardBorder, width: 1),
+            border: Border.all(color: AppColor.cardBorder, width: 1),
             boxShadow: [
               BoxShadow(
                 color: AppColor.primary.withOpacity(0.07),
@@ -798,17 +739,13 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _RoyalImageCarousel(
-                    images: images, roomType: roomType),
+                _RoyalImageCarousel(images: images, roomType: roomType),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      20, 20, 20, 0),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         roomName,
@@ -827,20 +764,19 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
                         children: [
                           if (roomSize > 0)
                             _MetaChip(
-                                icon:
-                                    Icons.straighten_rounded,
-                                label: '$roomSize $roomUnit'),
+                              icon: Icons.straighten_rounded,
+                              label: '$roomSize $roomUnit',
+                            ),
                           if (roomView.isNotEmpty)
                             _MetaChip(
-                                icon:
-                                    Icons.landscape_rounded,
-                                label: roomView),
+                              icon: Icons.landscape_rounded,
+                              label: roomView,
+                            ),
                           if (maxOccupancy > 0)
                             _MetaChip(
-                                icon: Icons
-                                    .people_outline_rounded,
-                                label:
-                                    'Up to $maxOccupancy guests'),
+                              icon: Icons.people_outline_rounded,
+                              label: 'Up to $maxOccupancy guests',
+                            ),
                         ],
                       ),
                       if (description.isNotEmpty) ...[
@@ -868,8 +804,7 @@ class _RoyalRoomCardState extends State<_RoyalRoomCard>
                       colors: [
                         Colors.transparent,
                         AppColor.primary.withOpacity(0.3),
-                        AppColor.secondary
-                            .withOpacity(0.3),
+                        AppColor.secondary.withOpacity(0.3),
                         Colors.transparent,
                       ],
                       stops: const [0, 0.25, 0.75, 1],
@@ -902,16 +837,13 @@ class _RoyalImageCarousel extends StatefulWidget {
   final List images;
   final String roomType;
 
-  const _RoyalImageCarousel(
-      {required this.images, required this.roomType});
+  const _RoyalImageCarousel({required this.images, required this.roomType});
 
   @override
-  State<_RoyalImageCarousel> createState() =>
-      _RoyalImageCarouselState();
+  State<_RoyalImageCarousel> createState() => _RoyalImageCarouselState();
 }
 
-class _RoyalImageCarouselState
-    extends State<_RoyalImageCarousel> {
+class _RoyalImageCarouselState extends State<_RoyalImageCarousel> {
   late PageController _pageController;
   int _currentPage = 0;
   Timer? _autoScrollTimer;
@@ -921,15 +853,50 @@ class _RoyalImageCarouselState
     for (var item in widget.images) {
       if (item is String) {
         urls.add(item);
-      } else if (item is Map && item['url'] != null) {
-        urls.add(item['url'].toString());
+      } else if (item is Map) {
+        // Recursively extract URL from nested maps
+        String? extractedUrl = _extractUrlFromMap(item as Map<String, dynamic>);
+        if (extractedUrl != null && extractedUrl.isNotEmpty) {
+          urls.add(extractedUrl);
+        }
       }
     }
     return urls.isNotEmpty
         ? urls
-        : [
-            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200'
-          ];
+        : ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200'];
+  }
+
+  String? _extractUrlFromMap(Map<String, dynamic> map) {
+    // Try direct url field
+    if (map['url'] != null) {
+      if (map['url'] is String) {
+        return map['url'] as String;
+      } else if (map['url'] is Map) {
+        // Recursively extract from nested map
+        return _extractUrlFromMap(map['url'] as Map<String, dynamic>);
+      }
+    }
+
+    // Try common URL field names
+    for (var key in [
+      'image',
+      'src',
+      'path',
+      'original',
+      'large',
+      'medium',
+      'small',
+    ]) {
+      if (map[key] != null) {
+        if (map[key] is String) {
+          return map[key] as String;
+        } else if (map[key] is Map) {
+          return _extractUrlFromMap(map[key] as Map<String, dynamic>);
+        }
+      }
+    }
+
+    return null;
   }
 
   @override
@@ -940,8 +907,7 @@ class _RoyalImageCarouselState
   }
 
   void _startAutoScroll() {
-    _autoScrollTimer =
-        Timer.periodic(const Duration(seconds: 5), (_) {
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (_pageController.hasClients && mounted) {
         _pageController.animateToPage(
           (_currentPage + 1) % _resolvedUrls.length,
@@ -987,12 +953,13 @@ class _RoyalImageCarouselState
                   ),
                 ),
               ),
-              errorWidget: (context, url, error) =>
-                  Container(
-                color:
-                    AppColor.cardBorder.withOpacity(0.15),
-                child: Icon(Icons.image_rounded,
-                    color: AppColor.cardBorder, size: 48),
+              errorWidget: (context, url, error) => Container(
+                color: AppColor.cardBorder.withOpacity(0.15),
+                child: Icon(
+                  Icons.image_rounded,
+                  color: AppColor.cardBorder,
+                  size: 48,
+                ),
               ),
             ),
           ),
@@ -1006,10 +973,7 @@ class _RoyalImageCarouselState
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.35),
-                  ],
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.35)],
                 ),
               ),
             ),
@@ -1020,7 +984,9 @@ class _RoyalImageCarouselState
               left: 14,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColor.primary,
                   borderRadius: BorderRadius.circular(6),
@@ -1040,8 +1006,7 @@ class _RoyalImageCarouselState
             top: 14,
             right: 14,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(20),
@@ -1063,23 +1028,19 @@ class _RoyalImageCarouselState
               left: 0,
               right: 0,
               child: Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(urls.length, (i) {
                   final active = i == _currentPage;
                   return AnimatedContainer(
-                    duration:
-                        const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 3),
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
                     width: active ? 20 : 5,
                     height: 5,
                     decoration: BoxDecoration(
                       color: active
                           ? AppColor.primary
                           : Colors.white.withOpacity(0.5),
-                      borderRadius:
-                          BorderRadius.circular(3),
+                      borderRadius: BorderRadius.circular(3),
                     ),
                   );
                 }),
@@ -1146,41 +1107,35 @@ class _ViewDetailsButton extends StatefulWidget {
   });
 
   @override
-  State<_ViewDetailsButton> createState() =>
-      _ViewDetailsButtonState();
+  State<_ViewDetailsButton> createState() => _ViewDetailsButtonState();
 }
 
-class _ViewDetailsButtonState
-    extends State<_ViewDetailsButton> {
+class _ViewDetailsButtonState extends State<_ViewDetailsButton> {
   bool _pressed = false;
 
   void _navigate() {
     try {
-      final searchController =
-          Get.find<search_ctrl.AppSearchController>();
+      final searchController = Get.find<search_ctrl.AppSearchController>();
       final searchPayload = Map<String, dynamic>.from(
-          searchController.searchPayload.value);
+        searchController.searchPayload.value,
+      );
       final shortPropertyCode =
           searchPayload['PropertyCode'] as String? ??
-              searchPayload['propertyCode'] as String? ??
-              widget.propertyCode;
+          searchPayload['propertyCode'] as String? ??
+          widget.propertyCode;
 
       final loyaltyConfig = widget.loyaltyConfig;
       final propertyVideos = widget.propertyVideos;
       final propertyDetails = widget.propertyDetails;
-      final basicLoyaltyProgram =
-          loyaltyConfig?['BasicLoyaltyProgram'];
-      final loyaltyConditions =
-          loyaltyConfig?['loyaltyConditions'] as List?;
+      final basicLoyaltyProgram = loyaltyConfig?['BasicLoyaltyProgram'];
+      final loyaltyConditions = loyaltyConfig?['loyaltyConditions'] as List?;
       final loyaltySpecialConditions =
           loyaltyConfig?['loyaltySpecialConditions'] as List?;
 
       String? termsText;
-      if (loyaltyConditions != null &&
-          loyaltyConditions.isNotEmpty) {
+      if (loyaltyConditions != null && loyaltyConditions.isNotEmpty) {
         final first = loyaltyConditions[0];
-        if (first is Map)
-          termsText = first['text'] as String?;
+        if (first is Map) termsText = first['text'] as String?;
       }
 
       String? benefitsTitle;
@@ -1196,39 +1151,53 @@ class _ViewDetailsButtonState
 
       String? logoUrl;
       if (basicLoyaltyProgram != null) {
-        final logoList =
-            basicLoyaltyProgram['logo'] as List?;
+        final logoList = basicLoyaltyProgram['logo'] as List?;
         if (logoList != null && logoList.isNotEmpty) {
           logoUrl = logoList[0] as String?;
         }
       }
 
       final loyaltyData = {
-        'discountValue':
-            loyaltyConfig?['discountValue'] ?? 10,
-        'termsText': termsText ??
-            "Member-Only Rates\nEnjoy special discounted prices.",
+        'discountValue': loyaltyConfig?['discountValue'] ?? 10,
+        'termsText':
+            termsText ?? "Member-Only Rates\nEnjoy special discounted prices.",
         'benefitsTitle': benefitsTitle ?? "VIP Perks",
-        'benefitsSubtitle': benefitsSubtitle ??
-            "Exclusive benefits for members.",
+        'benefitsSubtitle':
+            benefitsSubtitle ?? "Exclusive benefits for members.",
         'videoUrl': propertyVideos?['url'],
         'videoThumbnail': propertyVideos?['thumbnail'],
         'logoUrl': logoUrl,
-        'propertyName':
-            propertyDetails?['propertyName'] ??
-                widget.hotelName,
+        'propertyName': propertyDetails?['propertyName'] ?? widget.hotelName,
+      };
+
+      // ── Normalize the room map so nested objects become plain strings ──
+      final rawRoom = widget.room;
+
+      // roomView: extract viewName from nested MasterRoomView
+      final roomViewRaw = rawRoom['roomView'] ?? rawRoom['room_view'];
+      final String roomViewString = roomViewRaw is Map
+          ? (roomViewRaw['MasterRoomView']?['viewName'] as String? ?? '')
+          : (roomViewRaw as String? ?? '');
+
+      // invTypeCode: always a String
+      final String invTypeCode =
+          rawRoom['roomType'] as String? ??
+          rawRoom['room_type'] as String? ??
+          rawRoom['invTypeCode'] as String? ??
+          '';
+
+      // Build a clean, flat room map — no nested Maps that pages expect as Strings
+      final Map<String, dynamic> normalizedRoom = {
+        ...rawRoom, // spread original first
+        'roomView': roomViewString, // override with resolved string
+        'room_view': roomViewString, // keep both keys consistent
+        'invTypeCode': invTypeCode,
       };
 
       Get.toNamed(
         '/room-details',
         arguments: {
-          'room': {
-            ...widget.room,
-            'invTypeCode': widget.room['roomType'] ??
-                widget.room['room_type'] ??
-                widget.room['invTypeCode'] ??
-                '',
-          },
+          'room': normalizedRoom,
           'totalGuests': widget.totalGuests,
           'propertyCode': shortPropertyCode,
           'hotelName': widget.hotelName,
@@ -1238,10 +1207,21 @@ class _ViewDetailsButtonState
         },
       );
     } catch (e) {
+      // Fallback — still normalize roomView to avoid the same crash
+      final rawRoom = widget.room;
+      final roomViewRaw = rawRoom['roomView'] ?? rawRoom['room_view'];
+      final String roomViewString = roomViewRaw is Map
+          ? (roomViewRaw['MasterRoomView']?['viewName'] as String? ?? '')
+          : (roomViewRaw as String? ?? '');
+
       Get.toNamed(
         '/room-details',
         arguments: {
-          'room': widget.room,
+          'room': {
+            ...rawRoom,
+            'roomView': roomViewString,
+            'room_view': roomViewString,
+          },
           'totalGuests': widget.totalGuests,
           'propertyCode': widget.propertyCode,
           'hotelName': widget.hotelName,
@@ -1249,11 +1229,9 @@ class _ViewDetailsButtonState
           'propertyDetails': widget.propertyDetails,
           'loyaltyData': {
             'discountValue': 10,
-            'termsText':
-                "Member-Only Rates\nEnjoy special discounted prices.",
+            'termsText': "Member-Only Rates\nEnjoy special discounted prices.",
             'benefitsTitle': "VIP Perks",
-            'benefitsSubtitle':
-                "Exclusive benefits for members.",
+            'benefitsSubtitle': "Exclusive benefits for members.",
             'videoUrl': null,
             'videoThumbnail': null,
             'logoUrl': null,
@@ -1272,8 +1250,7 @@ class _ViewDetailsButtonState
         setState(() => _pressed = false);
         _navigate();
       },
-      onTapCancel: () =>
-          setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 140),
         margin: const EdgeInsets.all(10),
@@ -1294,8 +1271,7 @@ class _ViewDetailsButtonState
               ? []
               : [
                   BoxShadow(
-                    color:
-                        AppColor.primary.withOpacity(0.28),
+                    color: AppColor.primary.withOpacity(0.28),
                     blurRadius: 3,
                     offset: const Offset(0, 1),
                   ),
@@ -1314,8 +1290,7 @@ class _ViewDetailsButtonState
               ),
             ),
             SizedBox(width: 10),
-            Icon(Icons.arrow_forward_rounded,
-                size: 18, color: Colors.white),
+            Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.white),
           ],
         ),
       ),
@@ -1342,12 +1317,10 @@ class _OutlinedPrimaryButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 10, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border:
-              Border.all(color: AppColor.primary, width: 1.5),
+          border: Border.all(color: AppColor.primary, width: 1.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1393,10 +1366,10 @@ class _ShimmerState extends State<_Shimmer>
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     )..repeat();
-    _anim = Tween<double>(begin: -1.5, end: 1.5).animate(
-      CurvedAnimation(
-          parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _anim = Tween<double>(
+      begin: -1.5,
+      end: 1.5,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override

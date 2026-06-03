@@ -15,7 +15,7 @@ class OutletPage extends StatelessWidget {
         ? outlets
         : (item != null && item.isNotEmpty ? [item] : []);
     final pageTitle = args['title'] as String? ?? 'Outlets';
-    final hotelName = args['hotelName'] as String? ?? 'Royal Continental Hotel';
+    final hotelName = args['hotelName'] as String? ?? 'Stella Di Mare';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -155,16 +155,19 @@ class OutletPage extends StatelessWidget {
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Icon(
-                                              Icons.image_not_supported_outlined,
+                                              Icons
+                                                  .image_not_supported_outlined,
                                               size: 48,
-                                              color: AppColor.primary.withOpacity(0.5),
+                                              color: AppColor.primary
+                                                  .withOpacity(0.5),
                                             ),
                                             const SizedBox(height: 8),
                                             Text(
                                               'Image not available',
                                               style: TextStyle(
                                                 fontSize: 12,
-                                                color: AppColor.primary.withOpacity(0.5),
+                                                color: AppColor.primary
+                                                    .withOpacity(0.5),
                                               ),
                                             ),
                                           ],
@@ -178,7 +181,9 @@ class OutletPage extends StatelessWidget {
                                       child: Icon(
                                         Icons.restaurant_outlined,
                                         size: 56,
-                                        color: AppColor.primary.withOpacity(0.6),
+                                        color: AppColor.primary.withOpacity(
+                                          0.6,
+                                        ),
                                       ),
                                     ),
                                   ),

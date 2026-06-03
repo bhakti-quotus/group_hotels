@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:royalcontinent/group/views/about/about.dart';
+import 'package:royalcontinent/group/views/action/group_action.dart';
 import 'package:royalcontinent/group/views/auth/register.dart';
 import 'package:royalcontinent/group/views/auth/verify_email.dart';
 import 'package:royalcontinent/group/views/contact/contact.dart';
@@ -10,6 +12,14 @@ import 'package:royalcontinent/ui/booking_page/modify_booking_page.dart';
 import 'package:royalcontinent/ui/booking_page/cancel_booking_page.dart';
 import 'package:royalcontinent/ui/profile_screen/profile_screen.dart';
 import 'package:get/get.dart';
+import 'package:royalcontinent/ui/quick_action_screen/helper/blog_screen.dart';
+import 'package:royalcontinent/ui/quick_action_screen/helper/dinning_screen.dart';
+import 'package:royalcontinent/ui/quick_action_screen/helper/facilities_activities_screen.dart';
+import 'package:royalcontinent/ui/quick_action_screen/helper/faq_screen.dart';
+import 'package:royalcontinent/ui/quick_action_screen/helper/gallery_screen.dart';
+import 'package:royalcontinent/ui/quick_action_screen/helper/offers_promo_screen.dart';
+import 'package:royalcontinent/ui/quick_action_screen/helper/wedding_screen.dart';
+import 'package:royalcontinent/ui/quick_action_screen/quick_action.dart';
 import 'package:royalcontinent/ui/room_screen/room_details_screen.dart';
 import 'package:royalcontinent/ui/promotions_page/promotions_list_page.dart';
 import 'package:royalcontinent/ui/facilities_page/facilities_list_page.dart';
@@ -64,11 +74,27 @@ class AppRoutes {
 
   static const tourism = '/tourism';
 
+  //Quick Actions routes
+  static const quickActions = '/quick-actions';
+  static const actions =
+      '/actions'; // For non-group route to access quick actions
+  static const qafacilities = '/qa-facilities';
+  static const qaweddings = '/qa-weddings';
+  static const qagallery = '/qa-gallery';
+  static const qafaq = '/qa-faq';
+  static const qadinning = '/qa-dinning';
+  static const qaoffers = '/qa-offers';
+  static const qablog = '/qa-blog';
+
   static final routes = [
     GetPage(name: groupHome, page: () => const GroupHomePage()),
     GetPage(name: groupAbout, page: () => const GroupAbout()),
     GetPage(name: groupContact, page: () => const GroupContact()),
     GetPage(name: hotels, page: () => const Hotels()),
+    GetPage(
+      name: actions,
+      page: () => const ActionsG(),
+    ), // Add this for group actions
     GetPage(name: splash, page: () => const SplashPage()),
     GetPage(name: login, page: () => const LoginPage()),
     GetPage(name: register, page: () => const RegisterPage()),
@@ -125,5 +151,61 @@ class AppRoutes {
       },
     ),
     GetPage(name: tourism, page: () => const DubaiSustainableTourismPage()),
+    GetPage(
+      name: AppRoutes.quickActions,
+      page: () => const QuickActionPage(),
+      transition: Transition.rightToLeftWithFade,
+      curve: Curves.easeInOut,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.qafacilities,
+      page: () => const FacilitiesPage(),
+      transition: Transition.rightToLeftWithFade,
+      curve: Curves.easeInOut,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.qaweddings,
+      page: () => const WeddingPage(),
+      transition: Transition.rightToLeftWithFade,
+      curve: Curves.easeInOut,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.qagallery,
+      page: () => const GalleryPage(),
+      transition: Transition.rightToLeftWithFade,
+      curve: Curves.easeInOut,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.qafaq,
+      page: () => const FaqPage(),
+      transition: Transition.rightToLeftWithFade,
+      curve: Curves.easeInOut,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.qadinning,
+      page: () => const DiningPage(),
+      transition: Transition.rightToLeftWithFade,
+      curve: Curves.easeInOut,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.qaoffers,
+      page: () => const OffersPage(),
+      transition: Transition.rightToLeftWithFade,
+      curve: Curves.easeInOut,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.qablog,
+      page: () => const BlogPage(),
+      transition: Transition.rightToLeftWithFade,
+      curve: Curves.easeInOut,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
   ];
 }

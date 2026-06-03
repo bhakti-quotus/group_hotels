@@ -1,4 +1,4 @@
-package com.example.royal_continent
+package com.example.stelladimare
 
 import io.flutter.embedding.android.FlutterActivity
 

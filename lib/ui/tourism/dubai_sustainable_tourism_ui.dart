@@ -1,541 +1,552 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 
 // ─── Color Palette ────────────────────────────────────────────────────────────
 class AppColors {
-  static const darkGreen    = Color(0xFF1B5E20);
-  static const mediumGreen  = Color(0xFF2E7D32);
-  static const lightGreen   = Color(0xFF4CAF50);
-  static const paleGreen    = Color(0xFFE8F5E9);
-  static const accentGreen  = Color(0xFF66BB6A);
-  static const gold         = Color(0xFFFFCA28);
-  static const white        = Color(0xFFFFFFFF);
-  static const offWhite     = Color(0xFFF9FBF9);
-  static const textDark     = Color(0xFF1A2E1A);
-  static const textMid      = Color(0xFF3D5A3D);
-  static const textLight    = Color(0xFF6A8F6A);
+  static const darkGreen = Color(0xFF1B5E20);
+  static const mediumGreen = Color(0xFF2E7D32);
+  static const lightGreen = Color(0xFF4CAF50);
+  static const paleGreen = Color(0xFFE8F5E9);
+  static const accentGreen = Color(0xFF66BB6A);
+  static const gold = Color(0xFFFFCA28);
+  static const white = Color(0xFFFFFFFF);
+  static const offWhite = Color(0xFFF9FBF9);
+  static const textDark = Color(0xFF1A2E1A);
+  static const textMid = Color(0xFF3D5A3D);
+  static const textLight = Color(0xFF6A8F6A);
 }
 
 // ─── Dubai Sustainable Tourism Page ───────────────────────────────────────────
-class DubaiSustainableTourismPage extends StatelessWidget {
+class DubaiSustainableTourismPage extends StatefulWidget {
   const DubaiSustainableTourismPage({super.key});
 
   @override
+  State<DubaiSustainableTourismPage> createState() =>
+      _DubaiSustainableTourismPageState();
+}
+
+class _DubaiSustainableTourismPageState
+    extends State<DubaiSustainableTourismPage> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
-      body: CustomScrollView(
-        slivers: [
-          // ── Collapsible App Bar with Background Image ─────────────────────
-          SliverAppBar(
-            expandedHeight: 210,
-            pinned: true,
-            backgroundColor: AppColors.darkGreen,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
+      backgroundColor: Colors.white,
+      body: NestedScrollView(
+        floatHeaderSlivers: true,
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _SustainabilityHeaderDelegate(
+                expandedHeight: 260,
+                collapsedHeight: 85,
+                builder: (t) => _buildHeader(context, t),
+              ),
+            ),
+          ];
+        },
+        body: Builder(
+          builder: (context) {
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        itemCount:
+                            _sustainabilityActivities.length +
+                            1 +
+                            _videos.length, // Activities + Carousel + Videos
+                        itemBuilder: (context, index) {
+                          // First section: Sustainability Activities
+                          if (index < _sustainabilityActivities.length) {
+                            final activity = _sustainabilityActivities[index];
+                            final isLast =
+                                index == _sustainabilityActivities.length - 1;
+                            return _SustainabilityBlock(
+                              activity: activity,
+                              showDivider: !isLast,
+                            );
+                          }
+
+                          // Second section: Certificate Carousel
+                          if (index == _sustainabilityActivities.length) {
+                            return const _CertificateCarouselSection();
+                          }
+
+                          // Third section: Videos
+                          final videoIndex =
+                              index - _sustainabilityActivities.length - 1;
+                          final video = _videos[videoIndex];
+                          final isLastVideo = videoIndex == _videos.length - 1;
+                          return _VideoBlock(
+                            video: video,
+                            showDivider: !isLastVideo,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // ─── HEADER WITH COLLAPSE ANIMATIONS ────────────────────────────────────────
+
+  Widget _buildHeader(BuildContext context, double t) {
+    // t = 0.0 (expanded) → 1.0 (collapsed)
+
+    // Background image opacity - fades out on collapse
+    final double imageOpacity = lerpDouble(1.0, 0.0, t)!;
+
+    // Overlay opacity - increases as we collapse
+    final double overlayOpacity = lerpDouble(0.0, 0.85, t)!;
+
+    // Content animations
+    final double contentOpacity = lerpDouble(1.0, 0.0, t)!;
+    final double contentHeight = lerpDouble(200.0, 0.0, t)!;
+
+    // Brand row animations
+    final double brandRowOpacity = lerpDouble(1.0, 0.0, t)!;
+    final double brandRowHeight = lerpDouble(30, 0, t)!;
+    final double brandTextSize = lerpDouble(18, 0, t)!;
+    final double brandIconSize = lerpDouble(16, 0, t)!;
+    final double brandContainerSize = lerpDouble(28, 0, t)!;
+
+    // Description animation
+    final double descriptionOpacity = lerpDouble(1.0, 0.0, t)!;
+    final double descriptionHeight = lerpDouble(150.0, 0.0, t)!;
+
+    // Divider animation
+    final double dividerOpacity = lerpDouble(1.0, 0.0, t)!;
+
+    // Back button animations
+    final double backButtonTopMargin = lerpDouble(0, 20, t)!;
+    final double backButtonBottomMargin = lerpDouble(0, 20, t)!;
+
+    return Container(
+      height: 320,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: const AssetImage('assets/images/sustainability.jpeg'),
+          fit: BoxFit.cover,
+          opacity: imageOpacity,
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(28),
+            bottomRight: Radius.circular(28),
+          ),
+          color: Colors.black.withOpacity(overlayOpacity),
+        ),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 28),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Decorative background circles - fade out on scroll
+              Positioned(
+                top: -40,
+                right: -40,
+                child: Opacity(
+                  opacity: lerpDouble(0.5, 0.0, t)!,
+                  child: Container(
+                    width: 160,
+                    height: 160,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0x0DFFFFFF),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -30,
+                left: 20,
+                child: Opacity(
+                  opacity: lerpDouble(0.5, 0.0, t)!,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0x0AFFFFFF),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Main header content
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Positioned(
-                    left: 16,
-                    top: 60,
-                    child: GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_ios_new,
-                          color: Colors.black,
-                          size: 18,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Brand badge row - animates out
+                            SizedBox(
+                              height: brandRowHeight,
+                              child: Opacity(
+                                opacity: brandRowOpacity.clamp(0.0, 1.0),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: brandContainerSize,
+                                      height: brandContainerSize,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0x26FFD700),
+                                        borderRadius: BorderRadius.circular(7),
+                                        border: Border.all(
+                                          color: const Color(0x4DFFD700),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        Icons.eco,
+                                        color: const Color(0xFFAD9064),
+                                        size: brandIconSize,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'SUSTAINABILITY',
+                                      style: TextStyle(
+                                        fontSize: brandTextSize,
+                                        color: const Color(0xFFAD9064),
+                                        letterSpacing: 2.5,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+
+                            // Description text - animates out
+                            if (descriptionOpacity > 0)
+                              SizedBox(
+                                height: descriptionHeight,
+                                child: Opacity(
+                                  opacity: descriptionOpacity.clamp(0.0, 1.0),
+                                  child: const Text(
+                                    'It is a known fact that hotels are significant contributors to the global tourism industry. With that knowledge, all Stella Di Mare Hotels are continually trying to become more and more environmentally friendly. In order to conserve these precious resources such as committing to reduce water, energy and waste, it becomes a consistent goal to achieve. Therefore, the implementation of activities have been taken seriously in the recent years.',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-                  // Background Image
-                  Image.network(
-                    'https://royalcontinentalhotels.com/wp-content/uploads/2024/04/dubai-skyline-downtown-skyscrapers-sunset-modern-architecture-concept-with-highrise-buildings-world-famous-metropolis-united-arab-emirates.jpg',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [AppColors.darkGreen, AppColors.mediumGreen],
-                          ),
+
+                      // Back button
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: backButtonTopMargin,
+                          bottom: backButtonBottomMargin,
                         ),
-                        child: const Center(
-                          child: Icon(Icons.image_not_supported, color: Colors.white54, size: 50),
-                        ),
-                      );
-                    },
-                  ),
-                  // Dark overlay for text readability
-                  Container(
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                  // Decorative blobs
-                  Positioned(
-                    top: -40, right: -40,
-                    child: Container(
-                      width: 180, height: 180,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.lightGreen.withOpacity(0.15),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: -20, left: -20,
-                    child: Container(
-                      width: 120, height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.accentGreen.withOpacity(0.12),
-                      ),
-                    ),
-                  ),
-                  // Header text
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.gold.withOpacity(0.6)),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
-                            '🌿  AT ROYAL CONTINENTAL HOTELS DUBAI',
-                            style: TextStyle(
-                              color: AppColors.gold,
-                              fontSize: 9,
-                              letterSpacing: 1.4,
-                              fontWeight: FontWeight.w600,
+                        child: GestureDetector(
+                          onTap: () => Navigator.of(context).pop(),
+                          child: Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(
+                                lerpDouble(0.3, 0.5, t)!,
+                              ),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withOpacity(
+                                  lerpDouble(0.3, 0.15, t)!,
+                                ),
+                                width: 1,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                              size: 16,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 14),
-                        const Text(
-                          'Dubai Sustainable\nTourism',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            height: 1.25,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Royal Continental interweaves sustainability\nthroughout the complete customer experience.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppColors.white.withOpacity(0.75),
-                            fontSize: 11.5,
-                            height: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+
+                  // Gold shimmer divider - fades out
+                  if (dividerOpacity > 0) ...[
+                    const SizedBox(height: 16),
+                    Opacity(
+                      opacity: dividerOpacity.clamp(0.0, 1.0),
+                      child: Container(
+                        height: 1,
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              Color(0x66FFD700),
+                              Color(0x99FFD700),
+                              Color(0x66FFD700),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
-            ),
+            ],
           ),
-
-          SliverToBoxAdapter(
-            child: Column(
-              children: const [
-                _MissionSection(),
-                _ClimateVideoSection(),
-                _PolicySection(),
-                _PillarsSection(),
-                _CertificateCarouselSection(),
-                _WhoWeAreSection(),
-                _ComplianceSection(),
-                _SustainabilityImageSection(),
-                _Footer(),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-// ─── Mission Section ──────────────────────────────────────────────────────────
-class _MissionSection extends StatelessWidget {
-  const _MissionSection();
+// ─── PINNED HEADER DELEGATE ─────────────────────────────────────────────
+
+class _SustainabilityHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final double expandedHeight;
+  final double collapsedHeight;
+  final Widget Function(double t) builder;
+
+  const _SustainabilityHeaderDelegate({
+    required this.expandedHeight,
+    required this.collapsedHeight,
+    required this.builder,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
-      child: Column(
-        children: [
-          Container(
-            width: 56, height: 56,
-            decoration: BoxDecoration(
-              color: AppColors.paleGreen,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.house, color: AppColors.darkGreen, size: 28),
-          ),
-          const SizedBox(height: 22),
-          const Text(
-            'We are committed to preserving and regenerating the environment and leaving a positive, enduring impact on our local community.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.black54,
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Divider(color: AppColors.paleGreen, thickness: 2),
-          const SizedBox(height: 20),
-          Text(
-            'Dubai Sustainable Tourism was born to improve the sustainability of the tourism sector and to contribute to the broader clean energy and sustainable development targets that Dubai has set out to achieve.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black, fontSize: 13, height: 1.65),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'If you are looking for a Luxury Business 4-star hotel near Dubai International Airport, near to Deira City Centre, near to Dubai Metro, Royal Continental Hotel is the best option for you.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black, fontSize: 12, height: 1.6),
-          ),
-        ],
-      ),
-    );
+  double get maxExtent => expandedHeight;
+
+  @override
+  double get minExtent => collapsedHeight;
+
+  @override
+  bool shouldRebuild(_SustainabilityHeaderDelegate oldDelegate) => true;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final double t = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+    return SizedBox(height: expandedHeight, child: builder(t));
   }
 }
 
-// ─── Climate Action Video Section ────────────────────────────────────────────
-enum _VideoSource { asset, network }
+// ─── DATA MODELS ─────────────────────────────────────────────────────────────
 
-class _ClimateVideoSection extends StatefulWidget {
-  const _ClimateVideoSection();
+class SustainabilityActivity {
+  final String title;
+  final String description;
+  final String imagePath;
 
-  @override
-  State<_ClimateVideoSection> createState() => _ClimateVideoSectionState();
+  const SustainabilityActivity({
+    required this.title,
+    required this.description,
+    required this.imagePath,
+  });
 }
 
-class _ClimateVideoSectionState extends State<_ClimateVideoSection> {
-  static const _videoSource = _VideoSource.network;
-  static const _videoUrl    = 'https://royalcontinentalhotels.com/Untitled-design.mp4';
+class VideoItem {
+  final String title;
+  final String thumbnailPath;
+  final String videoUrl;
 
-  VideoPlayerController? _vpc;
-  ChewieController?      _cc;
-  bool _ready = false;
-  bool _error = false;
+  const VideoItem({
+    required this.title,
+    required this.thumbnailPath,
+    required this.videoUrl,
+  });
+}
 
-  @override
-  void initState() {
-    super.initState();
-    _init();
-  }
+// ─── ACTIVITIES DATA ─────────────────────────────────────────────────────────
 
-  Future<void> _init() async {
-    try {
-      _vpc = _videoSource == _VideoSource.asset
-          ? VideoPlayerController.asset(_videoUrl)
-          : VideoPlayerController.networkUrl(Uri.parse(_videoUrl));
+const List<SustainabilityActivity> _sustainabilityActivities = [
+  SustainabilityActivity(
+    title: 'Stella Di Mare Dubai Marina Hotel\nDubai',
+    description:
+        'In our commitment to sustainable transportation, Stella Di Mare Hotels has installed state-of-the-art Electric Vehicle Charging Stations at our Dubai properties. This initiative encourages guests to choose eco-friendly transportation options while enjoying convenient charging facilities during their stay. Our EV charging stations are equipped with fast-charging technology and are compatible with all major electric vehicle models. By providing this green infrastructure, we aim to reduce carbon emissions and promote clean energy adoption among our guests and staff.',
+    imagePath: 'assets/images/sustain2.png',
+  ),
+  SustainabilityActivity(
+    title: 'Stella Di Mare Beach Hotel & Spa\nSharm El Sheikh',
+    description:
+        'On World Food Safety Day 2023, Stella Di Mare Hotels organized comprehensive workshops and awareness campaigns highlighting the importance of food safety and hygiene. Our culinary teams demonstrated best practices in food handling, storage, and preparation. We also conducted interactive sessions with guests about sustainable food choices and reducing food waste. This initiative aligns with our commitment to providing safe, healthy, and sustainable dining experiences while raising awareness about global food safety standards.',
+    imagePath: 'assets/images/spa_sport.png',
+  ),
+  SustainabilityActivity(
+    title: 'Stella Di Mare Dubai Marina\nISO Certificates',
+    description:
+        'Stella Di Mare Hotels has transitioned to renewable energy sources across our properties. Solar panels have been installed on rooftops, significantly reducing our carbon footprint. This green energy initiative powers our daily operations, from lighting to HVAC systems, demonstrating our commitment to combating climate change. Guests can learn about our solar energy production through interactive displays in hotel lobbies.',
+    imagePath: 'assets/images/sustain9.png',
+  ),
+  SustainabilityActivity(
+    title: 'Stella Di Mare Dubai Marina\nDubai Sustainable Tourism Stamp 2024',
+    description:
+        'Stella Di Mare Hotels has transitioned to renewable energy sources across our properties. Solar panels have been installed on rooftops, significantly reducing our carbon footprint. This green energy initiative powers our daily operations, from lighting to HVAC systems, demonstrating our commitment to combating climate change. Guests can learn about our solar energy production through interactive displays in hotel lobbies.',
+    imagePath: 'assets/images/sustain4.png',
+  ),
+];
 
-      await _vpc!.initialize();
+// ─── VIDEOS DATA ─────────────────────────────────────────────────────────────
 
-      _cc = ChewieController(
-        videoPlayerController: _vpc!,
-        autoPlay: false,
-        looping: false,
-        aspectRatio: 16 / 9,
-        materialProgressColors: ChewieProgressColors(
-          playedColor:    AppColors.lightGreen,
-          handleColor:    AppColors.accentGreen,
-          bufferedColor:  AppColors.paleGreen,
-          backgroundColor: AppColors.darkGreen.withOpacity(0.3),
-        ),
-        placeholder: Container(
-          color: AppColors.darkGreen,
-          child: const Center(
-            child: CircularProgressIndicator(color: AppColors.lightGreen),
-          ),
-        ),
-      );
+const List<VideoItem> _videos = [
+  VideoItem(
+    title: 'Electric Vehicle Charging Station - Dubai',
+    thumbnailPath: 'assets/images/ev_charging_thumb.jpg',
+    videoUrl:
+        'https://stelladimare.com/wp-content/uploads/2023/08/Electric_Car_Charging_Station_Stella_Di_Mare_Dubai_L.mp4',
+  ),
+  VideoItem(
+    title: 'World Food Safety Day 2023',
+    thumbnailPath: 'assets/images/food_safety_thumb.jpg',
+    videoUrl:
+        'https://stelladimare.com/wp-content/uploads/2023/06/Food_Safty_Day_Dubai.mp4',
+  ),
+];
 
-      if (mounted) setState(() => _ready = true);
-    } catch (e) {
-      debugPrint('Error initializing video: $e');
-      if (mounted) setState(() { _error = true; });
-    }
-  }
+// ─── SUSTAINABILITY BLOCK WIDGET ─────────────────────────────────────────────
 
-  @override
-  void dispose() {
-    _cc?.dispose();
-    _vpc?.dispose();
-    super.dispose();
-  }
+class _SustainabilityBlock extends StatelessWidget {
+  final SustainabilityActivity activity;
+  final bool showDivider;
+
+  const _SustainabilityBlock({
+    required this.activity,
+    required this.showDivider,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: _ready && !_error
-              ? Chewie(controller: _cc!)
-              : const _Placeholder(showError: false),
+        const SizedBox(height: 24),
+
+        // ── Full-width image, flush edge to edge
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 22),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: SizedBox(
+              width: double.infinity,
+              height: 230,
+              child: Image.asset(
+                activity.imagePath,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: const Color(0xFFEEE8DE),
+                  child: const Icon(
+                    Icons.image_not_supported_outlined,
+                    size: 48,
+                    color: Color(0xFFBBB0A0),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
+
+        // ── Text body
+        Padding(
+          padding: const EdgeInsets.fromLTRB(22, 20, 22, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Italic serif title
+              Text(
+                activity.title,
+                style: const TextStyle(
+                  fontFamily: 'Georgia',
+                  fontStyle: FontStyle.italic,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF1A1A1A),
+                  height: 1.2,
+                  letterSpacing: -0.3,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                activity.description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF333333),
+                  height: 1.75,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // ── Warm divider line between sections
+        if (showDivider)
+          Container(
+            margin: const EdgeInsets.fromLTRB(22, 14, 22, 0),
+            height: 1,
+            color: const Color(0xFFE8E0D4),
+          ),
       ],
     );
   }
 }
 
-class _Placeholder extends StatelessWidget {
-  final bool showError;
-  const _Placeholder({required this.showError});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0D3B0D), Color(0xFF1B5E20), Color(0xFF2E7D32)],
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -30, top: -30,
-            child: Container(
-              width: 200, height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.lightGreen.withOpacity(0.08),
-              ),
-            ),
-          ),
-          Positioned(
-            left: -20, bottom: -20,
-            child: Container(
-              width: 140, height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.accentGreen.withOpacity(0.1),
-              ),
-            ),
-          ),
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 64, height: 64,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.white.withOpacity(0.15),
-                    border: Border.all(
-                      color: AppColors.white.withOpacity(0.4), width: 2,
-                    ),
-                  ),
-                  child: Icon(
-                    showError ? Icons.videocam_off : Icons.play_arrow,
-                    color: AppColors.white, size: 34,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  showError
-                      ? 'Unable to load video'
-                      : 'Loading video…',
-                  style: TextStyle(
-                    color: AppColors.white.withOpacity(0.6),
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Policy Section ───────────────────────────────────────────────────────────
-class _PolicySection extends StatelessWidget {
-  const _PolicySection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(width: 40, height: 2, color: AppColors.lightGreen.withOpacity(0.5)),
-              const SizedBox(width: 10),
-              const Icon(Icons.eco, color: AppColors.mediumGreen, size: 20),
-              const SizedBox(width: 10),
-              Container(width: 40, height: 2, color: AppColors.lightGreen.withOpacity(0.5)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Sustainability Management Policy',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.darkGreen,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              height: 1.3,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Royal Continental Hotels strive to be a sustainable organization, sustaining the natural environment on which our business operations depend, and considering long-term environmental and social impacts of all the projects and operations for which we are responsible.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black, fontSize: 13, height: 1.7),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'To achieve this vision, Royal Continental Hotels will implement a sustainability strategy to demonstrate a positive economic, environmental and social impact from all our activities as per the part of DST initiation by DTCM.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black, fontSize: 13, height: 1.7),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── 4 Pillars Section ────────────────────────────────────────────────────────
-class _PillarsSection extends StatelessWidget {
-  const _PillarsSection();
-
-  static const _pillars = [
-    _Pillar(Icons.bolt,             'Energy Saving',    Color(0xFF1B5E20),
-        'Implement a systematic energy efficiency plan and continually improve energy efficiency performance. Control energy use with BMS and BEMS systems to optimize energy use.'),
-    _Pillar(Icons.delete_outline,   'Waste Reduction',  Color(0xFF2E7D32),
-        'Implement a systematic waste management plan to minimize disposal to landfill and food waste, encourage recycling, and encourage reuse of materials.'),
-    _Pillar(Icons.water_drop_outlined,'Water Saving',   Color(0xFF388E3C),
-        'Implement a systematic water conservation plan. Strive to reduce water consumption by reusing guest towels and linens.'),
-    _Pillar(Icons.shopping_bag_outlined,'Purchasing',   Color(0xFF43A047),
-        'Implement a purchasing management plan giving preference to sustainable, local, fair trade and environmentally friendly goods. Only purchase food free from endangered or protected fish.'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.paleGreen,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-      child: Column(
-        children: _pillars.map((p) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: _PillarCard(pillar: p),
-        )).toList(),
-      ),
-    );
-  }
-}
-
-class _Pillar {
-  final IconData icon;
-  final String title;
-  final Color color;
-  final String desc;
-  const _Pillar(this.icon, this.title, this.color, this.desc);
-}
-
-class _PillarCard extends StatelessWidget {
-  final _Pillar pillar;
-  const _PillarCard({required this.pillar});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.darkGreen.withOpacity(0.07),
-            blurRadius: 12, offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(18),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 50, height: 50,
-            decoration: BoxDecoration(
-              color: pillar.color,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(pillar.icon, color: AppColors.white, size: 26),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  pillar.title.toUpperCase(),
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(pillar.desc,
-                    style: const TextStyle(color: Colors.black, fontSize: 12.5, height: 1.6)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Certificate Carousel Section (Using PageView instead of carousel_slider) ──
+// ─── Certificate Carousel Section ──
 class _CertificateCarouselSection extends StatefulWidget {
   const _CertificateCarouselSection();
 
   @override
-  State<_CertificateCarouselSection> createState() => _CertificateCarouselSectionState();
+  State<_CertificateCarouselSection> createState() =>
+      _CertificateCarouselSectionState();
 }
 
-class _CertificateCarouselSectionState extends State<_CertificateCarouselSection> {
+class _CertificateCarouselSectionState
+    extends State<_CertificateCarouselSection> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  // Certificate image URLs
   static const List<String> _certificateImages = [
-    'https://royalcontinentalhotels.com/wp-content/uploads/2024/04/members-1-768x538.jpg',
-    'https://royalcontinentalhotels.com/wp-content/uploads/2024/04/Royal-Continental-Certificate-768x538.jpg'
+    'assets/images/sustain1.png',
+    'assets/images/sustain2.png',
+    'assets/images/sustain3.png',
+    'assets/images/sustain4.png',
+    'assets/images/sustain5.png',
+    'assets/images/sustain6.png',
+    'assets/images/sustain7.png',
+    'assets/images/sustain8.png',
   ];
 
   @override
@@ -547,19 +558,25 @@ class _CertificateCarouselSectionState extends State<_CertificateCarouselSection
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(22, 32, 22, 40),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Our Recognitions',
+            'Our Recent Activities',
             style: TextStyle(
-              color: AppColors.darkGreen,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+              fontFamily: 'Georgia',
+              fontStyle: FontStyle.italic,
+              fontSize: 28,
+              fontWeight: FontWeight.w400,
+              color: Color(0xFF1A1A1A),
+              letterSpacing: -0.3,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          Container(width: 60, height: 3, color: const Color(0xFFFFCA28)),
+          const SizedBox(height: 20),
           SizedBox(
             height: 280,
             child: Stack(
@@ -579,34 +596,26 @@ class _CertificateCarouselSectionState extends State<_CertificateCarouselSection
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.gold.withOpacity(0.2),
-                            blurRadius: 16,
-                            offset: const Offset(0, 6),
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
+                        child: Image.asset(
                           _certificateImages[index],
                           fit: BoxFit.cover,
                           width: double.infinity,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.lightGreen,
-                              ),
-                            );
-                          },
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
-                              color: AppColors.paleGreen,
+                              color: const Color(0xFFF5F2EE),
                               child: const Center(
                                 child: Icon(
                                   Icons.image_not_supported,
                                   size: 50,
-                                  color: AppColors.textLight,
+                                  color: Color(0xFFBBB0A0),
                                 ),
                               ),
                             );
@@ -626,13 +635,13 @@ class _CertificateCarouselSectionState extends State<_CertificateCarouselSection
                       _certificateImages.length,
                       (index) => Container(
                         margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: 8,
-                        height: 8,
+                        width: 6,
+                        height: 6,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: _currentPage == index
                               ? AppColors.darkGreen
-                              : AppColors.textLight.withOpacity(0.5),
+                              : const Color(0xFFD4C9B8),
                         ),
                       ),
                     ),
@@ -647,206 +656,133 @@ class _CertificateCarouselSectionState extends State<_CertificateCarouselSection
   }
 }
 
-// ─── "Who We Are" Section with Background Image ─────────────────────────────────
-class _WhoWeAreSection extends StatelessWidget {
-  const _WhoWeAreSection();
+// ─── VIDEO BLOCK WIDGET ─────────────────────────────────────────────────────
+
+class _VideoBlock extends StatefulWidget {
+  final VideoItem video;
+  final bool showDivider;
+
+  const _VideoBlock({required this.video, required this.showDivider});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 500,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(
-            'https://royalcontinentalhotels.com/wp-content/uploads/2024/04/adobestock_101323211.jpeg',
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.black.withOpacity(0.6),
-              Colors.black.withOpacity(0.3),
-              AppColors.darkGreen.withOpacity(0.7),
-            ],
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 64, height: 64,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.white.withOpacity(0.12),
-                border: Border.all(color: AppColors.white.withOpacity(0.3), width: 1.5),
-              ),
-              child: const Icon(Icons.nature, color: AppColors.white, size: 32),
-            ),
-            const SizedBox(height: 22),
-            const Text(
-              'Sustainable is not something that we do;\nit is who we are',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.white, fontSize: 22, fontWeight: FontWeight.bold, height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 18),
-            Divider(color: AppColors.white.withOpacity(0.2)),
-            const SizedBox(height: 18),
-            Text(
-              'For us, being environmentally friendly and socially responsible can be successfully wedded to uncompromisingly gorgeous hideaways. Empty of waste, toxins and plastic, and full of spirituality, celebration and joy.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.white.withOpacity(0.9), fontSize: 13.5, height: 1.7),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  State<_VideoBlock> createState() => _VideoBlockState();
 }
 
-// ─── Compliance Section ───────────────────────────────────────────────────────
-class _ComplianceSection extends StatelessWidget {
-  const _ComplianceSection();
+class _VideoBlockState extends State<_VideoBlock> {
+  late VideoPlayerController _videoController;
+  late ChewieController _chewieController;
+  bool _isVideoInitialized = false;
 
-  static const _items = [
-    'Report environment performance through the DST Carbon Calculator on a regular frequency, preferably monthly.',
-    'Comply with all Dubai Sustainable Tourism and Dubai Supreme Council of Energy regulations, guidelines and directives.',
-    'Certify staff by Dubai Tourism and establish a committee to manage sustainability initiatives.',
-    'Train employees and educate guests on sustainability initiatives.',
-    'Produce events, conferences and business meetings that minimize waste and conserve energy and water.',
-    'Implement a sustainable friendly procurement procedure with support of approved vendors.',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
+  Future<void> _initializeVideo() async {
+    _videoController = VideoPlayerController.networkUrl(
+      Uri.parse(widget.video.videoUrl),
+    );
+
+    await _videoController.initialize();
+
+    _chewieController = ChewieController(
+      videoPlayerController: _videoController,
+      autoPlay: false,
+      looping: false,
+      allowFullScreen: true,
+      allowMuting: true,
+      showControls: true,
+      materialProgressColors: ChewieProgressColors(
+        playedColor: AppColors.lightGreen,
+        handleColor: AppColors.darkGreen,
+        backgroundColor: Colors.grey.shade300,
+        bufferedColor: AppColors.accentGreen,
+      ),
+    );
+
+    if (mounted) {
+      setState(() {
+        _isVideoInitialized = true;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _videoController.dispose();
+    _chewieController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.offWhite,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 24),
+
+        // ── Text body
+        Padding(
+          padding: const EdgeInsets.fromLTRB(22, 0, 22, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 4, height: 30,
-                decoration: BoxDecoration(
-                  color: AppColors.lightGreen,
-                  borderRadius: BorderRadius.circular(2),
+              // Italic serif title
+              Text(
+                widget.video.title,
+                style: const TextStyle(
+                  fontFamily: 'Georgia',
+                  fontStyle: FontStyle.italic,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF1A1A1A),
+                  height: 1.2,
+                  letterSpacing: -0.3,
                 ),
               ),
-              const SizedBox(width: 12),
-              const Text(
-                'Compliance, Staffing\n& Training',
-                style: TextStyle(
-                  color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold, height: 1.3,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          ..._items.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 14),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+
+              const SizedBox(height: 20),
+
+              // Video Section
+              if (_isVideoInitialized)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE8E0D4)),
+                    ),
+                    child: Chewie(controller: _chewieController),
+                  ),
+                )
+              else
                 Container(
-                  margin: const EdgeInsets.only(top: 5),
-                  width: 8, height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppColors.lightGreen, shape: BoxShape.circle,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F2EE),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.lightGreen,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(item,
-                      style: const TextStyle(color: Colors.black, fontSize: 13, height: 1.6)),
-                ),
-              ],
-            ),
-          )),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Sustainability Image Section (Single Image) ─────────────────────────────
-class _SustainabilityImageSection extends StatelessWidget {
-  const _SustainabilityImageSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Image.network(
-        'https://royalcontinentalhotels.com/wp-content/uploads/2024/06/sustainibility-1920x899.jpg',
-        fit: BoxFit.cover,
-        height: 300,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return SizedBox(
-            height: 300,
-            child: Center(
-              child: CircularProgressIndicator(color: AppColors.lightGreen),
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            height: 300,
-            color: AppColors.paleGreen,
-            child: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.image_not_supported, size: 50, color: AppColors.textLight),
-                  SizedBox(height: 10),
-                  Text('Sustainability Image', style: TextStyle(color: AppColors.textMid)),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-// ─── Footer ───────────────────────────────────────────────────────────────────
-class _Footer extends StatelessWidget {
-  const _Footer();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.darkGreen,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
-      child: Column(
-        children: [
-          const Icon(Icons.eco, color: AppColors.accentGreen, size: 32),
-          const SizedBox(height: 14),
-          const Text('Royal Continental Hotels Dubai',
-              style: TextStyle(color: AppColors.white, fontSize: 15, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 6),
-          Text('Committed to a Sustainable Future',
-              style: TextStyle(color: AppColors.white.withOpacity(0.65), fontSize: 12, letterSpacing: 0.5)),
-          const SizedBox(height: 20),
-          Divider(color: AppColors.white.withOpacity(0.15)),
-          const SizedBox(height: 12),
-          Text(
-            '© 2024 Royal Continental Hotels Dubai.\nAll rights reserved.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.white.withOpacity(0.4), fontSize: 11, height: 1.6),
+            ],
           ),
-        ],
-      ),
+        ),
+
+        // ── Warm divider line between sections
+        if (widget.showDivider)
+          Container(
+            margin: const EdgeInsets.fromLTRB(22, 14, 22, 0),
+            height: 1,
+            color: const Color(0xFFE8E0D4),
+          ),
+
+        if (!widget.showDivider) const SizedBox(height: 40),
+      ],
     );
   }
 }

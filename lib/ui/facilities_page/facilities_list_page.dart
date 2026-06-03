@@ -62,7 +62,7 @@ class FacilitiesListPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "Royal Continental Hotel",
+                  "Stella Di Mare Hotel",
                   style: TextStyle(
                     color: Colors.grey[700],
                     fontWeight: FontWeight.w400,
@@ -113,7 +113,7 @@ class FacilitiesListPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'of Royal Continental Hotel',
+                          'of Stella Di Mare Hotel',
                           style: TextStyle(
                             color: AppColor.primary,
                             fontSize: 20,
@@ -175,9 +175,9 @@ class FacilitiesListPage extends StatelessWidget {
                         child: GestureDetector(
                           onTap: learnmoreLabel.isNotEmpty
                               ? () => Get.to(
-                                    () => FacilityDetailPage(facility: facility),
-                                    transition: Transition.rightToLeft,
-                                  )
+                                  () => FacilityDetailPage(facility: facility),
+                                  transition: Transition.rightToLeft,
+                                )
                               : null,
                           child: SizedBox(
                             height: 160, // ← fixed card height
@@ -216,30 +216,38 @@ class FacilitiesListPage extends StatelessWidget {
                                                             .withOpacity(0.1),
                                                         child: const Center(
                                                           child: Icon(
-                                                            Icons.image_outlined,
+                                                            Icons
+                                                                .image_outlined,
                                                             size: 40,
                                                             color: Colors.grey,
                                                           ),
                                                         ),
                                                       ),
                                                   loadingBuilder:
-                                                      (context, child, progress) {
-                                                    if (progress == null) return child;
-                                                    return Container(
-                                                      color: AppColor.primary
-                                                          .withOpacity(0.1),
-                                                      child: const Center(
-                                                        child: SizedBox(
-                                                          width: 24,
-                                                          height: 24,
-                                                          child:
-                                                              CircularProgressIndicator(
-                                                            strokeWidth: 2,
+                                                      (
+                                                        context,
+                                                        child,
+                                                        progress,
+                                                      ) {
+                                                        if (progress == null)
+                                                          return child;
+                                                        return Container(
+                                                          color: AppColor
+                                                              .primary
+                                                              .withOpacity(0.1),
+                                                          child: const Center(
+                                                            child: SizedBox(
+                                                              width: 24,
+                                                              height: 24,
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                    strokeWidth:
+                                                                        2,
+                                                                  ),
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
+                                                        );
+                                                      },
                                                 )
                                               : Container(
                                                   color: AppColor.primary
@@ -261,7 +269,9 @@ class FacilitiesListPage extends StatelessWidget {
                                                   begin: Alignment.centerLeft,
                                                   end: Alignment.centerRight,
                                                   colors: [
-                                                    Colors.black.withOpacity(0.3),
+                                                    Colors.black.withOpacity(
+                                                      0.3,
+                                                    ),
                                                     Colors.transparent,
                                                   ],
                                                 ),
@@ -279,8 +289,8 @@ class FacilitiesListPage extends StatelessWidget {
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween, // ← distribute content evenly
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .spaceBetween, // ← distribute content evenly
                                           children: [
                                             Column(
                                               crossAxisAlignment:
@@ -296,7 +306,8 @@ class FacilitiesListPage extends StatelessWidget {
                                                     height: 1.3,
                                                   ),
                                                   maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                                 const SizedBox(height: 6),
                                                 // Description
@@ -308,7 +319,8 @@ class FacilitiesListPage extends StatelessWidget {
                                                     height: 1.4,
                                                   ),
                                                   maxLines: 3,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ],
                                             ),
@@ -316,7 +328,8 @@ class FacilitiesListPage extends StatelessWidget {
                                             // CTA Button
                                             if (learnmoreLabel.isNotEmpty)
                                               Align(
-                                                alignment: Alignment.centerRight,
+                                                alignment:
+                                                    Alignment.centerRight,
                                                 child: ClipRRect(
                                                   borderRadius:
                                                       BorderRadius.circular(30),
@@ -328,16 +341,19 @@ class FacilitiesListPage extends StatelessWidget {
                                                     child: Container(
                                                       padding:
                                                           const EdgeInsets.symmetric(
-                                                        horizontal: 16,
-                                                        vertical: 8,
-                                                      ),
+                                                            horizontal: 16,
+                                                            vertical: 8,
+                                                          ),
                                                       decoration: BoxDecoration(
                                                         color: Colors.white
                                                             .withOpacity(0.7),
                                                         borderRadius:
-                                                            BorderRadius.circular(30),
+                                                            BorderRadius.circular(
+                                                              30,
+                                                            ),
                                                         border: Border.all(
-                                                          color: AppColor.secondary
+                                                          color: AppColor
+                                                              .secondary
                                                               .withOpacity(0.6),
                                                           width: 1.5,
                                                         ),
@@ -345,10 +361,15 @@ class FacilitiesListPage extends StatelessWidget {
                                                           BoxShadow(
                                                             color: AppColor
                                                                 .secondary
-                                                                .withOpacity(0.15),
+                                                                .withOpacity(
+                                                                  0.15,
+                                                                ),
                                                             blurRadius: 12,
                                                             offset:
-                                                                const Offset(0, 4),
+                                                                const Offset(
+                                                                  0,
+                                                                  4,
+                                                                ),
                                                           ),
                                                         ],
                                                       ),
@@ -359,19 +380,25 @@ class FacilitiesListPage extends StatelessWidget {
                                                           Text(
                                                             'View Details',
                                                             style: TextStyle(
-                                                              color:
-                                                                  AppColor.secondary,
+                                                              color: AppColor
+                                                                  .secondary,
                                                               fontSize: 11,
                                                               fontWeight:
-                                                                  FontWeight.w600,
-                                                              letterSpacing: 0.5,
+                                                                  FontWeight
+                                                                      .w600,
+                                                              letterSpacing:
+                                                                  0.5,
                                                             ),
                                                           ),
-                                                          const SizedBox(width: 6),
+                                                          const SizedBox(
+                                                            width: 6,
+                                                          ),
                                                           Icon(
-                                                            Icons.arrow_forward_ios,
+                                                            Icons
+                                                                .arrow_forward_ios,
                                                             size: 10,
-                                                            color: AppColor.secondary,
+                                                            color: AppColor
+                                                                .secondary,
                                                           ),
                                                         ],
                                                       ),

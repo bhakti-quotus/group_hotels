@@ -1,22 +1,22 @@
 {
-  "id": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
-  "code": "BQQYBF",
-  "name": "Royal Continental Hotels & Suits",
-  "slug": "royal-continental-hotel                                    ",
+  "id": "b2e4d600-824d-429e-a58f-6224b1aa3677",
+  "code": "BI1VK3",
+  "name": "Stella Di Mare Hotels & Resorts",
+  "slug": "stella-di-mare-hotels-&-resorts",
   "type": "GROUP",
-  "apkName": "Royal Continental Hotels & Suits",
+  "apkName": "Stella Di Mare Hotels & Resorts",
   "parentGroupId": null,
   "createdAt": "2025-12-24T09:24:10.259Z",
   "updatedAt": "2025-12-24T09:24:10.259Z",
   "childHotels": [
     {
-      "id": "199bca6e-548d-4f7e-b5d2-a5c674bd7c3e",
-      "code": "BQQYBF",
-      "name": "Royal Continental Hotel",
-      "slug": "royal-continental-hotel                                    ",
+      "id": "339537df-19dc-4b0d-b46c-d0ebc59c8e60",
+      "code": "BI1VK3",
+      "name": "Stella Di Mare Grand hotel",
+      "slug": "stella-di-mare-grand-hotel",
       "type": "STANDALONE",
-      "apkName": "Royal Continental Hotel",
-      "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+      "apkName": "Stella Di Mare Grand hotel",
+      "parentGroupId": "b2e4d600-824d-429e-a58f-6224b1aa3677",
       "createdAt": "2025-12-24T10:28:14.699Z",
       "updatedAt": "2025-12-24T10:48:21.121Z",
       "childHotels": [],
@@ -28,12 +28,12 @@
         "createdAt": "2025-12-24T10:28:22.672Z",
         "updatedAt": "2026-01-08T06:00:26.700Z",
         "branding": {
-          "logo": "http://res.cloudinary.com/dttazo51h/image/upload/v1770792032/SwiftRooms-Images/j35tviz01xqupjojviiy.png",
-          "primaryColor": "#0D5399",
-          "secondaryColor": "#d67816",
+          "logo": "https://revchill.s3.me-central-1.amazonaws.com/Revchill-Images/96174d74-12e3-4bde-9756-afb2fd5e10db.png",
+          "primaryColor": "#0A2E5C",
+          "secondaryColor": "#AD9064",
           "backgroundColor": "#FFFFFF",
           "fontFamily": "Inter",
-          "splashImage": "http://res.cloudinary.com/dttazo51h/image/upload/v1770792032/SwiftRooms-Images/j35tviz01xqupjojviiy.png"
+          "splashImage": "https://revchill.s3.me-central-1.amazonaws.com/Revchill-Images/96174d74-12e3-4bde-9756-afb2fd5e10db.png"
         },
         "navigation": {
           "type": "bottom",
@@ -90,8 +90,8 @@
                   "label": "Book Now",
                   "route": "/rooms"
                 },
-                "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhY44_vOtS2mELTR3igjPvcXJUuMSqJapuDyJ2GXr76VQ6wOPdp5XNnfYXyxj6CSvQsQDjtFLhd5WskoN-ghF8WP1SfjuOlRXUpu70F7apjZj_vTL-hdC_J0YHCuAgZLohNaWcCYwwah5qV/s1600/Royal+Continental+Hotel+Dubai_20170325_059.JPG",
-                "title": "Welcome to Royal Continental Hotels",
+                "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjJ3tn0HY0yfv1iLu4mZN-FDKlDIxSd4roFg&s",
+                "title": "Welcome to Stella Di Mare Grand Hotel",
                 "subtitle": "Experience Luxury"
               },
               "type": "heroBanner"
@@ -135,10 +135,10 @@
             {
               "data": {
                 "images": [
-                  "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Royal-Continental-4-Star-Luxury-Business-Hotel-in-Dubai.jpg",
-                  "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/WAKE-BAKE-CAFE-2-qv7il4ov1ypzpv4mcv24agp0zp4b4uvbqxc41nlev0jpg",
-                  "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Gym-at-Royal-Continental-Hotel-2-qv7j4j2y3va1c4y62qxx92giczi0zyvw2y1vm8twfw.jpg",
-                  "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Oasis-Restaurant-restaurant-dubai-deira-2-qv7gp519kss7oeihj0hll9z5oxeq37ue1cnnxaj0hs.jpg"
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/43/66/cb371261de4fac12429fbd454adea7667dc073c55c98d7103da31bf9aa92.jpeg",
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/d7/3f/eed5e5b5d1afb1396904b21ebe38e2555df42977afe90762077839a67eb2.jpeg",
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/df/37/6f11e404139eb70cb1a0c2c2d6cd24b0e709f3b9cd70f4c85b839adcb16f.jpeg",
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/c2/75/04498b20d4fb58657f2536dbe49f11f74c7dea4936c6a387c5e2e97c0c6d.jpeg"
                 ]
               },
               "type": "galleryPreview"
@@ -156,7 +156,7 @@
                     "icon": "local_offer",
                     "label": "Promotion",
                     "route": "/promotions",
-                    "color": "#D67816"
+                    "color": "#AD9064"
                   },
                   {
                     "icon": "meeting_room",
@@ -229,13 +229,13 @@
           ]
         },
         "about": {
-          "title": "Built on Trust & Comfort",
-          "description": "Royal Continental Hotel Dubai (specifically in Deira City Centre) is a 4-star, modern property near Dubai International Airport and the Metro, known for being a clean, comfortable, and well-located choice for both business and leisure travelers. Key features include spacious rooms, a rooftop pool, a 24-hour halal restaurant, and a spa. ",
+          "title": "Let Ain Soukhna Magic Renew Your Spirit",
+          "description": "Crystal water with gentle waves of the Red Sea, deep-sea fishing, and a relaxing environment are what you need to pick some rest and revive energy. Ain Soukhna enjoys a splendid moderate atmosphere throughout the year and is not limited to a specific season. You can enjoy spending your holidays at any time of the year.\nSurrounded by premier environmental and attraction locations on the Red Sea, Stella Di Mare Grand Hotel at Ain Soukhna has its remarkable destination to unwind, stress-relieving, and enjoy the sceneries of sea and sun as well.",
           "images": [
-            "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/4-Star-Luxury-Business-Hotel-in-Dubai1.jpg",
-            "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Royal-Continental6702.jpg",
-            "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Royal-Continental7819-qv2b4gw6hobkyklsyr5bk0ngkhmw4j54iwc54v5y7k.jpg",
-            "https://royalcontinentalhotels.com/wp-content/uploads/elementor/thumbs/Royal-Continental7016-qv2b4abb5u2kpavd16axkkb8esjbmnf05zrqrxfpf4.jpg"
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCZ6OmeL7V6gZyuxoVAL7m9e7gxyh7ZERGxA&s",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSMVFGwrHMMHXn-6In7jimkekSfFxbnySLMg&s",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR86v7Zm7Kh721OOtbpmvHYXas-Y8JBb_e04Q&s",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcg4pfDQBzcMlKJxZTRRao74LwQOEF5A3PJA&s"
           ]
         },
         "policies": {
@@ -246,10 +246,10 @@
           "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
         },
         "contact": {
-          "email": "lostsanctuary@gmail.com",
+          "email": "info@stelladimare.com",
           "phone": "+918249611167",
           "mapUrl": "google.com/maps/place/Royal+Continental+Hotel/@25.2526957,55.3355213,15z/data=!4m2!3m1!1s0x0:0xef84f0bb38bb9db?sa=X&ved=1t:2428&ictx=111",
-          "address": "Book Rooms at Royal Continental Hotel Deira, Dubai",
+          "address": "Book Rooms at Stella Di Mare Grand hotel, Dubai",
           "latitude": 0,
           "longitude": 0
         },
@@ -261,7 +261,7 @@
             "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
             "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
           },
-          "copyright": "© Copyright Royal Continental Hotel Dubai"
+          "copyright": "© Copyright Stella Di Mare Hotels & Resorts, Dubai"
         },
         "extranet": {
           "url": "https://bookings.revchilltech.com/api/v1",
@@ -644,13 +644,13 @@
       }
     },
     {
-      "id": "f0795175-a1ad-495e-811a-d68661669594",
-      "code": "SGI1EW",
-      "name": "Royal Continental Hotel Suites",
-      "slug": "royal-continental-suites",
+      "id": "cc1c1c0d-bde8-4974-9c50-4c9b2d9573f2",
+      "code": "ZDJWLI",
+      "name": "Stella Di Mare Beach Hotel & Spa",
+      "slug": "stella-di-mare-beach-hotel-and-spa",
       "type": "STANDALONE",
-      "apkName": "Royal Continental Suites",
-      "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+      "apkName": "Stella Di Mare Beach Hotel & Spa",
+      "parentGroupId": "b2e4d600-824d-429e-a58f-6224b1aa3677",
       "createdAt": "2025-12-24T10:28:14.699Z",
       "updatedAt": "2025-12-24T10:48:21.121Z",
       "childHotels": [],
@@ -662,12 +662,12 @@
         "createdAt": "2025-12-24T10:28:22.672Z",
         "updatedAt": "2026-01-08T06:00:26.700Z",
         "branding": {
-          "logo": "http://res.cloudinary.com/dttazo51h/image/upload/v1770808172/SwiftRooms-Images/e4smfwvxsxgsxyslnhna.png",
-          "primaryColor": "#0D5399",
-          "secondaryColor": "#d67816",
+          "logo": "https://revchill.s3.me-central-1.amazonaws.com/Revchill-Images/96174d74-12e3-4bde-9756-afb2fd5e10db.png",
+          "primaryColor": "#0A2E5C",
+          "secondaryColor": "#AD9064",
           "backgroundColor": "#FFFFFF",
           "fontFamily": "Inter",
-          "splashImage": "http://res.cloudinary.com/dttazo51h/image/upload/v1770808172/SwiftRooms-Images/e4smfwvxsxgsxyslnhna.png"
+          "splashImage": "https://revchill.s3.me-central-1.amazonaws.com/Revchill-Images/96174d74-12e3-4bde-9756-afb2fd5e10db.png"
         },
         "navigation": {
           "type": "bottom",
@@ -756,8 +756,8 @@
                   "label": "Book Now",
                   "route": "/rooms"
                 },
-                "image": "https://img.easemytrip.com/EMTHOTEL-1838502/23/na/l/15917985_18.jpg",
-                "title": "Royal Continental Hotel Suites",
+                "image": "https://images.holidaygems.co.uk/Hotels/superid/246349/Stella%20Di%20Mare%20Resort%20_%20Spa%201_%20Sharm%20El%20Sheikh_%2028.05.2024.jpg",
+                "title": "Welcome to Stella Di Mare Hotels & Spa",
                 "subtitle": "Experience Luxury"
               },
               "type": "heroBanner"
@@ -801,10 +801,10 @@
             {
               "data": {
                 "images": [
-                  "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Cover-ImageRCS.jpg",
-                  "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-qv7udf2afh4ltltct4k7a3v4cni8ktojtadlvcpvsw.jpg",
-                  "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-Apartment-with-Dubai-Canal-view-.jpg",
-                  "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/swimming-pool-1-qrxkom9zz5606goir6u2jkgxxwby90mcosq5l16meg.jpg"
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/bd/f7/d28ca87c7d442318261b0c035bb266181c8451bc2b547b42db04706c587c.jpeg",
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/b9/0e/4ce7d8cd1c3957a0ec6b58d472e4438b802891fcf90326d958842f9136b4.jpeg",
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/0c/0b/62d6025ade1241c63c3d6cf12022dec845e539731f74f0b9e3dd27b5929e.jpeg",
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/b7/6a/e66ff3a4c77b43f7c8ef749dacfcdc6b2c3b98978817d17583e0f0fdc1b0.jpeg"
                 ]
               },
               "type": "galleryPreview"
@@ -822,7 +822,7 @@
                     "icon": "local_offer",
                     "label": "Promotion",
                     "route": "/promotions",
-                    "color": "#D67816"
+                    "color": "#AD9064"
                   },
                   {
                     "icon": "meeting_room",
@@ -901,8 +901,8 @@
           ]
         },
         "about": {
-          "title": "Family Hotel Apartments with Dubai Canal view",
-          "description": "Royal Continental Suites, Dubai, is an ideal starting point from which to discover the city’s dynamic energy, where modern architecture stands side-by-side with traditional souk markets. Strategically located on Business Bay, Marasi Drive Downtown, and minutes away from Dubai Mall and City Walk, the hotel apartment offers spacious rooms with stunning views of the Burj Khalifa and Business Bay Canal. Levantine cuisine dining options and a pool offering unobstructed views of the Burj Khalifa complete the experience. Royal Continental Suites in Dubai offers the perfect blend of comfort and convenience as a family hotel apartment in Business Bay, ideal for both leisure and business stays.\n\nRoyal Continental Suites provides the discerning traveler with impeccable accommodation and service in relaxed contemporary surroundings, perfectly suited to both a short city break or an extended vacation. We pride ourselves on offering a unique and technologically-advanced experience through our innovative in-room hospitality facilities.",
+          "title": "Discover a slice of Red Sea Egypt paradise you didn’t realize existed",
+          "description": "Step into the desert of the Sinai Peninsula and reveal life experience of clear enchanted water with coral reefs and golden beaches. Whether you’re planning a romantic weekend getaway, a family vacation, or even a business retreat, there’s something for everyone to enjoy at Stella Di Mare Beach Hotel & Spa Sharm El Sheikh.\nEscape to one of the premier five-star hotel & resort at Naama Bay, soak in our spectacular private beach, and indulge in exquisite restaurants of your choice. As you can enjoy a walk to town center or ask for our free shuttle bus service.\nWhile Stella Di Mare Beach Hotel & Spa Egypt is well known for its hospitality, there are many other activities available ranging from energetic programs to more leisurely quests.\nWe have the information you’ll need to discover Red Sea reefs while enjoying diving and snorkeling.",
           "images": [
             "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental8713-qv7w0wakgcyx9b3mo0dztxufhpx4btdnk3bcsvkm0g.jpg",
             "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7266-qv7w10zrej5cvcwswkf4oenqgn9yeawb8qks79dn5c.jpg",
@@ -921,7 +921,7 @@
           "email": "lostsanctuary@gmail.com",
           "phone": "+918249611167",
           "mapUrl": "https://www.google.com/maps/place/Royal+Continental+Suites/@25.1829866,55.2834542,15z/data=!4m2!3m1!1s0x0:0xe2701bd9c8898a5a?sa=X&ved=1t:2428&ictx=111",
-          "address": "Book Apartments at Royal Continental Hotel Suites in Business Bay, Dubai",
+          "address": "Book now at Stella Di Mare Hotels & Spa, Dubai",
           "latitude": 0,
           "longitude": 0
         },
@@ -933,7 +933,574 @@
             "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
             "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
           },
-          "copyright": "© Copyright Royal Continental Suites Dubai"
+          "copyright": "© Copyright Stella Di Mare Hotels & Spa, Dubai"
+        },
+        "extranet": {
+          "url": "https://bookings.revchilltech.com/api/v1",
+          "apiKey": ""
+        },
+        "facility": [
+          {
+            "id": "meeting_room",
+            "type": "meeting_room",
+            "name": "Meeting Rooms",
+            "heading": "A VENUE FOR ALL KINDS OF MEETINGS AND EVENTS IN THE HEART OF DUBAI",
+            "description": "",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/AL-MARASI-meeting-room-in-Dubai1.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "meeting_room",
+            "details": {
+              "title": "",
+              "fullDescription": "From industry conferences to business events, Royal Continental Suites provides a venue for all occasions. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our state-of-the-art meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. We will help your clients have an experience they won’t forget ever, without having to worry about making any arrangements. We offer two meeting rooms each with an impressive capacity of 24 which are very well designed and spacious state of the art meeting rooms where the interiors are refurbished and very finely furnished. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations.",
+              "wpNumber": "+971 523536563",
+              "callNumber": "+971 4 203 5000",
+              "locations": [
+                {
+                  "id": "location_1",
+                  "name": "AL MARASI",
+                  "location": "Royal Continental Suites, the Al Marasi Room is a perfect venue for meetings and training sessions for up to 24 delegates.",
+                  "sqm": "38 sqm",
+                  "description": "From industry conferences to business events, Royal Continental Suites provides a venue for all occasions. Our events team, with its unmatched diligence and an eye for detail, can accommodate every request. Our state-of-the-art meeting rooms with drop-down screens and flip charts are the ideal setting to discuss business and close crucial deals. We will help your clients have an experience they won’t forget ever, without having to worry about making any arrangements. We offer two meeting rooms each with an impressive capacity of 24 which are very well designed and spacious state of the art meeting rooms where the interiors are refurbished and very finely furnished. Our sleek interiors provide a spectacular backdrop for conferences, business meetings, delegate meetings, incentives and milestone celebrations",
+                  "wpNumber": "+971 523536563",
+                  "callNumber": "+971 4 203 5000",
+                  "photos": [
+                    "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/AL-MARASI-meeting-room-in-Dubai1.jpg",
+                    "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/AL-MARASI-meeting-room-in-Dubai.jpg"
+                  ],
+                  "facilities": [
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/wifi-signal.png",
+                      "name": "High speed WiFi"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/innovation-1.png",
+                      "name": "Fully equipped business center"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/smart-tv.png",
+                      "name": "Multi user Screen Sharing"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/stationary-1.png",
+                      "name": "Flip charts & stationary"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/water.png",
+                      "name": "Complimentary bottled water"
+                    },
+                    {
+                      "icon": "https://static.vecteezy.com/system/resources/previews/007/285/470/non_2x/cup-of-coffee-thin-black-lines-on-a-white-background-vector.jpg",
+                      "name": "Tea & Coffee making facilities"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/concierge.png",
+                      "name": "Concierge service"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/speaker.png",
+                      "name": "In-built sound system"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/parking-lot.png",
+                      "name": "Free parking for each delegate"
+                    },
+                    {
+                      "icon": "https://royalcontinentalhotels.com/wp-content/uploads/2024/04/people.png",
+                      "name": "Dedicated Events Team to service"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "lounge",
+            "type": "lounge",
+            "name": "Royal Continental Suites Lounge",
+            "heading": "Royal Continental Suites Lounge",
+            "description": "",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental7347.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "pool",
+            "details": {
+              "title": "",
+              "fullDescription": "The Royal Continental Suites hotel’s lobby lounge is a haven of comfort and luxury for guests seeking a relaxing retreat. The elegant interiors feature plush furnishings in rich hues, complemented by tasteful decor and artwork that exude sophistication.",
+              "photos": [
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental-Suites-Lounge-4.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental-Suites-Lounge-1.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-Continental-Suites-Lounge.jpg"
+              ]
+            }
+          },
+          {
+            "id": "canal-view",
+            "type": "canal-view",
+            "name": "Hotel apartment canal view",
+            "heading": "Hotel apartment canal view",
+            "description": "",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-apartment-with-dubai-canal-view-1-1.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "pool",
+            "details": {
+              "title": "Rooms with Dubai Canal View",
+              "fullDescription": "Experience the ultimate luxury living at Royal Continental Suites, where you can have an amazing Canal View with Burj Khalifa as your backdrop. Imagine waking up to the stunning sight of the iconic Dubai skyline right outside your window. Royal Continental Suites offers a stunning choice for travelers seeking a hotel apartment with a canal view. This property features elegantly designed accommodations that overlook the picturesque canal, providing guests with a serene and scenic backdrop. Each hotel apartment with a canal view at Royal Continental Suites is thoughtfully appointed to ensure maximum comfort and luxury, allowing guests to enjoy both the beauty of the water and the convenience of modern amenities. Whether you’re staying for business or leisure, the breathtaking canal views enhance the experience, making Royal Continental Suites a standout choice for those seeking a memorable stay.",
+              "photos": [
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-apartment-with-canal-view-dubai.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-apartment-with-dubai-canal-view1.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-apartment-with-dubai-canal-view-2.jpg"
+              ]
+            }
+          },
+          {
+            "id": "gym",
+            "type": "gym",
+            "name": "Royal Gym",
+            "heading": "Royal Gym",
+            "description": "",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-GYM-2-1024x683.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "pool",
+            "details": {
+              "title": "",
+              "fullDescription": "At Royal Continental Suites, guests can enjoy access to the luxurious Royal GYM services. This state-of-the-art fitness center offers top-of-the-line equipment and amenities for those looking to stay active during their stay. From cardio machines to free weights, there is something for every type of workout enthusiast.",
+              "photos": [
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-GYM-2-1024x683.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-GYM-3-1024x683.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Royal-GYM-1-1024x683.jpg"
+              ]
+            }
+          },
+          {
+            "id": "lounge",
+            "type": "lounge",
+            "name": "Babati Restaurant and Shisha Lounge",
+            "heading": "Witness The Beauty Of Waterfront Views",
+            "description": "",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7583-qv7zfsow1j7b1jwsulip2vg3fgxq46am5naxpu30xo.jpg",
+            "learnMoreLabel": "Learn More",
+            "icon": "pool",
+            "details": {
+              "title": "",
+              "fullDescription": "At Babati, our mission is to bring a unique interpretation of Lebanese cuisine to Dubai. Located in Business Bay with mesmerizing views of the Dubai Water Canal, our restaurant in Dubai is a dining destination that offers a taste of true Levantine cuisine with its characteristic blend of fresh herbs and flavorful spices. Lebanese cuisine has always found its unique place in the broader umbrella of Levantine cuisine. Our chefs have made it their mission to bring out the charm of Lebanese cuisine using modern techniques and high-quality ingredients. Acquaint your tastebuds with a plethora of flavours and textures that you have never enjoyed before!",
+              "photos": [
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Babati-Restaurant-and-Shisha-Lounge--qv8zr4jyo3l75nqxjfassaaywvd2a7knaen5tbura8.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7594-qv8zr0slwrg1v7we5doaib94jbvlff5pxw17w80bz4.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Babati-Restaurant-and-Shisha-Lounge-4-qv8zqqgdtl1wbibetr7e8vv203ak2r0o8guvm6fnvk.jpg",
+                "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Babati-Restaurant-and-Shisha-Lounge-3-qv8zqx195fawks1urc1s8c7a5se4kmqsldf9z45wo0.jpg"
+              ]
+            }
+          },
+          {
+            "id": "jaccuzi",
+            "type": "jaccuzi",
+            "name": "Jacuzzi",
+            "heading": "",
+            "description": "Come relax in our luxurious jacuzzi at Royal Continental Suites. Let the warm bubbles take you on you stay.",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-Jacuzzi-qv8a5t2uo7mewn7itgb51gqpnyc75eqb881colqpoc.jpg",
+            "learnMoreLabel": "",
+            "icon": "pool",
+            "details": {}
+          },
+          {
+            "id": "sauna",
+            "type": "sauna",
+            "name": "Sauna",
+            "heading": "",
+            "description": "Pamper yourself like royality and leave feeling refreshed and rejuvenated at our Sauna in Royal Continental Suites.",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental8784-qv7w9xiq51bum3b2qvmoj3uwu460o596u2afu4wwos.jpg",
+            "learnMoreLabel": "",
+            "icon": "pool",
+            "details": {}
+          },
+          {
+            "id": "steam_room",
+            "type": "steam_room",
+            "name": "Steam Room",
+            "heading": "",
+            "description": "Get ready to steam, sweat, and relax like royalty at our luxurious steam room in Royal Continental Suites Dubai.",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Steam-Room-qv8aa5426pk0fwwvibr7jdd89wz4n5xr5obycjbczg.jpg",
+            "learnMoreLabel": "",
+            "icon": "cloud",
+            "details": {}
+          },
+          {
+            "id": "ev_charger",
+            "type": "ev_charger",
+            "name": "Electric Vehicle Charger",
+            "heading": "",
+            "description": "Charge up and stay powered with our convenient electric vehicle charging facilities at Royal Continental Suites.",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/abandoned-electric-vehicle-charging-station-elect-2023-11-27-05-15-25-utc-qrxkon7u5z5inwjdock83hmrqhft355lbnfljh6iew.jpg",
+            "learnMoreLabel": "",
+            "icon": "bolt",
+            "details": {}
+          },
+          {
+            "id": "limousine_service",
+            "type": "limousine_service",
+            "name": "Limousine Service",
+            "heading": "",
+            "description": "Arrive in style with our exclusive limousine service, offering comfort, luxury, and convenience at Royal Continental Suites.",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Limousine-Service-qrxkon7u5z5inwjdock83hmrqhft355lbnfljh6iew.jpg",
+            "learnMoreLabel": "",
+            "icon": "directions_car",
+            "details": {}
+          }
+        ],
+        "promotion": [
+          {
+            "id": "gym-offer",
+            "name": "Gym Offer",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/06/RCS-Fitness-2_1_2.jpg",
+            "phone": "+971 56 8178372",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Gym & Pool Membership",
+              "fullDescription": "LADIES’ PACKAGE: 1 MONTH / 3 MONTH / 6 MONTH / 1 YEAR Packages & COUPLE’S PACKAGE: 1 MONTH / 3 MONTH / 6 MONTH / 1 YEAR Packages"
+            }
+          },
+          {
+            "id": "meeting-room-offer",
+            "name": "Meeting Room Offer",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2025/04/Sustainable-meeting-room-business-bay.jpg",
+            "phone": "+971 56 8178372",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Green Meeting Room Package",
+              "fullDescription": "Avail 10% Discount on coffee break menu. Experience eco-friendly meetings with our Green Meeting Room Package – sustainable, stylish, and smart for the planet!"
+            }
+          },
+          {
+            "id": "meeting-room-offer",
+            "name": "Meeting Room Offer",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/04/Corporate-meeting-space-3_4-1.jpg",
+            "phone": "+971 56 8178372",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Corporate Meeting Package",
+              "fullDescription": "The Half-Day Package includes flexible refreshment options with 1 coffee break priced at AED 80 per person or 2 coffee breaks at AED 120 per person, along with a Banquet Rental Package available at AED 1,500 per day for up to a maximum of 7 hours, making it an ideal choice for meetings, events, and small gatherings."
+            }
+          },
+          {
+            "id": "beauty-wellness-offer",
+            "name": "Beauty & Wellness Offer",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/06/4-may.jpg",
+            "phone": "+971 56 8178372",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Lili's House Beauty Salon",
+              "fullDescription": "Look good, feel good. Get 20% discount on all services at Lili’s House Beauty Salon located at Royal Continental Suites by presenting a screenshot or soft copy of this page. "
+            }
+          },
+          {
+            "id": "dining-offer",
+            "name": "Dining Offer",
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Babati-Restaurant-and-Shisha-Lounge-4-qv8zqqghh5frm44wekhd4885hydnbwn0hc483ceb0g.jpg",
+            "phone": "+971 56 8178372",
+            "buttonText": "",
+            "buttonRoute": "",
+            "details": {
+              "title": "Babati Restaurant",
+              "fullDescription": "Savor exquisite flavors at Babati Restaurant, nestled within Royal Continental Suites in Business Bay. Indulge in culinary delights that transcend taste, ambiance, and hospitality. Discover a gastronomic journey unlike any other."
+            }
+          }
+        ]
+      }
+    },
+     {
+      "id": "63a51601-5f53-44d0-a733-efa161186163",
+      "code": "FDP99J",
+      "name": "Stella Di Mare Dubai Marina Hotel",
+      "slug": "stella-di-mare-dubai-marina-hotel",
+      "type": "STANDALONE",
+      "apkName": "Stella Di Mare Dubai Marina Hotel",
+      "parentGroupId": "b2e4d600-824d-429e-a58f-6224b1aa3677",
+      "createdAt": "2025-12-24T10:28:14.699Z",
+      "updatedAt": "2025-12-24T10:48:21.121Z",
+      "childHotels": [],
+      "config": {
+        "id": "b0b56169-a1fd-47f5-bcf0-a71e1411996b",
+        "hotelId": "51d0be91-9b9a-487f-b95b-587a7cc9a458",
+        "version": "1.0.0     ",
+        "status": "DRAFT",
+        "createdAt": "2025-12-24T10:28:22.672Z",
+        "updatedAt": "2026-01-08T06:00:26.700Z",
+        "branding": {
+          "logo": "https://revchill.s3.me-central-1.amazonaws.com/Revchill-Images/96174d74-12e3-4bde-9756-afb2fd5e10db.png",
+          "primaryColor": "#0A2E5C",
+          "secondaryColor": "#AD9064",
+          "backgroundColor": "#FFFFFF",
+          "fontFamily": "Inter",
+          "splashImage": "https://revchill.s3.me-central-1.amazonaws.com/Revchill-Images/96174d74-12e3-4bde-9756-afb2fd5e10db.png"
+        },
+        "navigation": {
+          "type": "bottom",
+          "items": [
+            {
+              "id": "home",
+              "icon": "home",
+              "label": "Home",
+              "route": "/home",
+              "visible": true
+            },
+            {
+              "id": "rooms",
+              "icon": "bed",
+              "label": "Rooms",
+              "route": "/rooms",
+              "visible": true
+            },
+            {
+              "id": "my_bookings",
+              "icon": "booking",
+              "label": "My Bookings",
+              "route": "/bookingdetails",
+              "visible": true
+            },
+            {
+              "id": "about",
+              "icon": "info",
+              "label": "About",
+              "route": "/about",
+              "visible": true
+            },
+            {
+              "id": "contact",
+              "icon": "call",
+              "label": "Contact",
+              "route": "/contact",
+              "visible": true
+            },
+            {
+              "id": "offers",
+              "icon": "local_offer",
+              "label": "Offers",
+              "route": "/offers",
+              "visible": false
+            }
+          ]
+        },
+        "outlets": [
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7583-qv7zfsoyh8q6nhj9i5vfg5ps5os9z2swu18uxa72cg.jpg",
+            "title": "Babati Restaurant And Café",
+            "description": "Experience the vibrant flavors of Lebanon at Babati Restaurant And Café, located in the heart of Business Bay. Let us take you on a culinary journey with our innovative and authentic Lebanese cuisine, all while enjoying stunning views of the Dubai Water Canal."
+          },
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Rukn-Raihan-Gents-Spa-qvlb34cwrce4b9s7gk4ejb5dq2ccqhvrvcq59lrgkg.jpg",
+            "title": "Rukn Raihan Gents Spa",
+            "description": "Rejuvenate your mind, body, and soul with luxurious spa services at Rukn Raihan Gents Spa. From traditional Moroccan baths to specialized massages, Spa have everything you need for total relaxation and healing."
+          },
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Lilis-House-Beauty-Salon-qv8zi65crs3potkoww4h40o7t79lbw990dyybv31k0.jpg",
+            "title": "Lili’s House Beauty Salon",
+            "description": "Pamper yourself at Lili’s House Beauty Salon with a wide range of services including skin treatments, lash and eyebrow services, hair styling and more. Indulge in the ultimate beauty experience today."
+          },
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Bay-Mini-Mart-qv8zkznx9vyoiph8g406lb1zytd8f7g9ecfe5qwiw0.jpg",
+            "title": "Royal Bay Mini Mart",
+            "description": "Experience convenience and quality at ROYAL BAY MINI MART, your 24/7 go-to store for essential cupboard items and fresh produce. Located at Royal Continental Suites Hotel Apartments."
+          },
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Monarch-Laundry-qvlb5vzsvs6ihxrhar6uvm08owp9eevbl1vm4xnq8w.jpg",
+            "title": "Royal Monarch Laundry",
+            "description": "Experience the royal treatment for your laundry needs at Royal Monarch Laundry. From dry cleaning and ironing to carpet and leather care, we have you covered with our top-notch services."
+          },
+          {
+            "image": "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Limousine-Service-1-qrxkon7wloptfbik63m3sjhhfbev4rluhr43tblzfk.jpg",
+            "title": "Limousine Service",
+            "description": "Arrive in style with our luxurious LIMOUSINE SERVICE at Royal Continental Suites Hotel Apartments. From private airport transfers to chauffeured services, we’ve got you covered for a seamless and comfortable ride."
+          }
+        ],
+        "home": {
+          "sections": [
+            {
+              "data": {
+                "cta": {
+                  "label": "Book Now",
+                  "route": "/rooms"
+                },
+                "image": "https://imgcy.trivago.com/c_fill,d_dummy.jpeg,e_sharpen:60,f_auto,h_627,q_auto,w_1200/partner-images/7d/13/02111fe78bcb8f01cfebe55300204413038677e308d03edd072f036e3194.jpeg",
+                "title": "Welcome to Stella Di Dubai Marina Hotel",
+                "subtitle": "Experience Luxury"
+              },
+              "type": "heroBanner"
+            },
+            {
+              "data": {
+                "items": [
+                  {
+                    "icon": "wifi",
+                    "label": "Free WiFi"
+                  },
+                  {
+                    "icon": "spa",
+                    "label": "Spa"
+                  },
+                  {
+                    "icon": "boating",
+                    "label": "Boating"
+                  }
+                ]
+              },
+              "type": "highlights"
+            },
+            {
+              "data": {
+                "rooms": [
+                  {
+                    "id": "1",
+                    "name": "Delux",
+                    "image": "https://plus.unsplash.com/premium_photo-1661964402307-02267d1423f5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGhvdGVsfGVufDB8fDB8fHww"
+                  },
+                  {
+                    "id": "1766573004995",
+                    "name": "Suite",
+                    "image": "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGhvdGVsfGVufDB8fDB8fHww"
+                  }
+                ]
+              },
+              "type": "featuredRooms"
+            },
+            {
+              "data": {
+                "images": [
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/eb/8b/38f29914c6f3dae5dbfa06aa3886bd66e3775c2088ee534c995d675cbf1c.jpeg",
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/dc/be/2142056edf32f78f27130b22284bd8d05a26e52a8b7645286fd75e614e5d.jpeg",
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/52/67/b317eb68266d0baee0065241f7e42f865ae8861b397de19f21ab3d86961c.jpeg",
+                  "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/ba/db/e0f2687b6874243c249d406318ac7baf716061d68f7464f550dface23d78.jpeg"
+                ]
+              },
+              "type": "galleryPreview"
+            },
+            {
+              "data": {
+                "items": [
+                  {
+                    "icon": "facilities",
+                    "label": "Facilities",
+                    "route": "/facilities",
+                    "color": "#0D5399"
+                  },
+                  {
+                    "icon": "local_offer",
+                    "label": "Promotion",
+                    "route": "/promotions",
+                    "color": "#AD9064"
+                  },
+                  {
+                    "icon": "meeting_room",
+                    "label": "Meetings and Events",
+                    "route": "/meetings-events",
+                    "color": "#800080"
+                  },
+                  {
+                    "icon": "restaurant",
+                    "label": "Outlet",
+                    "route": "/outlet",
+                    "color": "#FF8C00"
+                  },
+                  {
+                    "icon": "tourism",
+                    "label": "Sustainable Tourism",
+                    "route": "/tourism",
+                    "color": "#228B22"
+                  }
+                ]
+              },
+              "type": "quickActions"
+            }
+          ]
+        },
+        "rooms": [
+          {
+            "id": "1766573068882",
+            "name": "Delux",
+            "images": [
+              "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzV8fGhvdGVsfGVufDB8fDB8fHww"
+            ],
+            "amenities": [],
+            "basePrice": 2000,
+            "description": "A spacious room with sea view.",
+            "maxOccupancy": 4
+          },
+          {
+            "id": "1766573134870",
+            "name": "Suite",
+            "images": [
+              "https://images.unsplash.com/photo-1498503182468-3b51cbb6cb24?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDR8fGhvdGVsfGVufDB8fDB8fHww"
+            ],
+            "amenities": [],
+            "basePrice": 8000,
+            "description": "A spacious room with sea view.",
+            "maxOccupancy": 4
+          }
+        ],
+        "amenities": [
+          {
+            "icon": "https://cdn-icons-png.flaticon.com/128/1926/1926492.png",
+            "label": "Cafe"
+          },
+          {
+            "icon": "https://cdn-icons-png.flaticon.com/128/75/75905.png",
+            "label": "Parking"
+          },
+          {
+            "icon": "https://cdn-icons-png.flaticon.com/128/5732/5732044.png",
+            "label": "Spa"
+          }
+        ],
+        "gallery": {
+          "items": [
+            {
+              "url": "https://plus.unsplash.com/premium_photo-1661274195465-817fe3d46d7d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTJ8fHNwYXxlbnwwfHwwfHx8MA%3D%3D",
+              "type": "image",
+              "caption": "Spa"
+            },
+            {
+              "url": "https://images.unsplash.com/photo-1514371879740-2e7d2068f502?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTE3fHxjYWZlfGVufDB8fDB8fHww",
+              "type": "image",
+              "caption": "Cafe"
+            }
+          ]
+        },
+        "about": {
+         "title": "Fusion of Tradition, Innovation and an International Atmosphere",
+          "description": "In case of planning a perfect business or adventure with non-stop excitation and delightful moments, doubtless, Dubai must be the first city your mind picks up. The most prestigious city in the world and a popular attraction spot for tourists, with unmatched surroundings, tallest building on our planet, charming beaches and exotic activities.\nStella Di Mare Dubai Marina Hotel’s ability & efforts to exceed service expectations ensure that every visitor to Dubai becomes a passionate loyalist. The five-star Stella Di Mare Dubai Marina is richly embellished in Art déco Interior style and is perfectly placed in heart of Dubai Marina, ideal place for your stay in Dubai.",
+         "images": [
+            "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/5f/6d/bf/hotel-overview.jpg?w=1400&h=800&s=1",
+            "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/bd/f7/d28ca87c7d442318261b0c035bb266181c8451bc2b547b42db04706c587c.jpeg",
+            "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/b4/80/7052a7c9b0acd2c0ebca80aaff04fd0f8b496486ba10a3a8dd26956f97a5.jpeg",
+            "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/b9/0e/4ce7d8cd1c3957a0ec6b58d472e4438b802891fcf90326d958842f9136b4.jpeg",
+            "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/b7/6a/e66ff3a4c77b43f7c8ef749dacfcdc6b2c3b98978817d17583e0f0fdc1b0.jpeg"
+          ]
+        },
+        "policies": {
+          "checkIn": "12:00 PM",
+          "checkOut": "10:00 AM",
+          "cancellation": "Free cancellation upto 2 days before check in . But after that 50% refund.",
+          "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
+        },
+        "contact": {
+          "email": "lostsanctuary@gmail.com",
+          "phone": "+918249611167",
+          "mapUrl": "https://www.google.com/maps/place/Royal+Continental+Suites/@25.1829866,55.2834542,15z/data=!4m2!3m1!1s0x0:0xe2701bd9c8898a5a?sa=X&ved=1t:2428&ictx=111",
+          "address": "Book now at Stella Di Mare Marina Hotel, Dubai",
+          "latitude": 0,
+          "longitude": 0
+        },
+        "footer": {
+          "links": [],
+          "social": {
+            "instagram": "https://www.instagram.com/royalcontinentaldubai/?hl=en",
+            "facebook": "https://www.facebook.com/RoyalContinentalHotels/",
+            "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
+            "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
+          },
+          "copyright": "© Copyright Stella Di Mare Hotels & Spa, Dubai"
         },
         "extranet": {
           "url": "https://bookings.revchilltech.com/api/v1",
@@ -1221,11 +1788,11 @@
     "childHotels": [
       {
         "id": "199bca6e-548d-4f7e-b5d2-a5c674bd7c3e",
-        "code": "BQQYBF",
-        "name": "Royal Continental Hotel",
-        "slug": "royal-continental-hotel",
+        "code": "BI1VK3",
+        "name": "Stella Di Mare Grand hotel",
+        "slug": "stella-di-mare-grand-hotel",
         "type": "STANDALONE",
-        "apkName": "Royal Continental Hotel",
+        "apkName": "Stella Di Mare Grand hotel",
         "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
         "createdAt": "2025-12-24T10:28:14.699Z",
         "updatedAt": "2025-12-24T10:48:21.121Z",
@@ -1233,11 +1800,23 @@
       },
       {
         "id": "f0795175-a1ad-495e-811a-d68661669594",
-        "code": "SGI1EW",
-        "name": "Royal Continental Hotel Suites",
-        "slug": "royal-continental-suites",
+        "code": "ZDJWLI",
+        "name": "Stella Di Mare Beach Hotel & Spa",
+        "slug": "stella-di-mare-beach-hotel-and-spa",
         "type": "STANDALONE",
-        "apkName": "Royal Continental Suites",
+        "apkName": "Stella Di Mare Beach Hotel & Spa",
+        "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
+        "createdAt": "2025-12-24T10:28:14.699Z",
+        "updatedAt": "2025-12-24T10:48:21.121Z",
+        "childHotels": []
+      },
+       {
+        "id": "f0795175-a1ad-495e-811a-d68661669594",
+        "code": "FDP99J",
+        "name": "Stella Di Mare Dubai Marina Hotel",
+        "slug": "stella-di-mare-dubai-marina-hotel",
+        "type": "STANDALONE",
+        "apkName": "Stella Di Mare Dubai Marina Hotel",
         "parentGroupId": "68ec299b-ef28-477b-a4c4-0fabbb1d8844",
         "createdAt": "2025-12-24T10:28:14.699Z",
         "updatedAt": "2025-12-24T10:48:21.121Z",
@@ -1245,12 +1824,12 @@
       }
     ],
     "branding": {
-      "logo": "https://royalcontinentalhotels.com/wp-content/uploads/2024/07/RCHS_3-W-550x237.png",
-      "primaryColor": "#000000",
+      "logo": "https://revchill.s3.me-central-1.amazonaws.com/Revchill-Images/96174d74-12e3-4bde-9756-afb2fd5e10db.png",
+      "primaryColor": "#0A2E5C",
       "secondaryColor": "#ad9064",
       "backgroundColor": "#FFFFFF",
       "fontFamily": "Inter",
-      "splashImage": "https://royalcontinentalhotels.com/wp-content/uploads/2024/07/RCHS_3-W-550x237.png"
+      "splashImage": "https://revchill.s3.me-central-1.amazonaws.com/Revchill-Images/96174d74-12e3-4bde-9756-afb2fd5e10db.png"
     },
     "navigation": {
       "type": "bottom",
@@ -1284,11 +1863,11 @@
           "visible": true
         },
         {
-          "id": "offers",
-          "icon": "local_offer",
-          "label": "Offers",
-          "route": "/offers",
-          "visible": false
+          "id": "actions",
+          "icon": "flash_on",
+          "label": "Actions",
+          "route": "/actions",
+          "visible": true
         }
       ]
     },
@@ -1300,8 +1879,8 @@
               "label": "Book Now",
               "route": "/hotels"
             },
-            "image": "https://royalcontinentalhotels.com/wp-content/uploads/2024/10/Cover-ImageRCS-1-copy.jpg",
-            "title": "Welcome to Royal Continental Hotels & Suits",
+            "image": "https://imgcy.trivago.com/c_fill,d_dummy.jpeg,e_sharpen:60,f_auto,h_627,q_auto,w_1200/partner-images/7d/13/02111fe78bcb8f01cfebe55300204413038677e308d03edd072f036e3194.jpeg",
+            "title": "Welcome to Stella Di Mare Hotels & Resorts",
             "subtitle": "STAY IN THE HEART OF DUBAI"
           },
           "type": "heroBanner"
@@ -1328,10 +1907,10 @@
         {
           "data": {
             "images": [
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-qv7udf2afh4ltltct4k7a3v4cni8ktojtadlvcpvsw.jpg",
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/rch-hotel-1-qrxkoma16zydc2rc8z258e7pbz4ocv74nrusaha1qw.jpg",
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Gym-qrxkom9zz5606goir6u2jkgxxwby90mcosq5l16meg.jpg",
-              "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/01/happy-family-walking-in-dubai-with-burj-khalifa-sk-2023-11-27-04-52-19-utc.jpg"
+              "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/e1/0a/6c94cb0ef8d7b26eb78deb4bb36f5d7bc0056b0423a2048afece66a35570.jpeg",
+              "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/71/55/2074b60aee1f4c192e3a87a49b37dc1aa323113dda5638c68ccb2f415199.jpeg",
+              "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/bb/d2/e0f75d5f8d98a94495ceec402368f9722ec60fd487256ede3890d8875760.jpeg",
+              "https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1020,q_auto,w_2000/partner-images/40/61/f3e76f2942c03809c0a612446ef90f7217c00226eaf18579ae8e78908ff5.jpeg"
             ]
           },
           "type": "galleryPreview"
@@ -1385,13 +1964,13 @@
       ]
     },
     "about": {
-      "title": "About Royal Continental, Dubai",
-      "description": "Set in two ideal locations, Royal Continental Hotel Deira City Center, a Dubai Airport Hotel, and Royal Continental Suites Business Bay at the strand of Dubai Canal and near Dubai Downtown, both offer business travelers and holidaymakers a stylish and welcoming haven. With a variety of rooms and suites to meet all requirements and tastes, as well as a host of business and leisure facilities, dining outlets, and amenities, Royal Continental Hotel and Suites provide the discerning traveler with impeccable accommodation and service in relaxed contemporary surroundings. Suited to both short city breaks or an extended vacation, we pride ourselves on offering a unique and technologically advanced experience through our innovative in-room hospitality facilities and tastefully appointed units. Whether you need a hotel room or a fully furnished apartment, we have it for you. Experience uncompromising yet affordable luxury and comfort at Royal Continental Hotel, the Best Luxury Business Hotel near airport, and at Royal Continental Suites, a modern and classy Deluxe Hotel Apartment right in the heart of Dubai’s business and entertainment areas.",
+      "title": "About Stella Di Mare, Dubai",
+      "description": "With a spectacular view of ocean’s celestial hues, private beaches and an incredible variety of cuisines, Stella Di Mare Hotels and Resorts are your ideal escape, with destinations that vary from Sharm El Sheikh and Ain Soukhna to the city of future, “Dubai”.\nWithin 22 years, the magical “Stella Di Mare Hotels and Resorts” booked their position as a coastal landmark, offering extraordinary services to their guests where luxury meets coziness to make one’s vacation a lifetime experience.",
       "images": [
-        "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental9194-qv7w0qnjbcr7bnbtkxy8ez9nxeox1mr9jbefx7sz1s.jpg",
-        "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental-Hotel-Apartments-Business-Bay-Dubai-qv7udf2afh4ltltct4k7a3v4cni8ktojtadlvcpvsw.jpg",
-        "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/2024/10/Hotel-Apartment-with-Dubai-Canal-view-.jpg",
-        "https://royalcontinentalhotels.com/rcs/wp-content/uploads/sites/3/elementor/thumbs/Royal-Continental7266-qv7w10zrej5cvcwswkf4oenqgn9yeawb8qks79dn5c.jpg"
+        "https://content.tui.co.uk/adamtui/2023_2/20_12/0b165e64-29a7-449a-a69f-afaf00c7183e/ACC_041629_EGY_08WebOriginalCompressed.jpg?i10c=img.resize(width:1080);img.crop(width:1080%2Cheight:608)",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTugTK_dG94tQfvVdAJ79GGWM5a5W-qwD3z8w&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8RuyantyhFMIBhRFN7t-lkgZdphG-Sqkjvw&s",
+        "https://content.skyscnr.com/available/1301565777/1301565777_WxH.jpg"
       ]
     },
     "policies": {
@@ -1401,10 +1980,10 @@
       "smokingPolicy": "Smoking only allowed in smoking area. Not in other places."
     },
     "contact": {
-      "email": "info@royalcontinentalhotels.com",
+      "email": "info@stelladimare.com",
       "phone": "+971 4 203 5000",
       "mapUrl": "https://www.google.com/maps/place/Royal+Continental+Hotel/@25.2526957,55.3355213,15z/data=!4m2!3m1!1s0x0:0xef84f0bb38bb9db?sa=X&ved=1t:2428&ictx=111",
-      "address": "P.O. Box 182166, Deira, Dubai, UAE",
+      "address": "Dubai Marina, Al Mattla’ee Street, UAE",
       "latitude": 0,
       "longitude": 0
     },
@@ -1415,7 +1994,7 @@
         "linkedin": "https://www.linkedin.com/company/royalcontinentalhoteldubai",
         "youtube": "https://www.youtube.com/@royalcontinentalhotels3892/videos"
       },
-      "copyright": "© Copyright Royal Continental Hotel Dubai"
+      "copyright": "© Copyright Stella Di Mare Dubai"
     },
     "promotion": [
       {
