@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:get/get.dart';
+import '../../controllers/auth_controller.dart';
 import '../../controllers/hotel_controller.dart';
 import '../../utils/app_routes.dart';
 
@@ -41,15 +42,24 @@ class BottomNavItemManager {
           [];
 
       final rootConfig = Get.find<HotelController>().getRootConfig();
-    final controller = Get.find<HotelController>();
+      final controller = Get.find<HotelController>();
+      final authCtrl = Get.find<AuthController>();
+      final isGroup =
+          controller.getSelectedHotel() == null &&
+          (config != null &&
+              config['childHotels'] != null &&
+              (config['childHotels'] as List?)?.isNotEmpty == true);
 
-final isGroup =
-    controller.getSelectedHotel() == null &&
-    (config != null &&
-        config['childHotels'] != null &&
-        (config['childHotels'] as List?)?.isNotEmpty == true);
+      final filteredItems = items.where((item) {
+        if (item['visible'] != true) return false;
+        final route = (item['route'] as String?)?.toLowerCase() ?? '';
+        final label = (item['label'] as String?)?.toLowerCase() ?? '';
+        if (route == '/mybookings' || route == '/groupmybookings') return false;
+        if (label == 'my bookings' || label == 'mybookings') return false;
+        return true;
+      }).toList();
 
-      final mappedItems = items.where((item) => item['visible'] == true).map((
+      final mappedItems = filteredItems.map((
         item,
       ) {
         String route = item['route'] as String? ?? '';
@@ -107,7 +117,17 @@ final isGroup =
         );
       }).toList();
 
-    
+      final hasProfile = mappedItems.any((item) => item.route == AppRoutes.profile);
+      if (!hasProfile) {
+        mappedItems.add(
+          BottomNavItem(
+            icon: Icons.person,
+            label: 'Profile',
+            route: AppRoutes.profile,
+          ),
+        );
+      }
+
       return mappedItems;
     } catch (e) {
       //print('Error loading navigation items: $e');

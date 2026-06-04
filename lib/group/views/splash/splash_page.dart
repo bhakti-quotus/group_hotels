@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'dart:convert';
 import '../../utils/app_routes.dart';
 import '../../controllers/hotel_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../common/theme/theme.dart';
 
 class SplashPage extends StatefulWidget {
@@ -27,19 +28,30 @@ class _SplashPageState extends State<SplashPage> {
       final decoded = json.decode(response);
       final groupConfig = decoded['config'] as Map<String, dynamic>? ?? {};
       Get.find<HotelController>().setConfig(decoded, isRoot: true);
-      // print('decoded config: $decoded');
       BrandingColors.loadFromConfig(groupConfig);
     } catch (e) {
+      // Keep error visible during development; avoid crashing app on bad config
+      // ignore: avoid_print
       print('Error loading config: $e');
     } finally {
       Future.delayed(const Duration(seconds: 3), () {
-        Get.offNamed(AppRoutes.groupHome);
+        final authCtrl = Get.find<AuthController>();
+        // authCtrl.authInitialized is set in AuthController._loadAuthState()
+        if (authCtrl.authInitialized.value) {
+          Get.offNamed(AppRoutes.groupHome);
+        } else {
+          // Wait for auth to initialize
+          ever(authCtrl.authInitialized, (initialized) {
+            if (initialized && mounted) {
+              Get.offNamed(AppRoutes.groupHome);
+            }
+          });
+        }
       });
+      }}
+
+    @override
+    Widget build(BuildContext context) {
+      return const SplashScreen();
     }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: SplashScreen());
-  }
-}

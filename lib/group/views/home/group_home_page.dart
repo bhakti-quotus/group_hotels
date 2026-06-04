@@ -7,6 +7,7 @@ import 'package:royalcontinent/ui/home_screen/home_screen.dart';
 import '../../common/theme/theme.dart';
 import '../../common/bottom_navitem/bottom_navitem_list.dart';
 import '../../controllers/hotel_controller.dart';
+import '../../utils/app_routes.dart';
 
 class GroupHomePage extends StatefulWidget {
   const GroupHomePage({super.key});

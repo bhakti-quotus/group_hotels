@@ -60,7 +60,6 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         onPressed: () {
           Navigator.pop(context);
           Get.toNamed(widget.nextRoute);
-          AuthController.to.login();
         },
       );
     } else {

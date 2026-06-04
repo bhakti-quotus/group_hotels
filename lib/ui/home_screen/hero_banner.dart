@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
+import 'package:royalcontinent/group/controllers/auth_controller.dart';
+import 'package:royalcontinent/group/utils/app_routes.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HeroBanner extends StatefulWidget {
@@ -335,49 +337,83 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
 
                     const SizedBox(height: 16),
 
-                    // CTA button
-                    GestureDetector(
-                      onTap: () => Get.toNamed(
-                        widget.bannerData['cta']?['route'] ?? '/',
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 11,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColor.secondary,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColor.secondary.withOpacity(0.4),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                    // CTA and login buttons
+                    Obx(() {
+                      final isLoggedIn = AuthController.to.isLoggedIn.value;
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: () => Get.toNamed(
+                              widget.bannerData['cta']?['route'] ?? '/',
                             ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.bannerData['cta']?['label'] ?? 'Book Now',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 11,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.secondary,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColor.secondary.withOpacity(0.4),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    widget.bannerData['cta']?['label'] ?? 'Book Now',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Icon(
+                                    Icons.arrow_forward_rounded,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            const Icon(
-                              Icons.arrow_forward_rounded,
-                              color: Colors.white,
-                              size: 16,
+                          ),
+                          if (!isLoggedIn) ...[
+                            const SizedBox(width: 12),
+                            ElevatedButton.icon(
+                              onPressed: () => Get.toNamed(AppRoutes.login),
+                              icon: const Icon(Icons.login_rounded, size: 18),
+                              label: const Text(
+                                'Login',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColor.primary,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 11,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                elevation: 4,
+                              ),
                             ),
                           ],
-                        ),
-                      ),
-                    ),
+                        ],
+                      );
+                    }),
                   ],
                 ),
               ),

@@ -8,6 +8,7 @@ import 'package:royalcontinent/ui/offer_page/offer_list_page.dart';
 import 'package:royalcontinent/ui/booking_page/confirm_booking_page.dart';
 import 'package:royalcontinent/ui/booking_page/modify_booking_page.dart';
 import 'package:royalcontinent/ui/booking_page/cancel_booking_page.dart';
+import 'package:royalcontinent/ui/booking_page/bookings_page.dart';
 import 'package:royalcontinent/ui/profile_screen/profile_screen.dart';
 import 'package:get/get.dart';
 import 'package:royalcontinent/ui/room_screen/room_details_screen.dart';
@@ -21,12 +22,14 @@ import 'package:royalcontinent/ui/outlet_page/outlet_page.dart';
 import 'package:royalcontinent/ui/tourism/dubai_sustainable_tourism_ui.dart';
 import '../views/splash/splash_page.dart';
 import '../views/auth/login.dart';
+import '../views/auth/forgot_password.dart';
 import '../views/language/language_page.dart';
 import '../views/home/home_page.dart';
 import '../views/home/group_home_page.dart';
 import '../views/about/group_about.dart';
 import '../views/contact/group_contact.dart';
 import '../views/hotels/hotels.dart';
+
 
 class AppRoutes {
   static const groupHome = '/grouphome';
@@ -42,6 +45,7 @@ class AppRoutes {
   static const groupAbout = '/groupabout';
   static const groupContact = '/groupcontact';
   static const groupBookingDetails = '/groupbookingdetails';
+  static const groupMyBookings = '/groupmybookings';
   static const groupHotels = '/grouphotels';
   static const hotels = '/hotels';
   static const splash = '/';
@@ -59,7 +63,9 @@ class AppRoutes {
   static const login = '/login';
   static const register = '/register';
   static const verifyEmail = '/verifyEmail';
+  static const forgotPassword = '/forgot-password';
   static const profile = '/profile';
+
 
   static const roomDetails = '/room-details';
   static const promotions = '/promotions';
@@ -80,10 +86,12 @@ class AppRoutes {
     GetPage(name: splash, page: () => const SplashPage()),
     GetPage(name: login, page: () => const LoginPage()),
     GetPage(name: register, page: () => const RegisterPage()),
+    GetPage(name: forgotPassword, page: () => const ForgotPasswordPage()),
     GetPage(
       name: verifyEmail,
       page: () => const VerifyEmailPage(email: '', nextRoute: ''),
     ),
+
     GetPage(name: language, page: () => const LanguagePage()),
     GetPage(name: home, page: () => const HomePage()),
     GetPage(name: about, page: () => const About()),
@@ -104,6 +112,7 @@ class AppRoutes {
     GetPage(name: modifyBooking, page: () => const ModifyBookingPage()),
     GetPage(name: cancelBooking, page: () => const CancelBookingPage()),
     GetPage(name: groupBookingDetails, page: () => const BookingDetailsPage()),
+    GetPage(name: groupMyBookings, page: () => const MyBookingsPage()),
     GetPage(name: groupHotels, page: () => const Hotels()),
     GetPage(
       name: promotions,

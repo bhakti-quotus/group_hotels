@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
+import 'package:royalcontinent/group/controllers/auth_controller.dart';
+import 'package:royalcontinent/group/utils/app_routes.dart';
 import 'package:royalcontinent/group/controllers/search_controller.dart' as search_ctrl;
 import 'package:royalcontinent/ui/room_screen/addons_screen.dart';
 import 'package:share_plus/share_plus.dart';
@@ -1054,9 +1056,15 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
         ),
       ),
       floatingActionButton: roomPrice.isEmpty
-          ? _buildFloatingBookButton(
-              onPressed: () {
+          ? Obx(() {
+              final isLoggedIn = AuthController.to.isLoggedIn.value;
+              final bookNow = () {
                 _removeOverlay();
+                if (!AuthController.to.ensureLoggedIn(
+                  message: 'Please log in to continue',
+                )) {
+                  return;
+                }
                 Get.to(
                   () => BookingPage(
                     room: room,
@@ -1075,8 +1083,50 @@ class _RoomDetailsScreenState extends State<RoomDetailsScreen>
                     addons: [],
                   ),
                 );
-              },
-            )
+              };
+
+              if (isLoggedIn) {
+                return _buildFloatingBookButton(onPressed: bookNow);
+              }
+
+              return Container(
+                width: MediaQuery.of(context).size.width - 48,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColor.primary.withOpacity(0.15),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Get.toNamed(AppRoutes.login),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColor.secondary,
+                          side: BorderSide(color: AppColor.secondary),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: const Text(
+                          'Login',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildFloatingBookButton(onPressed: bookNow)),
+                  ],
+                ),
+              );
+            })
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

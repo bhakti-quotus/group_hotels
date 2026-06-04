@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../services/hive_service.dart';
+import 'auth_controller.dart';
+
 
 class ApiController extends GetxController {
   final HiveService hiveService = Get.find<HiveService>();
@@ -214,6 +216,38 @@ class ApiController extends GetxController {
       return {'success': false, 'error': 'Error: $e'};
     }
   }
+
+  // ----------------------------------------------------------
+
+  Future<Map<String, dynamic>> fetchReservations() async {
+    await _ensureConfigLoaded();
+
+    try {
+      final response = await http
+          .get(
+            Uri.parse('$_baseUrl/reservations'),
+            headers: _getAuthHeaders(),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      final decoded = json.decode(response.body);
+
+      if (response.statusCode == 200 && decoded['success'] == true) {
+        return {
+          'success': true,
+          'data': decoded['data'] is List ? decoded['data'] : (decoded['data'] ?? []),
+        };
+      }
+
+      return {
+        'success': false,
+        'error': decoded['message'] ?? 'Failed to fetch reservations',
+      };
+    } catch (e) {
+      return {'success': false, 'error': 'Error: $e'};
+    }
+  }
+
   // ----------------------------------------------------------
 
   Future<Map<String, dynamic>> checkInReservation(
@@ -434,8 +468,10 @@ class ApiController extends GetxController {
     await _ensureConfigLoaded();
 
     try {
-      final uri = Uri.parse('$_baseUrl/reservations/$bookingCode')
-          .replace(queryParameters: {'propertyCode': propertyCode});
+      var uri = Uri.parse('$_baseUrl/reservations/$bookingCode');
+      if (propertyCode.isNotEmpty) {
+        uri = uri.replace(queryParameters: {'propertyCode': propertyCode});
+      }
 
      // print('Fetching booking details from: $uri');
 
@@ -544,4 +580,218 @@ class ApiController extends GetxController {
       return {'success': false, 'error': 'Error: $e'};
     }
   }
+
+  // ── Auth Headers ───────────────────────────────────────────────────────────
+  Map<String, String> _getAuthHeaders() {
+    final authCtrl = Get.find<AuthController>();
+    final token = authCtrl.accessToken.value;
+    final sessionCookie = authCtrl.sessionCookie.value;
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+      if (sessionCookie.isNotEmpty) 'Cookie': sessionCookie,
+    };
+    return headers;
+  }
+
+  // ── Register Customer ──────────────────────────────────────────────────────
+  Future<Map<String, dynamic>> registerCustomer(
+    Map<String, dynamic> payload,
+  ) async {
+    await _ensureConfigLoaded();
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/customer/register'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode(payload),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      final decoded = json.decode(response.body);
+
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          decoded['success'] == true) {
+        return {
+          'success': true,
+          'data': decoded['data'],
+          'message': decoded['message'],
+        };
+      }
+
+      return {
+        'success': false,
+        'error': decoded['message'] ?? 'Failed to register',
+      };
+    } catch (e) {
+      return {'success': false, 'error': 'Error: $e'};
+    }
+  }
+
+  // ── Login Customer ─────────────────────────────────────────────────────────
+  Future<Map<String, dynamic>> loginCustomer(
+    Map<String, dynamic> payload,
+  ) async {
+    await _ensureConfigLoaded();
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/customer/login'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode(payload),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      final rawBody = response.body?.trim() ?? '';
+      Map<String, dynamic> decoded = {};
+      if (rawBody.isNotEmpty) {
+        try {
+          decoded = json.decode(rawBody) as Map<String, dynamic>;
+        } catch (_) {
+          decoded = {};
+        }
+      }
+
+      final setCookieHeader =
+          response.headers['set-cookie'] ??
+          response.headers['Set-Cookie'] ??
+          '';
+      final cookie = setCookieHeader
+          .split(';')
+          .firstWhere(
+            (value) => value.isNotEmpty,
+            orElse: () => setCookieHeader,
+          );
+
+      if (response.statusCode == 200 && decoded['success'] == true) {
+        return {
+          'success': true,
+          'data': decoded['data'],
+          'message': decoded['message'],
+          'cookie': cookie,
+        };
+      }
+
+      return {
+        'success': false,
+        'error': decoded['message'] ?? 'Failed to login',
+        'cookie': cookie,
+      };
+    } catch (e) {
+      return {'success': false, 'error': 'Error: $e'};
+    }
+  }
+
+  /// Send OTP to email for password reset.
+  Future<Map<String, dynamic>> sendOtp({required String email}) async {
+    await _ensureConfigLoaded();
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/customer/forget-password'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({'email': email}),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      final decoded = json.decode(response.body);
+
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          decoded['success'] == true) {
+        return {
+          'success': true,
+          'data': decoded['data'],
+          'message': decoded['message'],
+        };
+      }
+
+      return {
+        'success': false,
+        'error': decoded['message'] ?? 'Failed to send OTP',
+      };
+    } catch (e) {
+      return {'success': false, 'error': 'Error: $e'};
+    }
+  }
+
+  /// Verify OTP and set new password.
+  Future<Map<String, dynamic>> verifyOtp({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    await _ensureConfigLoaded();
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/customer/verify-otp'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              'email': email,
+              'otp': otp,
+              'password': newPassword,
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      final decoded = json.decode(response.body);
+
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          decoded['success'] == true) {
+        return {
+          'success': true,
+          'data': decoded['data'],
+          'message': decoded['message'],
+        };
+      }
+
+      return {
+        'success': false,
+        'error': decoded['message'] ?? 'Failed to verify OTP',
+      };
+    } catch (e) {
+      return {'success': false, 'error': 'Error: $e'};
+    }
+  }
+
+  /// Fetch authenticated user details.
+  Future<Map<String, dynamic>> fetchUserDetails() async {
+    await _ensureConfigLoaded();
+    try {
+      final candidatePaths = ['/customer/me'];
+      Map<String, dynamic>? lastError;
+
+      for (final path in candidatePaths) {
+        try {
+          final response = await http
+              .get(Uri.parse('$_baseUrl$path'), headers: _getAuthHeaders())
+              .timeout(const Duration(seconds: 15));
+
+          final decoded = json.decode(response.body);
+
+          if (response.statusCode == 200 && decoded['success'] == true) {
+            return {'success': true, 'data': decoded['data']};
+          }
+
+          lastError = {
+            'success': false,
+            'error': decoded['message'] ?? 'Failed to fetch user details',
+          };
+
+          if (response.statusCode == 404) {
+            continue;
+          }
+        } catch (e) {
+          lastError = {'success': false, 'error': 'Error: $e'};
+        }
+      }
+
+      return lastError ??
+          {'success': false, 'error': 'Failed to fetch user details'};
+    } catch (e) {
+      return {'success': false, 'error': 'Error: $e'};
+    }
+  }
 }
+

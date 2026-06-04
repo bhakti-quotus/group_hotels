@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:royalcontinent/group/utils/app_routes.dart';
-import 'package:royalcontinent/group/views/auth/verify_email.dart';
-import 'package:royalcontinent/ui/dialog/dialog.dart';
+import 'package:royalcontinent/group/utils/app_dialog.dart';
+import 'package:royalcontinent/group/utils/app_snackbar.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
 import '../../common/theme/theme.dart';
@@ -18,15 +18,17 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  bool _isLoading = false;
-  late String nextRoute;
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  String? _bannerError;
   String splashImage =
       'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800';
+
+  final AuthController _authCtrl = Get.find<AuthController>();
 
   @override
   void initState() {
     super.initState();
-    nextRoute = Get.arguments?['nextRoute'] ?? AppRoutes.groupHome;
     _loadConfig();
   }
 
@@ -47,34 +49,47 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void dispose() {
     _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) {
-      showErrorDialog(context, 'Please enter a valid email');
-      return;
-    }
+    setState(() => _bannerError = null);
 
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
+    if (!_formKey.currentState!.validate()) return;
 
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) =>
-            VerifyEmailPage(email: _emailController.text, nextRoute: nextRoute),
-      ),
+    final success = await _authCtrl.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
     );
+
+    if (success) {
+      AppSnackbar.success('Welcome back to Revchill.');
+
+      final redirectRoute = _authCtrl.redirectRoute.value;
+      final redirectArgs = _authCtrl.redirectArgs.value;
+
+      // Clear after use
+      _authCtrl.setRedirect(route: null, args: null);
+
+      if (redirectRoute != null && redirectRoute.isNotEmpty) {
+        Get.offAllNamed(AppRoutes.groupHome);
+        Get.toNamed(redirectRoute, arguments: redirectArgs);
+      } else {
+        Get.offAllNamed(AppRoutes.groupHome);
+      }
+    } else {
+      final msg = _authCtrl.error.value.isNotEmpty
+          ? _authCtrl.error.value
+          : 'Login failed. Please try again.';
+      setState(() => _bannerError = msg);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -96,12 +111,12 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         Container(
           width: double.infinity,
-          height: 400,
+          height: 320,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [AppColor.primary, AppColor.primary.withOpacity(0.8)],
+              colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
             ),
           ),
           child: Container(
@@ -119,8 +134,7 @@ class _LoginPageState extends State<LoginPage> {
           right: 16,
           child: TextButton(
             onPressed: () async {
-              await AuthController.to.logout();
-              Get.toNamed(AppRoutes.groupHome);
+              Get.offAllNamed(AppRoutes.groupHome);
             },
             style: TextButton.styleFrom(
               foregroundColor: Colors.white,
@@ -134,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         Positioned(
-          bottom: 40,
+          bottom: 50,
           left: 24,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,7 +198,15 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (_bannerError != null) ...[
+              AppDialog.errorBanner(_bannerError!),
+              const SizedBox(height: 16),
+            ],
             _buildEmailField(),
+            const SizedBox(height: 16),
+            _buildPasswordField(),
+            const SizedBox(height: 8),
+            _buildForgotPasswordLink(),
             const SizedBox(height: 20),
             _buildLoginButton(),
             const SizedBox(height: 24),
@@ -200,14 +222,19 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildEmailField() {
     return TextFormField(
       controller: _emailController,
-      style: TextStyle(color: AppColor.primary, fontSize: 15),
-      cursorColor: AppColor.primary,
+      style: TextStyle(color: AppColors.primary, fontSize: 15),
+      cursorColor: AppColors.primary,
       keyboardType: TextInputType.emailAddress,
+      onChanged: (_) {
+        if (_bannerError != null) {
+          setState(() => _bannerError = null);
+        }
+      },
       decoration: InputDecoration(
         labelText: 'Email',
         labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
         floatingLabelStyle: TextStyle(
-          color: AppColor.primary,
+          color: AppColors.primary,
           fontWeight: FontWeight.w600,
           fontSize: 14,
         ),
@@ -230,7 +257,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColor.primary, width: 1.5),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -252,38 +279,129 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Widget _buildPasswordField() {
+    return TextFormField(
+      controller: _passwordController,
+      obscureText: _obscurePassword,
+      style: TextStyle(color: AppColors.primary, fontSize: 15),
+      cursorColor: AppColors.primary,
+      onChanged: (_) {
+        if (_bannerError != null) {
+          setState(() => _bannerError = null);
+        }
+      },
+      decoration: InputDecoration(
+        labelText: 'Password',
+        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+        floatingLabelStyle: TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+        ),
+        prefixIcon: Icon(
+          Icons.lock_outline_rounded,
+          size: 20,
+          color: Colors.grey.shade600,
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscurePassword
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+            color: Colors.grey.shade600,
+            size: 20,
+          ),
+          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        ),
+        errorStyle: const TextStyle(fontSize: 12),
+      ),
+      validator: (value) {
+        if (value?.isEmpty ?? true) return 'Password is required';
+        if (value!.length < 6) return 'Password must be at least 6 characters';
+        return null;
+      },
+    );
+  }
+
+  Widget _buildForgotPasswordLink() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () => Get.toNamed(AppRoutes.forgotPassword),
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(
+          'Forgot Password?',
+          style: TextStyle(
+            color: AppColors.primary,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildLoginButton() {
     return SizedBox(
       height: 50,
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleLogin,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColor.primary,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 0,
-          shadowColor: Colors.transparent,
-        ),
-        child: _isLoading
-            ? const SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : const Text(
-                'Sign In',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
-                ),
+      child: Obx(() => ElevatedButton(
+            onPressed: _authCtrl.isLoading.value ? null : _handleLogin,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-      ),
+              elevation: 0,
+              shadowColor: Colors.transparent,
+            ),
+            child: _authCtrl.isLoading.value
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
+                  )
+                : const Text(
+                    'Sign In',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+          )),
     );
   }
 
@@ -322,7 +440,7 @@ class _LoginPageState extends State<LoginPage> {
               TextSpan(
                 text: 'Sign Up',
                 style: TextStyle(
-                  color: AppColor.primary,
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w700,
                 ),
               ),

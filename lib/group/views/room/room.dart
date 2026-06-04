@@ -4,7 +4,9 @@ import 'package:royalcontinent/ui/bottom_navbar/bottom_navbar.dart';
 import 'package:royalcontinent/ui/room_screen/room_screen.dart';
 import 'package:get/get.dart';
 import '../../common/bottom_navitem/bottom_navitem_list.dart';
+import '../../controllers/auth_controller.dart';
 import '../../controllers/hotel_controller.dart';
+import '../../utils/app_routes.dart';
 import 'package:flutter/material.dart' as material;
 
 class Room extends StatefulWidget {
@@ -23,6 +25,12 @@ class _RoomState extends State<Room> {
   void initState() {
     super.initState();
     _ensureHotelSelected();
+    if (!AuthController.to.isLoggedIn.value) {
+      Future.microtask(() => AuthController.to.ensureLoggedIn(
+            message: 'Please log in to explore rooms',
+            redirectTo: AppRoutes.rooms,
+          ));
+    }
     _loadNavItems();
   }
 

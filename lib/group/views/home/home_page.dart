@@ -62,9 +62,9 @@ class _HomePageState extends State<HomePage> {
   void _onNavTap(int index) {
     if (index != _currentIndex && index < _navItems.length) {
       final route = _navItems[index].route;
-      if (route == '/bookingdetails') {
+      if (route == AppRoutes.BookingDetails || route == AppRoutes.groupBookingDetails) {
         final propertyCode = _getPropertyCode();
-        Get.offNamed(route, arguments: {'propertyCode': propertyCode});
+        Get.offNamed(route, arguments: <String, String>{'propertyCode': propertyCode});
       } else {
         Get.offNamed(route);
       }

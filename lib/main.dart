@@ -31,11 +31,11 @@ void main() async {
     await hiveService.init();
     Get.put(hiveService, permanent: true);
 
+    Get.put(ApiController(), permanent: true);
     Get.put(AuthController());
     Get.put(HotelController());
     Get.put(search_ctrl.AppSearchController(), permanent: true);
     Get.put(ChatController(), permanent: true);
-    Get.put(ApiController(), permanent: true);
     runApp(const MyApp());
   } catch (e) {
     //print('Failed to initialize app: $e');

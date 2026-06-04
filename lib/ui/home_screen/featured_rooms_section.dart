@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
+import 'package:royalcontinent/group/controllers/auth_controller.dart';
 import 'package:royalcontinent/group/utils/app_routes.dart';
 
 class FeaturedRoomsSection extends StatelessWidget {
@@ -26,6 +27,12 @@ class FeaturedRoomsSection extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
+                if (!AuthController.to.ensureLoggedIn(
+                  message: 'Please log in to explore rooms',
+                  redirectTo: AppRoutes.rooms,
+                )) {
+                  return;
+                }
                 Get.toNamed(AppRoutes.rooms);
               },
               child: Text(
@@ -44,6 +51,12 @@ class FeaturedRoomsSection extends StatelessWidget {
         // Button tile instead of room list
         GestureDetector(
           onTap: () {
+            if (!AuthController.to.ensureLoggedIn(
+              message: 'Please log in to explore rooms',
+              redirectTo: AppRoutes.rooms,
+            )) {
+              return;
+            }
             Get.toNamed(AppRoutes.rooms);
           },
           child: Container(

@@ -75,8 +75,17 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
 
     _loadNavForDetails();
 
-    final code = widget.bookingCode ?? '';
-    final prop = widget.propertyCode ?? '';
+    String code = widget.bookingCode ?? '';
+    String prop = widget.propertyCode ?? '';
+
+    // Try to get arguments from Get.arguments if not passed directly
+    if (code.isEmpty || prop.isEmpty) {
+      final args = Get.arguments;
+      if (args is Map<String, dynamic>) {
+        code = args['bookingCode']?.toString() ?? code;
+        prop = args['propertyCode']?.toString() ?? prop;
+      }
+    }
 
     if (code.isNotEmpty && prop.isNotEmpty) {
       _searchController.text = code;
@@ -117,21 +126,54 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     _animController.reset();
 
     try {
-      final result = await _apiController.fetchBookingDetails(
-        bookingCode: code,
-        propertyCode: prop,
-      );
-      if (!mounted) return;
+      final hotelCtrl = Get.find<HotelController>();
+      final childCodes = <String>{};
 
-      if (result['success'] == true) {
+      if (prop.isNotEmpty) childCodes.add(prop);
+      final selectedChild = hotelCtrl.getSelectedHotel();
+      final selectedCode = selectedChild?['code'] as String?;
+      if (selectedCode?.isNotEmpty == true) childCodes.add(selectedCode!);
+
+      final configCode = _config['code'] as String?;
+      if (configCode?.isNotEmpty == true) childCodes.add(configCode!);
+
+      final childHotels = _config['childHotels'] as List<dynamic>?;
+      if (childHotels != null) {
+        for (var hotel in childHotels) {
+          if (hotel is Map<String, dynamic>) {
+            final codeValue = hotel['code']?.toString();
+            if (codeValue?.isNotEmpty == true) childCodes.add(codeValue!);
+          }
+        }
+      }
+
+      final codesToTry = childCodes.isEmpty ? [''] : childCodes.toList();
+      String? lastError;
+      bool found = false;
+
+      for (final codeToTry in codesToTry) {
+        final result = await _apiController.fetchBookingDetails(
+          bookingCode: code,
+          propertyCode: codeToTry,
+        );
+        if (!mounted) return;
+
+        if (result['success'] == true) {
+          setState(() {
+            _bookingData = result['data'];
+            _isLoading = false;
+          });
+          _animController.forward();
+          found = true;
+          break;
+        }
+
+        lastError = result['error']?.toString() ?? lastError;
+      }
+
+      if (!found) {
         setState(() {
-          _bookingData = result['data'];
-          _isLoading = false;
-        });
-        _animController.forward();
-      } else {
-        setState(() {
-          _errorMessage = result['error'] ?? 'No booking found for this code.';
+          _errorMessage = lastError ?? 'No booking found for this code.';
           _isLoading = false;
         });
         _animController.forward();
@@ -675,11 +717,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     final pricing = _getPricingData();
     
     // Get values from pricing or fallback to booking level
-    final totalAmount = pricing?['totalAmount'] ?? booking['amount'] ?? 0;
-    final amountBeforeTax = pricing?['amountBeforeTax'] ?? 0;
-    final taxedAmount = pricing?['taxedAmount'] ?? 0;
-    final totalAddonAmount = pricing?['totalAddonAmount'] ?? 0;
-    final totalPromotionAmount = pricing?['totalPromotionAmount'] ?? 0;
+    final totalAmount = ((pricing?['totalAmount'] ?? booking['amount'] ?? 0) as num).toDouble();
+    final amountBeforeTax = ((pricing?['amountBeforeTax'] ?? 0) as num).toDouble();
+    final taxedAmount = ((pricing?['taxedAmount'] ?? 0) as num).toDouble();
+    final totalAddonAmount = ((pricing?['totalAddonAmount'] ?? 0) as num).toDouble();
+    final totalPromotionAmount = ((pricing?['totalPromotionAmount'] ?? 0) as num).toDouble();
     final currencyCode = pricing?['currencyCode'] ?? booking['currencyCode'] ?? 'USD';
     final numberOfNights = _getNumberOfNights(booking);
     
@@ -1184,7 +1226,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               _priceRow('Subtotal', '$currencyCode ${amountBeforeTax.toStringAsFixed(2)}'),
               const SizedBox(height: 6),
               _priceRow('Taxes & Fees', '$currencyCode ${taxedAmount.toStringAsFixed(2)}'),
-              if (totalAddonAmount > 0) ...[
+              if (totalAddonAmount > 0.0) ...[
                 const SizedBox(height: 6),
                 _priceRow('Add-ons', '$currencyCode ${totalAddonAmount.toStringAsFixed(2)}'),
               ],
@@ -1254,6 +1296,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   }
 
   Widget _buildDayCharge(Map<String, dynamic> day) {
+    final totalAmt = ((day['totalAmount'] ?? 0) as num).toDouble();
+    final baseAmt = ((day['baseChargesAmount'] ?? 0) as num).toDouble();
+    final additionalAmt = ((day['additionalChargesAmount'] ?? 0) as num).toDouble();
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -1269,7 +1314,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
             children: [
               Text(_formatDate(day['date']), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
               Text(
-                '${day['currencyCode'] ?? 'USD'} ${(day['totalAmount'] ?? 0.0).toStringAsFixed(2)}',
+                '${day['currencyCode'] ?? 'USD'} ${totalAmt.toStringAsFixed(2)}',
                 style: TextStyle(fontWeight: FontWeight.w700, color: AppColor.primary, fontSize: 14),
               ),
             ],
@@ -1279,16 +1324,16 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Base Rate', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-              Text('${day['currencyCode'] ?? 'USD'} ${(day['baseChargesAmount'] ?? 0.0).toStringAsFixed(2)}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+              Text('${day['currencyCode'] ?? 'USD'} ${baseAmt.toStringAsFixed(2)}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
             ],
           ),
-          if ((day['additionalChargesAmount'] ?? 0) > 0) ...[
+          if (additionalAmt > 0) ...[
             const SizedBox(height: 2),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Additional', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-                Text('${day['currencyCode'] ?? 'USD'} ${(day['additionalChargesAmount'] ?? 0.0).toStringAsFixed(2)}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                Text('${day['currencyCode'] ?? 'USD'} ${additionalAmt.toStringAsFixed(2)}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
               ],
             ),
           ],

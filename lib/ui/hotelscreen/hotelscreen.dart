@@ -524,8 +524,10 @@ import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:royalcontinent/group/controllers/hotel_controller.dart';
+import 'package:royalcontinent/group/controllers/auth_controller.dart';
 import 'package:royalcontinent/group/utils/app_routes.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
+
 
 class HotelScreen extends StatefulWidget {
   const HotelScreen({super.key});

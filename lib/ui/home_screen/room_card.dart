@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
+import 'package:royalcontinent/group/controllers/auth_controller.dart';
 import 'package:royalcontinent/group/utils/app_routes.dart';
 
 class RoomCard extends StatelessWidget {
@@ -12,6 +13,12 @@ class RoomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        if (!AuthController.to.ensureLoggedIn(
+          message: 'Please log in to explore rooms',
+          redirectTo: AppRoutes.rooms,
+        )) {
+          return;
+        }
         Get.toNamed(AppRoutes.rooms, arguments: {'scrollToRoomId': room['id']});
       },
       child: Container(

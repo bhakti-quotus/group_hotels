@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
 import 'package:get/get.dart';
 import 'package:royalcontinent/group/controllers/hotel_controller.dart';
+import 'package:royalcontinent/group/controllers/auth_controller.dart';
 import 'package:royalcontinent/group/utils/app_routes.dart';
+
 
 class FeaturedHotelsSection extends StatefulWidget {
   final List<dynamic> hotels;
@@ -229,6 +231,7 @@ class _HotelCardState extends State<HotelCard>
         ); // ✅ ADD THIS (config = widget.hotel['config'])
         Get.toNamed(AppRoutes.home, arguments: widget.hotel);
       },
+
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,

@@ -71,3 +71,14 @@ class BrandingColors {
     _fontFamily = null;
   }
 }
+
+class AppColors {
+  static Color get primary => AppColor.primary;
+  static Color get secondary => AppColor.secondary;
+  static Color get background => const Color(0xFFF7F8FA);
+  static const textDark   = Color(0xFF1A1A2E);
+  static const textMuted  = Color(0xFF777777);
+  static const card       = Colors.white;
+  static final border     = Colors.grey.shade300;
+}
+

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:royalcontinent/group/utils/app_routes.dart';
-import 'package:royalcontinent/group/views/auth/verify_email.dart';
-import 'package:royalcontinent/ui/dialog/dialog.dart';
+import 'package:royalcontinent/group/utils/app_dialog.dart';
+import 'package:royalcontinent/group/utils/app_snackbar.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
 import '../../common/theme/theme.dart';
@@ -17,18 +17,20 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  bool _isLoading = false;
-  late String nextRoute;
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  String? _bannerError;
   String splashImage =
       'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800';
+
+  final AuthController _authCtrl = Get.find<AuthController>();
 
   @override
   void initState() {
     super.initState();
-    nextRoute = Get.arguments?['nextRoute'] ?? AppRoutes.groupHome;
     _loadConfig();
   }
 
@@ -48,37 +50,50 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _handleRegister() async {
-    if (!_formKey.currentState!.validate()) {
-      showErrorDialog(context, 'Please fill in all fields correctly');
-      return;
-    }
+    setState(() => _bannerError = null);
 
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
+    if (!_formKey.currentState!.validate()) return;
 
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) =>
-            VerifyEmailPage(email: _emailController.text, nextRoute: nextRoute),
-      ),
+    final success = await _authCtrl.register(
+      firstName: _firstNameController.text.trim(),
+      lastName: _lastNameController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
     );
+
+    if (success) {
+      final redirectRoute = _authCtrl.redirectRoute.value;
+      final redirectArgs = _authCtrl.redirectArgs.value;
+
+      // Clear after use
+      _authCtrl.setRedirect(route: null, args: null);
+
+      if (redirectRoute != null && redirectRoute.isNotEmpty) {
+        Get.offAllNamed(AppRoutes.groupHome);
+        Get.toNamed(redirectRoute, arguments: redirectArgs);
+      } else {
+        Get.offAllNamed(AppRoutes.groupHome);
+      }
+    } else {
+      final msg = _authCtrl.error.value.isNotEmpty
+          ? _authCtrl.error.value
+          : 'Registration failed. Please try again.';
+      setState(() => _bannerError = msg);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -100,12 +115,12 @@ class _RegisterPageState extends State<RegisterPage> {
       children: [
         Container(
           width: double.infinity,
-          height: 400,
+          height: 280,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [AppColor.primary, AppColor.primary.withOpacity(0.8)],
+              colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
             ),
           ),
           child: Container(
@@ -123,8 +138,7 @@ class _RegisterPageState extends State<RegisterPage> {
           right: 16,
           child: TextButton(
             onPressed: () async {
-              await AuthController.to.logout();
-              Get.toNamed(AppRoutes.groupHome);
+              Get.offAllNamed(AppRoutes.groupHome);
             },
             style: TextButton.styleFrom(
               foregroundColor: Colors.white,
@@ -188,12 +202,26 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (_bannerError != null) ...[
+              AppDialog.errorBanner(_bannerError!),
+              const SizedBox(height: 16),
+            ],
             _buildTextField(
-              controller: _nameController,
-              label: 'Full Name',
+              controller: _firstNameController,
+              label: 'First Name',
               icon: Icons.person_outline,
               validator: (value) {
-                if (value?.isEmpty ?? true) return 'Name is required';
+                if (value?.isEmpty ?? true) return 'First name is required';
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _lastNameController,
+              label: 'Last Name',
+              icon: Icons.person_outline,
+              validator: (value) {
+                if (value?.isEmpty ?? true) return 'Last name is required';
                 return null;
               },
             ),
@@ -214,18 +242,8 @@ class _RegisterPageState extends State<RegisterPage> {
               },
             ),
             const SizedBox(height: 16),
-            _buildTextField(
-              controller: _phoneController,
-              label: 'Phone Number',
-              icon: Icons.phone_outlined,
-              keyboardType: TextInputType.phone,
-              validator: (value) {
-                if (value?.isEmpty ?? true) return 'Phone is required';
-                if (value!.length < 10) return 'Enter valid phone number';
-                return null;
-              },
-            ),
-            const SizedBox(height: 20),
+            _buildPasswordField(),
+            const SizedBox(height: 24),
             _buildRegisterButton(),
             const SizedBox(height: 24),
             _buildDivider(),
@@ -246,14 +264,19 @@ class _RegisterPageState extends State<RegisterPage> {
   }) {
     return TextFormField(
       controller: controller,
-      style: TextStyle(color: AppColor.primary, fontSize: 15),
-      cursorColor: AppColor.primary,
+      style: TextStyle(color: AppColors.primary, fontSize: 15),
+      cursorColor: AppColors.primary,
       keyboardType: keyboardType,
+      onChanged: (_) {
+        if (_bannerError != null) {
+          setState(() => _bannerError = null);
+        }
+      },
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
         floatingLabelStyle: TextStyle(
-          color: AppColor.primary,
+          color: AppColors.primary,
           fontWeight: FontWeight.w600,
           fontSize: 14,
         ),
@@ -272,7 +295,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColor.primary, width: 1.5),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -288,38 +311,107 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  Widget _buildPasswordField() {
+    return TextFormField(
+      controller: _passwordController,
+      obscureText: _obscurePassword,
+      style: TextStyle(color: AppColors.primary, fontSize: 15),
+      cursorColor: AppColors.primary,
+      onChanged: (_) {
+        if (_bannerError != null) {
+          setState(() => _bannerError = null);
+        }
+      },
+      decoration: InputDecoration(
+        labelText: 'Password',
+        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+        floatingLabelStyle: TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+        ),
+        prefixIcon: Icon(
+          Icons.lock_outline_rounded,
+          size: 20,
+          color: Colors.grey.shade600,
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscurePassword
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+            color: Colors.grey.shade600,
+            size: 20,
+          ),
+          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        ),
+        errorStyle: const TextStyle(fontSize: 12),
+      ),
+      validator: (value) {
+        if (value?.isEmpty ?? true) return 'Password is required';
+        if (value!.length < 8) return 'Password must be at least 8 characters';
+        return null;
+      },
+    );
+  }
+
   Widget _buildRegisterButton() {
     return SizedBox(
       height: 50,
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleRegister,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColor.primary,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 0,
-          shadowColor: Colors.transparent,
-        ),
-        child: _isLoading
-            ? const SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : const Text(
-                'Create Account',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
-                ),
+      child: Obx(() => ElevatedButton(
+            onPressed: _authCtrl.isLoading.value ? null : _handleRegister,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-      ),
+              elevation: 0,
+              shadowColor: Colors.transparent,
+            ),
+            child: _authCtrl.isLoading.value
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
+                  )
+                : const Text(
+                    'Create Account',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+          )),
     );
   }
 
@@ -346,8 +438,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _buildLoginLink() {
     return Center(
       child: TextButton(
-        onPressed: () =>
-            Get.toNamed(AppRoutes.login, arguments: {'nextRoute': nextRoute}),
+        onPressed: () => Get.toNamed(AppRoutes.login),
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
@@ -359,7 +450,7 @@ class _RegisterPageState extends State<RegisterPage> {
               TextSpan(
                 text: 'Sign In',
                 style: TextStyle(
-                  color: AppColor.primary,
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w700,
                 ),
               ),

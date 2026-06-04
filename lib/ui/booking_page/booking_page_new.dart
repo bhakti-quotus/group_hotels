@@ -1526,24 +1526,27 @@ onPressed: () => {Get.back(), Get.back()},
       'endDate': widget.endDate,
       'propertyCode': finalPropertyCode,
       'hotelName': widget.hotelName,
+      'roomName': widget.room['roomName'] ?? widget.room['name'] ?? widget.room['roomTypeCode'] ?? '',
       'roomTypeCode':
           widget.room['invTypeCode'] ??
           widget.room['roomTypeCode'] ??
           widget.room['room_type'] ??
           '',
       'numberOfRooms': 1,
-      'finalPrice': _priceData, // ← ADDED
-      'currency':
+      'finalPrice': _priceData,
+      'currencyCode':
           widget.ratePlan['currencyCode'] ??
           _priceData?['currencyCode'] ??
           'USD',
+      'bookingUserEmail': _emailController.text.trim(),
+      'bookingUserPhone': _phoneController.text.trim(),
       'email': _emailController.text.trim(),
       'phone': _phoneController.text.trim(),
       'guests': {
         'rooms': 1,
         'adults': widget.adults,
         'children': widget.children,
-        'roomsArray': roomsArray, // ← ADDED
+        'roomsArray': roomsArray,
       },
       'guestDetails': guestDetails,
       'ratePlanCode': widget.ratePlan['ratePlanCode'],
@@ -1566,7 +1569,9 @@ onPressed: () => {Get.back(), Get.back()},
           'type': addon['postingRhythm'] ?? 'per_stay',
         };
       }).toList(),
-      'promoCode': null,
+      'promoCode': '',
+      'platforms': 'web',
+      'isLoyalityGuest': false,
     };
 
     Get.to(
