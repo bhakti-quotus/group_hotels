@@ -180,15 +180,28 @@ class ApiController extends GetxController {
      // print('=== COMPLETE BOOKING DEBUG ===');
      // print('Payload being sent: ${json.encode(payload)}');
 
+      final authHeaders = _getAuthHeaders();
+
+      // Debug auth headers (safe: does not print the full token)
+      // ignore: avoid_print
+      print('[completeBooking] token set: ${authHeaders.containsKey('Authorization') ? authHeaders['Authorization']!.startsWith('Bearer ') : false}');
+      // ignore: avoid_print
+      print('[completeBooking] cookie set: ${authHeaders.containsKey('Cookie') ? authHeaders['Cookie']!.isNotEmpty : false}');
+
       final response = await http
           .post(
             Uri.parse('$_baseUrl/reservations'),
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+              'Content-Type': 'application/json',
+              ...authHeaders,
+            },
             body: json.encode(payload),
           )
           .timeout(const Duration(seconds: 15));
 
+
       //print('Status code: ${response.statusCode}');
+
       //print('Response body: ${response.body}');
 
       final decoded = json.decode(response.body);
@@ -252,30 +265,19 @@ class ApiController extends GetxController {
 
   Future<Map<String, dynamic>> checkInReservation(
     String reservationCode,
-    Map<String, Map<String, dynamic>> guestDocument,
+    Map<String, dynamic> payload,
   ) async {
     await _ensureConfigLoaded();
 
     try {
-      // Convert the nested map to JSON
-      final payload = {'guestDocument': guestDocument};
       final requestBody = json.encode(payload);
 
-      // Print the request body being sent
-     // print('=== REQUEST ===');
-     // print(
-     //   'URL: $_pmsUrl/pms/front-office/reservations/check-in/$reservationCode',
-     // );
-     // print('Method: POST');
-     // print('Headers: {\'Content-Type\': \'application/json\'}');
-     // print('Request Body: $requestBody');
-
       final uri = Uri.parse(
-        '$_pmsUrl/pms/front-office/reservations/check-in/$reservationCode',
+        '$_baseUrl/reservations/check-in/$reservationCode',
       );
 
       final response = await http
-          .post(
+          .patch(
             uri,
             headers: {'Content-Type': 'application/json'},
             body: requestBody,
@@ -308,6 +310,41 @@ class ApiController extends GetxController {
      // print('\n=== ERROR ===');
      // print('Error: $e');
      // print('=============\n');
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> checkOutReservation(
+    String reservationCode,
+  ) async {
+    await _ensureConfigLoaded();
+
+    try {
+      final uri = Uri.parse('$_baseUrl/reservations/check-out/$reservationCode');
+
+      final response = await http
+          .patch(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 15));
+
+      final decoded = json.decode(response.body);
+
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          decoded['success'] == true) {
+        return {
+          'success': true,
+          'message': decoded['message'] ?? 'Check-out completed successfully',
+          'data': decoded['data'],
+        };
+      }
+
+      return {
+        'success': false,
+        'message': decoded['message'] ?? 'Failed to complete check-out',
+      };
+    } catch (e) {
       return {'success': false, 'message': 'Error: $e'};
     }
   }
@@ -590,10 +627,12 @@ class ApiController extends GetxController {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+      // Backend requires full cookie value including flags (e.g. can_access_payment=true)
       if (sessionCookie.isNotEmpty) 'Cookie': sessionCookie,
     };
     return headers;
   }
+
 
   // ── Register Customer ──────────────────────────────────────────────────────
   Future<Map<String, dynamic>> registerCustomer(
@@ -653,16 +692,13 @@ class ApiController extends GetxController {
         }
       }
 
-      final setCookieHeader =
-          response.headers['set-cookie'] ??
+      // Keep full cookie string (do NOT split by ';') because backend may require:
+      // customerToken=<...>; can_access_payment=true
+      // Some servers send multiple cookies in Set-Cookie; we only read the raw header here.
+      final cookie = response.headers['set-cookie'] ??
           response.headers['Set-Cookie'] ??
           '';
-      final cookie = setCookieHeader
-          .split(';')
-          .firstWhere(
-            (value) => value.isNotEmpty,
-            orElse: () => setCookieHeader,
-          );
+
 
       if (response.statusCode == 200 && decoded['success'] == true) {
         return {

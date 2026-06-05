@@ -50,8 +50,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   }
 
   void _onNavTapDetails(int index) {
-    Get.offAllNamed(AppRoutes.home);
+    // Ignore any redirected login logic by navigating straight to group home.
+    Get.offAllNamed(AppRoutes.groupHome);
   }
+
+
 
   @override
   void initState() {
@@ -300,7 +303,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
       elevation: 0,
       backgroundColor: AppColor.primary,
       leading: IconButton(
-        onPressed: () => Get.offNamed(AppRoutes.home),
+        onPressed: () => Get.offNamed(AppRoutes.groupHome),
+
         icon: const Icon(
           Icons.arrow_back_ios_new_rounded,
           color: Colors.white,

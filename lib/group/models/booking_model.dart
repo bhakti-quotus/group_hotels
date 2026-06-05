@@ -81,7 +81,7 @@ class BookingModel {
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
-    final data = json['data'];
+    final data = json['data'] as Map<String, dynamic>? ?? {};
 
     // Parse guests
     final List<Guest> guests = [];
@@ -96,6 +96,8 @@ class BookingModel {
         );
       }
     }
+
+    final priceData = data['finalPrice'] as Map<String, dynamic>? ?? {};
 
     return BookingModel(
       id: data['id'] ?? '',
@@ -119,8 +121,12 @@ class BookingModel {
       currencyCode: data['currencyCode'] ?? 'USD',
       bookingStatus: data['bookingStatus'] ?? 'confirmed',
       paymentMethod: data['paymentMethod'] ?? '',
-      numberOfNights: data['finalPrice']['numberOfNights'] ?? 1,
-      requestedRooms: data['finalPrice']['requestedRooms'] ?? 1,
+      numberOfNights: (priceData['numberOfNights'] as int?) ??
+          (data['numberOfNights'] as int?) ??
+          1,
+      requestedRooms: (priceData['requestedRooms'] as int?) ??
+          (data['requestedRooms'] as int?) ??
+          1,
       originalResponse: json,
     );
   }

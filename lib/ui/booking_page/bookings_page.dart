@@ -5,6 +5,8 @@ import 'package:royalcontinent/group/controllers/api_controller.dart';
 import 'package:royalcontinent/group/controllers/auth_controller.dart';
 import 'package:royalcontinent/group/controllers/hotel_controller.dart';
 import 'package:royalcontinent/group/common/theme/theme.dart';
+import 'package:royalcontinent/group/models/booking_model.dart';
+import 'package:royalcontinent/ui/booking_page/preCheckin_page.dart';
 import 'package:royalcontinent/group/utils/app_routes.dart';
 
 class MyBookingsPage extends StatefulWidget {
@@ -13,6 +15,11 @@ class MyBookingsPage extends StatefulWidget {
   @override
   State<MyBookingsPage> createState() => _MyBookingsPageState();
 }
+
+bool _isSameDate(DateTime a, DateTime b) {
+  return a.year == b.year && a.month == b.month && a.day == b.day;
+}
+
 
 class _MyBookingsPageState extends State<MyBookingsPage>
     with SingleTickerProviderStateMixin {
@@ -59,7 +66,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _load();
   }
 
@@ -92,40 +99,26 @@ class _MyBookingsPageState extends State<MyBookingsPage>
   }
 
   List<dynamic> get _upcomingReservations {
-    final now = DateTime.now();
     return _filteredReservations.where((r) {
       final map = r as Map<String, dynamic>;
       final status = map['bookingStatus']?.toString().toLowerCase() ?? '';
-      if (status == 'cancelled') return false;
-      if (status == 'checked_out') return false;
+      return status == 'confirmed' || status == 'modified';
+    }).toList();
+  }
 
-      final checkOutRaw = map['checkOutDate'] ?? map['reservationEndDate'];
-      if (checkOutRaw != null) {
-        try {
-          final checkOut = DateTime.parse(checkOutRaw.toString());
-          if (checkOut.isBefore(now)) return false;
-        } catch (_) {}
-      }
-      return true;
+  List<dynamic> get _checkedInReservations {
+    return _filteredReservations.where((r) {
+      final map = r as Map<String, dynamic>;
+      final status = map['bookingStatus']?.toString().toLowerCase() ?? '';
+      return status == 'checked_in' || status == 'checked in';
     }).toList();
   }
 
   List<dynamic> get _completedReservations {
-    final now = DateTime.now();
     return _filteredReservations.where((r) {
       final map = r as Map<String, dynamic>;
       final status = map['bookingStatus']?.toString().toLowerCase() ?? '';
-      if (status == 'cancelled') return false;
-      if (status == 'checked_out') return true;
-
-      final checkOutRaw = map['checkOutDate'] ?? map['reservationEndDate'];
-      if (checkOutRaw != null) {
-        try {
-          final checkOut = DateTime.parse(checkOutRaw.toString());
-          if (checkOut.isBefore(now)) return true;
-        } catch (_) {}
-      }
-      return false;
+      return status == 'checked_out' || status == 'checked out';
     }).toList();
   }
 
@@ -281,10 +274,10 @@ class _MyBookingsPageState extends State<MyBookingsPage>
             : TabBarView(
                 controller: _tabController,
                 children: [
-                  _buildList(_upcomingReservations, isUpcoming: true),
-                  _buildList(_completedReservations, isUpcoming: false),
-                  _buildList(_cancelledReservations,
-                      isUpcoming: false, isCancelled: true),
+                  _buildList(_upcomingReservations),
+                  _buildList(_checkedInReservations),
+                  _buildList(_completedReservations),
+                  _buildList(_cancelledReservations),
                 ],
               );
 
@@ -358,6 +351,13 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                           : null,
                     ),
                     _buildScrollableTab(
+                      icon: Icons.login_rounded,
+                      label: 'Checked In',
+                      count: !_isLoading && _error == null
+                          ? _checkedInReservations.length
+                          : null,
+                    ),
+                    _buildScrollableTab(
                       icon: Icons.history_rounded,
                       label: 'Completed',
                       count: !_isLoading && _error == null
@@ -422,8 +422,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  Widget _buildList(List<dynamic> items,
-      {required bool isUpcoming, bool isCancelled = false}) {
+  Widget _buildList(List<dynamic> items) {
     final bookings = items.cast<Map<String, dynamic>>().toList();
 
     if (bookings.isEmpty) {
@@ -521,6 +520,110 @@ class _ReservationCard extends StatelessWidget {
     }
   }
 
+  DateTime? _parseBookingDate(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      return DateTime.parse(raw).toLocal();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  bool _isToday(DateTime date) {
+    final now = DateTime.now();
+    return date.year == now.year && date.month == now.month && date.day == now.day;
+  }
+
+  bool _isCheckInAvailable() {
+    final status = booking['bookingStatus']?.toString().toLowerCase() ?? '';
+    final rawStart = booking['reservationStartDate']?.toString() ?? booking['checkInDate']?.toString();
+    final startDate = _parseBookingDate(rawStart);
+    return status == 'confirmed' && startDate != null && _isToday(startDate);
+  }
+
+  bool _isCheckOutAvailable() {
+    final status = booking['bookingStatus']?.toString().toLowerCase() ?? '';
+    final rawEnd = booking['reservationEndDate']?.toString() ?? booking['checkOutDate']?.toString();
+    final endDate = _parseBookingDate(rawEnd);
+    return (status == 'checked_in' || status == 'checked in') && endDate != null && _isToday(endDate);
+  }
+
+  BookingModel _toBookingModel() {
+    return BookingModel.fromJson({'data': booking});
+  }
+
+  Future<void> _handleCheckIn(BuildContext context) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PreCheckinPage(booking: _toBookingModel()),
+      ),
+    );
+
+    if (result == true && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Pre-checkin completed successfully'),
+          backgroundColor: AppColor.primary,
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleCheckOut(BuildContext context) async {
+    final bookingCode = booking['bookingCode']?.toString() ?? '';
+    if (bookingCode.isEmpty) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirm Check-out'),
+          content: const Text('Do you want to complete check-out for this reservation?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final api = Get.find<ApiController>();
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      SnackBar(
+        content: const Text('Processing check-out...'),
+        backgroundColor: AppColor.primary,
+      ),
+    );
+
+    final result = await api.checkOutReservation(bookingCode);
+
+    if (result['success'] == true) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(result['message']?.toString() ?? 'Check-out completed'),
+          backgroundColor: AppColor.primary,
+        ),
+      );
+    } else {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(result['message']?.toString() ?? 'Failed to complete check-out'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bookingCode = booking['bookingCode']?.toString() ?? '';
@@ -540,20 +643,7 @@ class _ReservationCard extends StatelessWidget {
     final end = booking['reservationEndDate']?.toString() ??
         booking['checkOutDate']?.toString();
 
-    return InkWell(
-      onTap: bookingCode.isEmpty
-          ? null
-          : () {
-              Get.toNamed(
-                AppRoutes.groupBookingDetails,
-                arguments: {
-                  'bookingCode': bookingCode,
-                  'propertyCode': propertyCode,
-                },
-              );
-            },
-      borderRadius: BorderRadius.circular(18),
-      child: Container(
+    return Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -700,9 +790,50 @@ class _ReservationCard extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _isCheckInAvailable() ? () => _handleCheckIn(context) : null,
+                    icon: const Icon(Icons.login_rounded, size: 18),
+                    label: const Text('Check-in'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.secondary,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.grey.shade300,
+                      disabledForegroundColor: Colors.white70,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _isCheckOutAvailable() ? () => _handleCheckOut(context) : null,
+                    icon: const Icon(Icons.logout_rounded, size: 18),
+                    label: const Text('Check-out'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primary,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.grey.shade300,
+                      disabledForegroundColor: Colors.white70,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
-      ),
     );
   }
 }
